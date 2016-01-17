@@ -1,7 +1,12 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE OverloadedStrings         #-}
 
-module Fancydiff.SourceHighlight where
+module Fancydiff.SourceHighlight
+    ( defaultTheme
+    , nullMatcher
+    , haskellMatcher
+    , clangMatcher
+    ) where
 
 ------------------------------------------------------------------------------------
 import qualified Data.ByteString            as BS8

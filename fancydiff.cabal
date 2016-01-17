@@ -18,11 +18,11 @@ library
   exposed-modules:     Lib.Text
                      , Fancydiff.Lib
                      , Fancydiff.AnsiFormatting
-  other-modules:       Fancydiff.Lexer
                      , Fancydiff.SourceHighlight
                      , Fancydiff.Data
-                     , Fancydiff.DiffHighlight
                      , Fancydiff.Formatting
+  other-modules:       Fancydiff.Lexer
+                     , Fancydiff.DiffHighlight
                      , Lib.Regex
                      , Lib.DList
   build-depends:       array >= 0.5.1.0

@@ -19,7 +19,7 @@ import           Git.Libgit2       (lgFactory)
 import           Control.Monad.IO.Class    (MonadIO, liftIO)
 import           Control.Monad.Trans.Control (MonadBaseControl)
 ----
-import           Fancydiff.Lib     (tryHighlight)
+import           Fancydiff.Lib     (trySourceHighlight)
 import           Fancydiff.AnsiFormatting    (ansiFormatting)
 import           Lib.Text    (safeDecode)
 -------------------------------------------------------------------
@@ -61,6 +61,6 @@ main = do
     withRepository lgFactory path $ do
         groupStdinByPred (\l -> ("diff " `B.isPrefixOf` l) || ("commit " `B.isPrefixOf` l)) $ \lines' ->
           do let diff = safeDecode $ B.concat $ concat $ map (\x -> [x, "\n"]) lines'
-             res <- tryHighlight diff
+             res <- trySourceHighlight diff
              liftIO $ T.putStr $ ansiFormatting res
              return ()

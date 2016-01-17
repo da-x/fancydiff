@@ -14,7 +14,10 @@
 {-# LANGUAGE TypeSynonymInstances      #-}
 
 module Fancydiff.Lib (
-    tryHighlight
+      trySourceHighlight
+    , getHighlighter
+    , DH.highlight
+    , F.ansiFormatting
     ) where
 
 ------------------------------------------------------------------------------------
@@ -34,14 +37,15 @@ import           Text.Regex.TDFA           ((=~))
 import           Text.Regex.TDFA.Text      ()
 ----
 import qualified Fancydiff.DiffHighlight   as DH
+import qualified Fancydiff.AnsiFormatting  as F
 import qualified Fancydiff.Formatting      as F
 import           Fancydiff.SourceHighlight
 import           Lib.DList                 (dlistConcat, dlistForM)
 import           Lib.Regex                 ((=~+))
 ------------------------------------------------------------------------------------
 
-getHighlighter' :: Text -> Text -> Either String F.FList
-getHighlighter' s | ".hs"  `T.isSuffixOf` s   = haskellMatcher
+getHighlighter :: Text -> Text -> Either String F.FList
+getHighlighter s | ".hs"  `T.isSuffixOf` s   = haskellMatcher
                   | ".c"   `T.isSuffixOf` s   = clangMatcher
                   | ".h"   `T.isSuffixOf` s   = clangMatcher
                   | ".cc"  `T.isSuffixOf` s   = clangMatcher
@@ -52,9 +56,9 @@ getHighlighter' s | ".hs"  `T.isSuffixOf` s   = haskellMatcher
                   | ".cxx" `T.isSuffixOf` s   = clangMatcher
                   | otherwise                 = nullMatcher
 
-getHighlighter :: Text -> Text -> F.FList
-getHighlighter s t =
-    case (getHighlighter' s) t of
+highlightByExtension :: Text -> Text -> F.FList
+highlightByExtension s t =
+    case getHighlighter s t of
         Left _ -> F.highlightText t
         Right ok -> ok
 
@@ -87,7 +91,7 @@ highlightSourceInDiffFile fromBlobHash toBlobHash diffMeta content  = do
 
             let highlightWholeBlob filename blob =
                     F.splitToLinesArray $
-                           (getHighlighter filename) (T.decodeUtf8 blob)
+                           (highlightByExtension filename) (T.decodeUtf8 blob)
                 fromHighlighted = highlightWholeBlob fromFilename fromB
                 toHighlighted = highlightWholeBlob toFilename toB
 
@@ -151,8 +155,8 @@ highlightSourceInDiff parsed = do
                         _ -> return def
                 _ -> return def
 
-tryHighlight :: (MonadGit o m, MonadIO m) => Text -> m F.FList
-tryHighlight diff = do
+trySourceHighlight :: (MonadGit o m, MonadIO m) => Text -> m F.FList
+trySourceHighlight diff = do
     sourceInDiffHighlighted <- highlightSourceInDiff (DH.parseDiff diff)
     let text = F.flistToText sourceInDiffHighlighted
         diffHighlighted = DH.highlight text

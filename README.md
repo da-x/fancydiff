@@ -1,6 +1,6 @@
 ## Fancydiff
 
-Fancydiff is a a diff coloring wrapper for Git that supports both intra-line diffs, and source code syntax highlighting.
+Fancydiff is a diff coloring wrapper for Git that supports both intra-line diffs, and source code syntax highlighting.
 
 <img src="doc/fancydiff-example.png">
 
