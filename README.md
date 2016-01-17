@@ -13,11 +13,11 @@ This can be built with the Haskell community's 'stack' tool. Dependencies are en
 ## Setup
 
 For it to function, you need to do either of these things:
- * Pass `--full-index` to `git diff`, `git log`, and `git show`.
- OR:
- * Pass `-c core.abbrev=40 -c color.diff=off` between `git` and its command.
- OR:
  * Configure `core.abbrev = 40`, `color.diff = off`, and `pager.diff = fancydiff | less`. Same for `log` and `show`.
+ OR:
+ * Pass `--full-index` to `git diff`, `git log`, and `git show`, and pipe it via `fancydiff`.
+ OR:
+ * Pass `-c core.abbrev=40 -c color.diff=off` between `git` and its command, and pipe it via `fancydiff`.
 
 ## Limitations
 
