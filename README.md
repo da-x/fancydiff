@@ -17,7 +17,7 @@ With `fancydiff` in `$PATH` these aliases can be used in `.gitconfig`:
 ```
 [alias]
     log-fancy = "!git -c core.abbrev=40 -c color.diff=off -c pager.log='fancydiff | less' log $@ || true"
-    show-fancy = "!git -c core.abbrev=40 -c color.diff=off -c pager.show='fancydiff | less' log $@ || true"
+    show-fancy = "!git -c core.abbrev=40 -c color.diff=off -c pager.show='fancydiff | less' show $@ || true"
 ```
 
 For it to function, you need to do either of these things:
