@@ -39,7 +39,10 @@ parseDiff text = fileGroups
                        else' parse x xs
         parse []     = []
 
-        fn = removeTrailingNewLine . (T.drop 6)
+        fn = removeTrailingNewLine . keepDevNull . (T.drop 4)
+
+        keepDevNull f@"/dev/null\n" = f
+        keepDevNull f = T.drop 2 f
 
         diff (x:xs) = case' "index "         (const DiffMainExtra) diff x xs $
                       case' "new "           (const DiffMainExtra) diff x xs $

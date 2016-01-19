@@ -31,7 +31,7 @@ library
                      , containers >= 0.5.6.2
                      , dlist >= 0.7.1.2
                      , gitlib >= 3.1.1
-                     , gitlib-libgit2 >= 3.1.1
+                     , gitlib-libgit2 == 3.1.1.1
                      , lifted-base >= 0.2.3.6
                      , monad-control >= 1.0.0.4
                      , patience >= 0.1.1

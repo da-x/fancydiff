@@ -62,11 +62,12 @@ highlightByExtension s t =
         Left _ -> F.highlightText t
         Right ok -> ok
 
-readMaybeBlob :: MonadGit o m => Text -> m ByteString
-readMaybeBlob hash =
-    case hash of
-        "0000000000000000000000000000000000000000" -> return ""
-        _                                          -> Git.parseObjOid hash >>= catBlob
+readMaybeBlob :: MonadGit o m => Text -> Text -> m ByteString
+readMaybeBlob filename hash =
+    case (filename, hash) of
+        ("/dev/null", _)                                -> return ""
+        (_, "0000000000000000000000000000000000000000") -> return ""
+        (_, _)                                          -> Git.parseObjOid hash >>= catBlob
 
 highlightSourceInDiffFile :: (MonadGit o m, MonadIO m) => Text -> Text -> DH.DiffHeader -> DH.DiffContent -> m (Maybe F.FList)
 highlightSourceInDiffFile fromBlobHash toBlobHash diffMeta content  = do
@@ -86,8 +87,8 @@ highlightSourceInDiffFile fromBlobHash toBlobHash diffMeta content  = do
 
     case (fromFilenameM, toFilenameM) of
         (Just fromFilename, Just toFilename) -> do
-            fromB <- readMaybeBlob fromBlobHash
-            toB <- readMaybeBlob toBlobHash
+            fromB <- readMaybeBlob fromFilename fromBlobHash
+            toB <- readMaybeBlob toFilename toBlobHash
 
             let highlightWholeBlob filename blob =
                     F.splitToLinesArray $
