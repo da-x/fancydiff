@@ -8,7 +8,7 @@ This similar to what you see on Github, but instead it is done in the user's con
 
 ## Dependencies
 
-This can be built with the Haskell community's 'stack' tool. Dependencies are entirely in Stackage.
+This can be built with the Haskell community's 'stack' tool.
 
 ## Setup
 
