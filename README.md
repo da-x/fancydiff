@@ -12,20 +12,24 @@ This can be built with the Haskell community's 'stack' tool. Dependencies are en
 
 ## Setup
 
-With `fancydiff` in `$PATH` these aliases can be used in `.gitconfig`:
+With `fancydiff` in `$PATH` thee following configuration can be used in `.gitconfig`. It can be a drop-in
+replacement for `diff-highlight` and `git`'s own diff coloring, via:
+
+```
+[color]
+        diff = off
+[pager]
+        log = fancydiff | less
+        show = fancydiff | less
+```
+
+Optionally, it may be used via aliases:
 
 ```
 [alias]
     log-fancy = "!git -c color.diff=off -c pager.log='fancydiff | less' log $@ || true"
     show-fancy = "!git -c color.diff=off -c pager.show='fancydiff | less' show $@ || true"
 ```
-
-For it to function, you need to do either of these things:
- * Configure `color.diff = off`, and `pager.diff = fancydiff | less`. Same for `log` and `show`.
- OR:
- * Pipe it via `fancydiff`.
- OR:
- * Pass `-c color.diff=off` between `git` and its command, and pipe it via `fancydiff`.
 
 ## Limitations
 
