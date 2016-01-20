@@ -17,11 +17,11 @@ replacement for `diff-highlight` and `git`'s own diff coloring, via:
 
 ```
 [color]
-        diff = off
+    diff = off
 [pager]
-        log = fancydiff | less
-        show = fancydiff | less
-        diff = fancydiff | less
+    log = fancydiff | less
+    show = fancydiff | less
+    diff = fancydiff | less
 ```
 
 Optionally, it may be used via aliases:
