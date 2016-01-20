@@ -21,18 +21,22 @@ module Fancydiff.Lib (
     ) where
 
 ------------------------------------------------------------------------------------
+import qualified Control.Exception.Lifted  as E
 import           Control.Monad             (forM_)
 import           Control.Monad.IO.Class    (MonadIO, liftIO)
+import           Control.Monad.Trans.Control (MonadBaseControl)
 import qualified Data.Array                as A
 import qualified Data.DList                as DList
 import           Data.IORef                (newIORef, readIORef, writeIORef)
 import           Data.Maybe                (fromMaybe)
 import           Data.Text                 (Text)
 import qualified Data.Text                 as T
+import qualified Data.ByteString           as B
 import qualified Data.Text.Encoding        as T
+import           System.FilePath           ((</>))
 import           Data.ByteString (ByteString)
-import           Git                       (catBlob, parseObjOid,
-                                           MonadGit)
+import           Git                       (catBlob, MonadGit)
+import qualified Git
 import           Text.Regex.TDFA           ((=~))
 import           Text.Regex.TDFA.Text      ()
 ----
@@ -62,14 +66,28 @@ highlightByExtension s t =
         Left _ -> F.highlightText t
         Right ok -> ok
 
-readMaybeBlob :: MonadGit o m => Text -> Text -> m ByteString
-readMaybeBlob filename hash =
+readMaybeBlob :: (MonadGit o m, MonadIO m, MonadBaseControl IO m) => Text -> Text -> m ByteString
+readMaybeBlob filename hash = do
     case (filename, hash) of
         ("/dev/null", _)                                -> return ""
         (_, "0000000000000000000000000000000000000000") -> return ""
-        (_, _)                                          -> Git.parseObjOid hash >>= catBlob
+        (_, _)                                          -> do
+            let inDb = Git.parseObjOid hash >>= catBlob
+                inWorkingDir = \(e :: E.SomeException) -> do
+                    maybeWorkdir <- Git.getActualWorkdir
+                    case maybeWorkdir of
+                        Just workdir -> do
+                            maybeWorkdirHash <- Git.hashWorkdirPath $ T.encodeUtf8 filename
+                            case maybeWorkdirHash of
+                                Just workdirHash ->
+                                    case hash `T.isPrefixOf` T.pack (show workdirHash) of
+                                        True -> liftIO $ B.readFile $ workdir </> T.unpack filename
+                                        False -> E.throw e
+                                Nothing -> E.throw e
+                        Nothing -> E.throw e
+            E.catch inDb inWorkingDir
 
-highlightSourceInDiffFile :: (MonadGit o m, MonadIO m) => Text -> Text -> DH.DiffHeader -> DH.DiffContent -> m (Maybe F.FList)
+highlightSourceInDiffFile :: (MonadGit o m, MonadIO m, MonadBaseControl IO m) => Text -> Text -> DH.DiffHeader -> DH.DiffContent -> m (Maybe F.FList)
 highlightSourceInDiffFile fromBlobHash toBlobHash diffMeta content  = do
     fromFilenameI <- liftIO $ newIORef Nothing
     toFilenameI <- liftIO $ newIORef Nothing
@@ -132,7 +150,7 @@ highlightSourceInDiffFile fromBlobHash toBlobHash diffMeta content  = do
             return $ Just ((F.clearFormatting diffMeta) `DList.append` dlistConcat content')
         _ -> return Nothing
 
-highlightSourceInDiff :: (MonadGit o m, MonadIO m) => DH.ParsedDiff -> m F.FList
+highlightSourceInDiff :: (MonadGit o m, MonadIO m, MonadBaseControl IO m) => DH.ParsedDiff -> m F.FList
 highlightSourceInDiff parsed = do
     fmap dlistConcat $ dlistForM parsed $ \case
         Left other -> return $ F.clearFormatting other
@@ -156,7 +174,7 @@ highlightSourceInDiff parsed = do
                         _ -> return def
                 _ -> return def
 
-trySourceHighlight :: (MonadGit o m, MonadIO m) => Text -> m F.FList
+trySourceHighlight :: (MonadGit o m, MonadIO m, MonadBaseControl IO m) => Text -> m F.FList
 trySourceHighlight diff = do
     sourceInDiffHighlighted <- highlightSourceInDiff (DH.parseDiff diff)
     let text = F.flistToText sourceInDiffHighlighted

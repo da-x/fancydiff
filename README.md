@@ -21,6 +21,7 @@ replacement for `diff-highlight` and `git`'s own diff coloring, via:
 [pager]
         log = fancydiff | less
         show = fancydiff | less
+        diff = fancydiff | less
 ```
 
 Optionally, it may be used via aliases:
@@ -29,11 +30,11 @@ Optionally, it may be used via aliases:
 [alias]
     log-fancy = "!git -c color.diff=off -c pager.log='fancydiff | less' log $@ || true"
     show-fancy = "!git -c color.diff=off -c pager.show='fancydiff | less' show $@ || true"
+    diff-fancy = "!git -c color.diff=off -c pager.show='fancydiff | less' diff $@ || true"
 ```
 
 ## Limitations
 
- * Does not work with un-added modifications (diff to index).
  * Too few source code languages are supported.
  * It is slow than regular diff highlighting, because it needs to do full source
    highlighting for every changed file in the diff. However, depending on the

@@ -2,9 +2,10 @@ resolver: lts-4.1
 packages:
 - location:
     git: https://github.com/da-x/gitlib
-    commit: 7857c1c2d24852dfe7dc68bb647eeaa87b83e2b3
+    commit: 5b338169a2618337a60aaf17e2ab56a2654b1244
   extra-dep: true
   subdirs:
+  - gitlib
   - gitlib-libgit2
   - hlibgit2
 - .
