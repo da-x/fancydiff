@@ -12,7 +12,7 @@ This can be built with the Haskell community's 'stack' tool. Dependencies are en
 
 ## Setup
 
-With `fancydiff` in `$PATH` thee following configuration can be used in `.gitconfig`. It can be a drop-in
+With `fancydiff` in `$PATH` the following configuration can be used in `.gitconfig`. It can be a drop-in
 replacement for `diff-highlight` and `git`'s own diff coloring, via:
 
 ```
