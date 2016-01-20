@@ -8,7 +8,7 @@ license-file:        LICENSE
 author:              Dan Aloni
 maintainer:          alonid@gmail.com
 copyright:           2016 Dan Aloni
-category:            Web
+category:            Console
 build-type:          Simple
 cabal-version:       >=1.10
 
@@ -25,21 +25,21 @@ library
                      , Fancydiff.DiffHighlight
                      , Lib.Regex
                      , Lib.DList
-  build-depends:       array >= 0.5.1.0
-                     , base >= 4.7 && < 5
-                     , bytestring >= 0.10.6.0
-                     , containers >= 0.5.6.2
-                     , dlist >= 0.7.1.2
-                     , gitlib >= 3.1.1
-                     , gitlib-libgit2 == 3.1.1.1
-                     , lifted-base >= 0.2.3.6
-                     , monad-control >= 1.0.0.4
-                     , patience >= 0.1.1
-                     , regex-base >= 0.93.2
-                     , regex-tdfa >= 1.2.1
+  build-depends:       array           >= 0.5.1.0
+                     , base            >= 4.7 && < 5
+                     , bytestring      >= 0.10.6.0
+                     , containers      >= 0.5.6.2
+                     , dlist           >= 0.7.1.2
+                     , gitlib          >= 3.1.1
+                     , gitlib-libgit2  == 3.1.1.1
+                     , lifted-base     >= 0.2.3.6
+                     , monad-control   >= 1.0.0.4
+                     , patience        >= 0.1.1
+                     , regex-base      >= 0.93.2
+                     , regex-tdfa      >= 1.2.1
                      , regex-tdfa-text >= 1.0.0.3
-                     , text >= 1.2.2.0
-                     , transformers >= 0.4.2.0
+                     , text            >= 1.2.2.0
+                     , transformers    >= 0.4.2.0
   build-tools:         happy, alex
   default-language:    Haskell2010
 
@@ -47,18 +47,18 @@ executable fancydiff
   hs-source-dirs:      app
   main-is:             Main.hs
   ghc-options:         -Wall -O2 -rtsopts
-  build-depends:       array >= 0.5.1.0
+  build-depends:       array          >= 0.5.1.0
                      , base
-                     , bytestring >= 0.10.6.0
-                     , containers >= 0.5.6.2
-                     , dlist >= 0.7.1.2
+                     , bytestring     >= 0.10.6.0
+                     , containers     >= 0.5.6.2
+                     , dlist          >= 0.7.1.2
                      , fancydiff
-                     , gitlib >= 3.1.1
+                     , gitlib         >= 3.1.1
                      , gitlib-libgit2 >= 3.1.1
-                     , lifted-base >= 0.2.3.6
-                     , monad-control >= 1.0.0.4
-                     , text >= 1.2.2.0
-                     , transformers >= 0.4.2.0
+                     , lifted-base    >= 0.2.3.6
+                     , monad-control  >= 1.0.0.4
+                     , text           >= 1.2.2.0
+                     , transformers   >= 0.4.2.0
   default-language:    Haskell2010
 
 test-suite fancydiff-test
