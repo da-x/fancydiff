@@ -65,8 +65,8 @@ ansiFormatting = root
           prev (Nothing:xs) = prev xs
           prev (Just a:_) = a
 
-          repr _ _ _ DiffMain           = Just $ color $ trueColor Back 0x00 0x20 0xc0
-          repr _ _ _ DiffMainExtra      = Just $ color $ trueColor Back 0x00 0x20 0xa8
+          repr _ _ _ DiffMain           = Just $ color $ trueColor Back 0x00 0x20 0xa0
+          repr _ _ _ DiffMainExtra      = Just $ color $ trueColor Back 0x00 0x20 0x80
           repr _ _ _ DiffRemove         = Just $ color $ trueColor Back 0x40 0x00 0x00
           repr _ _ _ DiffAdd            = Just $ color $ trueColor Back 0x00 0x40 0x00
 
@@ -76,8 +76,8 @@ ansiFormatting = root
                                                  Just $ color $ trueColor Back 0x00 0x68 0x00
                                              | otherwise           -> r
 
-          repr _ _ _ (DiffRemoveFile _) = Just $ color $ trueColor Back 0x40 0x00 0x00
-          repr _ _ _ (DiffAddFile _)    = Just $ color $ trueColor Back 0x00 0x40 0x00
+          repr _ _ _ (DiffRemoveFile _) = Just $ color $ trueColor Back 0x30 0x30 0x30
+          repr _ _ _ (DiffAddFile _)    = Just $ color $ trueColor Back 0x40 0x40 0x40
           repr _ _ _ DiffHunkHeader     = Just $ color $ T.concat [trueColor Back  0x00 0x20 0x60,
                                                                    trueColor Front 0x80 0x80 0x80]
           repr _ _ _ DiffUnchanged      = Nothing
@@ -85,10 +85,10 @@ ansiFormatting = root
 
           repr _ _ r (Style Ignore)     = r
           repr _ _ r (Style Identifier) = r
-          repr a m _ (Style e)          = if | Mark       `elem` m -> style 2
-                                             | DiffRemove `elem` m -> style 3
-                                             | DiffAdd    `elem` m -> style 3
-                                             | otherwise           -> style 4
+          repr a m _ (Style e)          = if | Mark       `elem` m -> style 3
+                                             | DiffRemove `elem` m -> style 4
+                                             | DiffAdd    `elem` m -> style 4
+                                             | otherwise           -> style 100
               where style l = Just $ T.concat ["\x1b[0m",
                                                prev a,
                                                elementToAnsi l e, "\x1b[K"]

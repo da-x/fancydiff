@@ -6,12 +6,15 @@ data Element
     | Number
     | Char
     | Type
-    | ImportLine
-    | TopLevel
     | Identifier
     | Call
     | FromPrelude
     | Comment
     | Special
+    | Special2
+    | Special3
+    | Curly
+    | Brackets
+    | Parentheses
     | Ignore
     deriving (Show, Eq, Ord)

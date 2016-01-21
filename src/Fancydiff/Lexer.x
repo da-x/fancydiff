@@ -133,7 +133,11 @@ state:-
   <clang>     "volatile"              { tok       Keyword           }
   <clang>     "while"                 { tok       Keyword           }
 
+  <clang>     "0x" [ 0-9 a-f      ]+  { tok       Number            }
+  <clang>     [0-9]+ [\.] [ 0-9 ]+    { tok       Number            }
+  <clang>     [\.] [ 0-9 ]+           { tok       Number            }
   <clang>     [ 0-9               ]+  { tok       Number            }
+
   <clang>     @cId                    { tok       Identifier        }
   <clang>     @punct                  { tok       Ignore            }
   <clang>     .                       { tok       Ignore            }
@@ -145,8 +149,10 @@ state:-
 
   <haskell>   "_"                     { tok       Ignore            }
 
+
+  <haskell>   "_"                     { tok       Ignore            }
+
   <haskell>   "let"                   { tok       Keyword           }
-  <haskell>   "as"                    { tok       Keyword           }
   <haskell>   "case"                  { tok       Keyword           }
   <haskell>   "of"                    { tok       Keyword           }
   <haskell>   "class"                 { tok       Keyword           }
@@ -159,9 +165,23 @@ state:-
   <haskell>   "do"                    { tok       Keyword           }
   <haskell>   "forall"                { tok       Keyword           }
   <haskell>   "foreign"               { tok       Keyword           }
-  <haskell>   "hiding"                { tok       Keyword           }
   <haskell>   "if"                    { tok       Keyword           }
-  <haskell>   "import"                { tok       Keyword           }
+  <haskell>   "import"                { tokPush   Keyword haskellI  }
+
+  <haskellI>  \n                      { tokPop    Ignore  	    }
+  <haskellI>  @sp                     { tok       Ignore  	    }
+  <haskellI>  [\"]                    { tokPush   String    str     }
+  <haskellI>  "--"                    { tokPush   Comment   comm2   }
+  <haskellI>  "qualified"             { tok       Keyword           }
+  <haskellI>  "as"                    { tok       Keyword           }
+  <haskellI>  "hiding"                { tok       Keyword           }
+  <haskellI>  @haskTypeConst          { tok       Type              }
+  <haskellI>  @haskBind               { tok       Ignore            }
+  <haskellI>  [ \[ \] ]               { tok       Brackets          }
+  <haskellI>  [ \( \) ]               { tok       Parentheses       }
+  <haskellI>  [ \{ \} ]               { tok       Curly             }
+  <haskellI>  .                       { tok       Ignore            }
+
   <haskell>   "then"                  { tok       Keyword           }
   <haskell>   "else"                  { tok       Keyword           }
   <haskell>   "infix"                 { tok       Keyword           }
@@ -174,13 +194,25 @@ state:-
   <haskell>   "module"                { tok       Keyword           }
   <haskell>   "newtype"               { tok       Keyword           }
   <haskell>   "proc"                  { tok       Keyword           }
-  <haskell>   "qualified"             { tok       Keyword           }
   <haskell>   "rec"                   { tok       Keyword           }
   <haskell>   "type"                  { tok       Keyword           }
   <haskell>   "type family"           { tok       Keyword           }
   <haskell>   "type instance"         { tok       Keyword           }
   <haskell>   "where"                 { tok       Keyword           }
+  <haskell>    \- \>                  { tok       Special           }
+  <haskell>    \< \-                  { tok       Special           }
+  <haskell>    \= \>                  { tok       Special2          }
+  <haskell>    \: \:                  { tok       Special3          }
+  <haskell>    \=                     { tok       Special           }
+  <haskell>    [ \[ \] ]              { tok       Brackets          }
+  <haskell>    [ \( \) ]              { tok       Parentheses       }
+  <haskell>    [ \{ \} ]              { tok       Curly             }
 
+  <haskell>    @punct                 { tok       Ignore            }
+
+  <haskell>    "0x" [ 0-9 a-f     ]+  { tok       Number            }
+  <haskell>    [0-9]+ [\.] [ 0-9 ]+   { tok       Number            }
+  <haskell>    [\.] [ 0-9         ]+  { tok       Number            }
   <haskell>    [ 0-9              ]+  { tok       Number            }
 
   <haskell>    @haskTypeConst         { tok       Type              }
