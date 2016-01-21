@@ -23,10 +23,11 @@ import           Control.Monad.Trans.Control (MonadBaseControl)
 import           Options.Applicative         (subparser, command, info, (<**>),
                                               argument, str, metavar, ParserInfo,
                                               helper, idm, optional, progDesc,
-                                              execParser)
+                                              execParser, (<>))
 ----
 import           Fancydiff.Lib               (trySourceHighlight,
                                               highlightByExtension)
+import           Fancydiff.Formatting        (fshow)
 import           Fancydiff.AnsiFormatting    (ansiFormatting)
 import           Lib.Text                    (safeDecode)
 -------------------------------------------------------------------
@@ -63,15 +64,20 @@ groupStdinByPred pred' cb = do
     iterStdinLines onLine onEnd
 
 data Opts = Opts (Maybe Command)
-data Command = SingleFile FilePath
+data Command
+    = SingleFile FilePath
+    | RawFile FilePath
 
 opts :: ParserInfo Opts
 opts = info (optsParse <**> helper) idm
    where
        optsParse = Opts <$> optional (subparser
-                                      (command "file" singleFile))
+                                      (command "file" singleFile <>
+                                       command "raw-file" rawFile))
        singleFile = info (SingleFile <$> (argument str (metavar "PATHNAME")))
-            (progDesc "Console print of a single commit, in ANSI")
+            (progDesc "Console print of a single file, in ANSI")
+       rawFile = info (RawFile <$> (argument str (metavar "PATHNAME")))
+            (progDesc "Console print of raw formatting data of a file")
 
 
 main :: IO ()
@@ -85,9 +91,11 @@ main = do
                      res <- trySourceHighlight diff
                      liftIO $ T.putStr $ ansiFormatting res
                      return ()
-        Opts (Just (SingleFile filepath)) -> do
-            content <- B.readFile filepath
-            let highlighted = highlightByExtension (T.pack filepath) (safeDecode content)
-            liftIO $ T.putStr $ ansiFormatting $ highlighted
+        Opts (Just (SingleFile filepath)) -> onFile ansiFormatting filepath
+        Opts (Just (RawFile filepath)) -> onFile fshow filepath
 
+      where onFile f filepath = do
+                content <- B.readFile filepath
+                let highlighted = highlightByExtension (T.pack filepath) (safeDecode content)
+                liftIO $ T.putStr $ f highlighted
 
