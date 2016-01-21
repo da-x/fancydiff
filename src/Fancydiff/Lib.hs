@@ -16,6 +16,7 @@
 module Fancydiff.Lib (
       trySourceHighlight
     , getHighlighter
+    , highlightByExtension
     , DH.highlight
     , F.ansiFormatting
     ) where
@@ -49,21 +50,22 @@ import           Lib.Regex                 ((=~+))
 ------------------------------------------------------------------------------------
 
 getHighlighter :: Text -> Text -> Either String F.FList
-getHighlighter s | ".hs"  `T.isSuffixOf` s   = haskellMatcher
-                  | ".c"   `T.isSuffixOf` s   = clangMatcher
-                  | ".h"   `T.isSuffixOf` s   = clangMatcher
-                  | ".cc"  `T.isSuffixOf` s   = clangMatcher
-                  | ".hh"  `T.isSuffixOf` s   = clangMatcher
-                  | ".cpp" `T.isSuffixOf` s   = clangMatcher
-                  | ".hpp" `T.isSuffixOf` s   = clangMatcher
-                  | ".hxx" `T.isSuffixOf` s   = clangMatcher
-                  | ".cxx" `T.isSuffixOf` s   = clangMatcher
-                  | otherwise                 = nullMatcher
+getHighlighter filename
+    | ".hs"  `T.isSuffixOf` filename   = haskellMatcher
+    | ".c"   `T.isSuffixOf` filename   = clangMatcher
+    | ".h"   `T.isSuffixOf` filename   = clangMatcher
+    | ".cc"  `T.isSuffixOf` filename   = clangMatcher
+    | ".hh"  `T.isSuffixOf` filename   = clangMatcher
+    | ".cpp" `T.isSuffixOf` filename   = clangMatcher
+    | ".hpp" `T.isSuffixOf` filename   = clangMatcher
+    | ".hxx" `T.isSuffixOf` filename   = clangMatcher
+    | ".cxx" `T.isSuffixOf` filename   = clangMatcher
+    | otherwise                 = nullMatcher
 
 highlightByExtension :: Text -> Text -> F.FList
-highlightByExtension s t =
-    case getHighlighter s t of
-        Left _ -> F.highlightText t
+highlightByExtension filename content =
+    case getHighlighter filename content of
+        Left _ -> F.highlightText content
         Right ok -> ok
 
 readMaybeBlob :: (MonadGit o m, MonadIO m, MonadBaseControl IO m) => Text -> Text -> m ByteString
