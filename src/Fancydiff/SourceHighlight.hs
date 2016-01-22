@@ -33,10 +33,10 @@ decodeColorString (ColorString t) =
 paletteDecode :: Palette ColorString -> PaletteInt
 paletteDecode = fmap decodeColorString
 
-brighter :: Int -> (Int, Int, Int) -> (Int, Int, Int)
+brighter :: Float -> (Int, Int, Int) -> (Int, Int, Int)
 brighter brightness (r, g, b) = (f r, f g, f b)
     where
-        f x = x + (255 - x) `div` brightness
+        f x = floor $ fromIntegral x + ((255 -  fromIntegral x) * brightness)
 
 defaultTheme :: (Int -> Int -> Int -> t) -> Element -> t
 defaultTheme code = root

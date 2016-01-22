@@ -55,7 +55,7 @@ data RenderedPalette = RenderedPalette {
     , p'diffHunkHeader   :: {-# UNPACK #-} !Text
     }
 
-renderPalette :: Int -> D.PaletteInt -> RenderedPalette
+renderPalette :: Float -> D.PaletteInt -> RenderedPalette
 renderPalette brightness p = RenderedPalette
       { p'keyword               = front D.p'keyword
       , p'string                = front D.p'string
@@ -110,15 +110,6 @@ pick s pal = root s
         root D.Curly        = p'curly pal
         root _              = p'ignore pal
 
-pal3 :: RenderedPalette
-pal3 = renderPalette 3 $ paletteDecode Themes.darkBackground
-
-pal4 :: RenderedPalette
-pal4 = renderPalette 4 $ paletteDecode Themes.darkBackground
-
-pal256 :: RenderedPalette
-pal256 = renderPalette 100 $ paletteDecode Themes.darkBackground
-
 ansiFormatting :: FList -> Text
 ansiFormatting = root
     where root flist               = T.concat $ toList $ snd $ combine [] [] Nothing flist
@@ -148,18 +139,27 @@ ansiFormatting = root
           prev (Nothing:xs) = prev xs
           prev (Just a:_) = a
 
-          repr _ _ _ DiffMain           = Just $ p'diffMain pal256
-          repr _ _ _ DiffMainExtra      = Just $ p'diffMainExtra pal256
-          repr _ _ _ DiffRemove         = Just $ p'diffRemove pal256
-          repr _ _ _ DiffAdd            = Just $ p'diffAdd pal256
+          pal3 :: RenderedPalette
+          pal3 = renderPalette 0.3  $ paletteDecode Themes.darkBackground
 
-          repr _ m r Mark               = if | DiffRemove `elem` m -> Just $ p'diffMarkRemove pal256
-                                             | DiffAdd    `elem` m -> Just $ p'diffMarkAdd pal256
+          pal4 :: RenderedPalette
+          pal4 = renderPalette 0.25 $ paletteDecode Themes.darkBackground
+
+          pal :: RenderedPalette
+          pal = renderPalette 0 $ paletteDecode Themes.darkBackground
+
+          repr _ _ _ DiffMain           = Just $ p'diffMain pal
+          repr _ _ _ DiffMainExtra      = Just $ p'diffMainExtra pal
+          repr _ _ _ DiffRemove         = Just $ p'diffRemove pal
+          repr _ _ _ DiffAdd            = Just $ p'diffAdd pal
+
+          repr _ m r Mark               = if | DiffRemove `elem` m -> Just $ p'diffMarkRemove pal
+                                             | DiffAdd    `elem` m -> Just $ p'diffMarkAdd pal
                                              | otherwise           -> r
 
-          repr _ _ _ (DiffRemoveFile _) = Just $ p'diffRemoveFile pal256
-          repr _ _ _ (DiffAddFile _)    = Just $ p'diffAddFile pal256
-          repr _ _ _ DiffHunkHeader     = Just $ p'diffHunkHeader pal256
+          repr _ _ _ (DiffRemoveFile _) = Just $ p'diffRemoveFile pal
+          repr _ _ _ (DiffAddFile _)    = Just $ p'diffAddFile pal
+          repr _ _ _ DiffHunkHeader     = Just $ p'diffHunkHeader pal
           repr _ _ _ DiffUnchanged      = Nothing
           repr _ _ _ DiffNothing        = Nothing
 
@@ -168,6 +168,6 @@ ansiFormatting = root
           repr a m _ (Style e)          = if | Mark       `elem` m -> style pal3
                                              | DiffRemove `elem` m -> style pal4
                                              | DiffAdd    `elem` m -> style pal4
-                                             | otherwise           -> style pal256
+                                             | otherwise           -> style pal
               where style l = Just $ T.concat ["\x1b[0m", prev a, pick e l, "\x1b[K"]
           repr _ _ _ _                  = Nothing
