@@ -42,6 +42,9 @@ data Format
     | DiffRemoveFile Text
     | DiffUnchanged
     | DiffNothing
+    | CommitMain
+    | CommitOther
+    | CommitMsgByLines
     | Mark
     | Emphesis
     | MonospacePar
@@ -75,6 +78,9 @@ data Palette a = Palette {
     , p'brackets         :: !a
     , p'parentheses      :: !a
     , p'ignore           :: !a
+    , p'commitMsgByLines :: !a
+    , p'commitMain       :: !a
+    , p'commitOther      :: !a
     , p'diffMain         :: !a
     , p'diffMainExtra    :: !a
     , p'diffRemove       :: !a

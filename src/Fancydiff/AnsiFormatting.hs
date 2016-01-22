@@ -25,30 +25,33 @@ data FrontBack = Front | Back
 
 -- Unpacked, since it is accessed a lot.
 data RenderedPalette = RenderedPalette {
-      p'keyword        :: {-# UNPACK #-} !Text
-    , p'string         :: {-# UNPACK #-} !Text
-    , p'number         :: {-# UNPACK #-} !Text
-    , p'char           :: {-# UNPACK #-} !Text
-    , p'type           :: {-# UNPACK #-} !Text
-    , p'identifier     :: {-# UNPACK #-} !Text
-    , p'call           :: {-# UNPACK #-} !Text
-    , p'comment        :: {-# UNPACK #-} !Text
-    , p'special        :: {-# UNPACK #-} !Text
-    , p'special2       :: {-# UNPACK #-} !Text
-    , p'special3       :: {-# UNPACK #-} !Text
-    , p'curly          :: {-# UNPACK #-} !Text
-    , p'brackets       :: {-# UNPACK #-} !Text
-    , p'parentheses    :: {-# UNPACK #-} !Text
-    , p'ignore         :: {-# UNPACK #-} !Text
-    , p'diffMain       :: {-# UNPACK #-} !Text
-    , p'diffMainExtra  :: {-# UNPACK #-} !Text
-    , p'diffRemove     :: {-# UNPACK #-} !Text
-    , p'diffAdd        :: {-# UNPACK #-} !Text
-    , p'diffMarkAdd    :: {-# UNPACK #-} !Text
-    , p'diffMarkRemove :: {-# UNPACK #-} !Text
-    , p'diffRemoveFile :: {-# UNPACK #-} !Text
-    , p'diffAddFile    :: {-# UNPACK #-} !Text
-    , p'diffHunkHeader :: {-# UNPACK #-} !Text
+      p'keyword          :: {-# UNPACK #-} !Text
+    , p'string           :: {-# UNPACK #-} !Text
+    , p'number           :: {-# UNPACK #-} !Text
+    , p'char             :: {-# UNPACK #-} !Text
+    , p'type             :: {-# UNPACK #-} !Text
+    , p'identifier       :: {-# UNPACK #-} !Text
+    , p'call             :: {-# UNPACK #-} !Text
+    , p'comment          :: {-# UNPACK #-} !Text
+    , p'special          :: {-# UNPACK #-} !Text
+    , p'special2         :: {-# UNPACK #-} !Text
+    , p'special3         :: {-# UNPACK #-} !Text
+    , p'curly            :: {-# UNPACK #-} !Text
+    , p'brackets         :: {-# UNPACK #-} !Text
+    , p'parentheses      :: {-# UNPACK #-} !Text
+    , p'ignore           :: {-# UNPACK #-} !Text
+    , p'commitMain       :: {-# UNPACK #-} !Text
+    , p'commitOther      :: {-# UNPACK #-} !Text
+    , p'commitMsgByLines :: {-# UNPACK #-} !Text
+    , p'diffMain         :: {-# UNPACK #-} !Text
+    , p'diffMainExtra    :: {-# UNPACK #-} !Text
+    , p'diffRemove       :: {-# UNPACK #-} !Text
+    , p'diffAdd          :: {-# UNPACK #-} !Text
+    , p'diffMarkAdd      :: {-# UNPACK #-} !Text
+    , p'diffMarkRemove   :: {-# UNPACK #-} !Text
+    , p'diffRemoveFile   :: {-# UNPACK #-} !Text
+    , p'diffAddFile      :: {-# UNPACK #-} !Text
+    , p'diffHunkHeader   :: {-# UNPACK #-} !Text
     }
 
 renderPalette :: Float -> D.PaletteInt -> RenderedPalette
@@ -68,6 +71,9 @@ renderPalette brightness p = RenderedPalette
     , p'brackets              = front D.p'brackets
     , p'parentheses           = front D.p'parentheses
     , p'ignore                = front D.p'ignore
+    , p'commitMain            = wrap $ back D.p'commitMain
+    , p'commitOther           = wrap $ back D.p'commitOther
+    , p'commitMsgByLines      = front D.p'commitMsgByLines
     , p'diffMain              = wrap $ back D.p'diffMain
     , p'diffMainExtra         = wrap $ back D.p'diffMainExtra
     , p'diffRemove            = wrap $ back D.p'diffRemove
@@ -76,7 +82,8 @@ renderPalette brightness p = RenderedPalette
     , p'diffMarkRemove        = wrap $ back D.p'diffMarkRemove
     , p'diffRemoveFile        = wrap $ back D.p'diffRemoveFile
     , p'diffAddFile           = wrap $ back D.p'diffAddFile
-    , p'diffHunkHeader        = wrap $ T.concat [back D.p'diffHunkHeaderBG, back D.p'diffHunkHeaderFG]
+    , p'diffHunkHeader        = wrap $ T.concat [back D.p'diffHunkHeaderBG,
+                                                 front D.p'diffHunkHeaderFG]
     }
     where
         wrap t = T.concat [ "\x1b[0m", t, "\x1b[K"]
@@ -161,6 +168,9 @@ ansiFormatting = root
         repr _ _ _ DiffHunkHeader     = Just $ p'diffHunkHeader pal
         repr _ _ _ DiffUnchanged      = Nothing
         repr _ _ _ DiffNothing        = Nothing
+        repr _ _ _ CommitMsgByLines   = Just $ p'commitMsgByLines pal
+        repr _ _ _ CommitMain         = Just $ p'commitMain pal
+        repr _ _ _ CommitOther        = Just $ p'commitOther pal
 
         repr _ _ r (Style Ignore)     = r
         repr _ _ r (Style Identifier) = r

@@ -3,6 +3,7 @@
 {-# LANGUAGE OverloadedStrings         #-}
 {-# LANGUAGE FlexibleContexts          #-}
 {-# LANGUAGE LambdaCase                #-}
+{-# LANGUAGE MultiWayIf                #-}
 
 module Main where
 
@@ -25,7 +26,8 @@ import           Options.Applicative         (subparser, command, info, (<**>),
                                               helper, idm, optional, progDesc,
                                               execParser, (<>))
 ----
-import           Fancydiff.Lib               (trySourceHighlight,
+import           Fancydiff.Lib               (tryDiffWithSourceHighlight,
+                                              commitHighlight,
                                               highlightByExtension)
 import           Fancydiff.Formatting        (fshow)
 import           Fancydiff.AnsiFormatting    (ansiFormatting)
@@ -86,9 +88,16 @@ main = do
         Opts Nothing -> do
             let path = "."
             withRepository lgFactory path $ do
-                groupStdinByPred (\l -> ("diff " `B.isPrefixOf` l) || ("commit " `B.isPrefixOf` l)) $ \lines' ->
-                  do let diff = safeDecode $ B.concat $ concat $ map (\x -> [x, "\n"]) lines'
-                     res <- trySourceHighlight diff
+                let diffStart = B.isPrefixOf "diff "
+                    commitStart = B.isPrefixOf "commit "
+                groupStdinByPred (\l -> diffStart l || commitStart l) $ \lineList ->
+                  do let chunk = safeDecode $ B.concat $ concat $ map (\x -> [x, "\n"]) lineList
+                         firstLine = head lineList
+
+                     res <- if | diffStart firstLine   -> tryDiffWithSourceHighlight chunk
+                               | commitStart firstLine -> commitHighlight chunk
+                               | otherwise             -> tryDiffWithSourceHighlight chunk
+
                      liftIO $ T.putStr $ ansiFormatting res
                      return ()
         Opts (Just (SingleFile filepath)) -> onFile ansiFormatting filepath

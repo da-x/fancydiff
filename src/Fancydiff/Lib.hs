@@ -13,8 +13,9 @@
 {-# LANGUAGE ScopedTypeVariables       #-}
 {-# LANGUAGE TypeSynonymInstances      #-}
 
-module Fancydiff.Lib (
-      trySourceHighlight
+module Fancydiff.Lib
+    ( tryDiffWithSourceHighlight
+    , commitHighlight
     , getHighlighter
     , highlightByExtension
     , DH.highlight
@@ -45,8 +46,10 @@ import qualified Fancydiff.DiffHighlight   as DH
 import qualified Fancydiff.AnsiFormatting  as F
 import qualified Fancydiff.Formatting      as F
 import           Fancydiff.SourceHighlight
+import           Fancydiff.Data            as FD
 import           Lib.DList                 (dlistConcat, dlistForM)
 import           Lib.Regex                 ((=~+))
+import           Lib.Text                  (lineSplit)
 ------------------------------------------------------------------------------------
 
 getHighlighter :: Text -> Text -> Either String F.FList
@@ -176,8 +179,8 @@ highlightSourceInDiff parsed = do
                         _ -> return def
                 _ -> return def
 
-trySourceHighlight :: (MonadGit o m, MonadIO m, MonadBaseControl IO m) => Text -> m F.FList
-trySourceHighlight diff = do
+tryDiffWithSourceHighlight :: (MonadGit o m, MonadIO m, MonadBaseControl IO m) => Text -> m F.FList
+tryDiffWithSourceHighlight diff = do
     sourceInDiffHighlighted <- highlightSourceInDiff (DH.parseDiff diff)
     let text = F.flistToText sourceInDiffHighlighted
         diffHighlighted = DH.highlight text
@@ -188,3 +191,27 @@ trySourceHighlight diff = do
             return diffHighlighted
         Right combined -> do
             return combined
+
+commitHighlight :: (MonadGit o m, MonadIO m, MonadBaseControl IO m) => Text -> m F.FList
+commitHighlight commit = do
+    return $ DList.fromList parsed
+    where
+        parsed       = parse $ lineSplit commit
+
+        parse (x:xs) = case' "commit "   (const FD.CommitMain) parse x xs $
+                       case' "Author: "  (const FD.CommitOther) parse x xs $
+                       case' "AuthorDate: "  (const FD.CommitOther) parse x xs $
+                       case' "Commit: "  (const FD.CommitOther) parse x xs $
+                       case' "CommitDate: "  (const FD.CommitOther) parse x xs $
+                       case' "Date: "    (const FD.CommitOther) parse x xs $
+                       case' "    Signed-off-by:" (const CommitMsgByLines) parse x xs $
+                       else' parse x xs
+        parse []     = []
+
+        -- Infra
+        case' pref mark next x xs alt =
+            if pref `T.isPrefixOf` x
+               then (F.TForm (mark x) (DList.singleton $ F.TPlain x)):(next xs)
+               else alt
+
+        else' f x xs    = (F.TPlain x):(f xs)
