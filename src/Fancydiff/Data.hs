@@ -1,4 +1,17 @@
-module Fancydiff.Data where
+{-# LANGUAGE DeriveFunctor #-}
+{-# OPTIONS -funbox-strict-fields      #-}
+
+module Fancydiff.Data
+    ( Element(..)
+    , Format(..)
+    , Palette(..)
+    , PaletteInt
+    , ColorString(..)
+    ) where
+
+------------------------------------------------------------------------------------
+import           Data.Text        (Text)
+------------------------------------------------------------------------------------
 
 data Element
     = Keyword
@@ -8,7 +21,6 @@ data Element
     | Type
     | Identifier
     | Call
-    | FromPrelude
     | Comment
     | Special
     | Special2
@@ -18,3 +30,63 @@ data Element
     | Parentheses
     | Ignore
     deriving (Show, Eq, Ord)
+
+data Format
+    = DiffMain
+    | DiffMainExtra
+    | DiffHunkHeader
+    | DiffAdd
+    | DiffRemove
+    | DiffSlash
+    | DiffAddFile Text
+    | DiffRemoveFile Text
+    | DiffUnchanged
+    | DiffNothing
+    | Mark
+    | Emphesis
+    | MonospacePar
+    | Monospace
+    | Underline
+    | List
+    | ListItem
+    | Table
+    | TableRow
+    | TableCol Int
+    | TableCellPad Int
+    | Link Text
+    | Footer
+    | Style Element
+    | Dark
+      deriving (Show, Eq, Ord)
+
+data Palette a = Palette {
+      p'keyword          :: !a
+    , p'string           :: !a
+    , p'number           :: !a
+    , p'char             :: !a
+    , p'type             :: !a
+    , p'identifier       :: !a
+    , p'call             :: !a
+    , p'comment          :: !a
+    , p'special          :: !a
+    , p'special2         :: !a
+    , p'special3         :: !a
+    , p'curly            :: !a
+    , p'brackets         :: !a
+    , p'parentheses      :: !a
+    , p'ignore           :: !a
+    , p'diffMain         :: !a
+    , p'diffMainExtra    :: !a
+    , p'diffRemove       :: !a
+    , p'diffAdd          :: !a
+    , p'diffMarkAdd      :: !a
+    , p'diffMarkRemove   :: !a
+    , p'diffRemoveFile   :: !a
+    , p'diffAddFile      :: !a
+    , p'diffHunkHeaderBG :: !a
+    , p'diffHunkHeaderFG :: !a
+    } deriving (Show, Functor)
+
+type PaletteInt = Palette (Int, Int, Int)
+
+data ColorString = ColorString !Text

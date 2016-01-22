@@ -1,5 +1,6 @@
 {-# LANGUAGE MultiWayIf        #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
 
 module Fancydiff.AnsiFormatting where
 
@@ -11,8 +12,10 @@ import           Data.Text                 (Text)
 import qualified Data.Text                 as T
 ----
 import           Fancydiff.Data            (Element (Ignore, Identifier))
+import qualified Fancydiff.Data            as D
 import           Fancydiff.Formatting
-import           Fancydiff.SourceHighlight (defaultTheme)
+import qualified Fancydiff.Themes          as Themes
+import           Fancydiff.SourceHighlight (brighter, paletteDecode)
 import           Text.Printf               (printf)
 ------------------------------------------------------------------------------------
 
@@ -24,15 +27,97 @@ trueColor fb r g b = do
             T.pack (printf "%d;%d;%d" r g b),
             "m"]
 
-elementToAnsi :: Int -> Element -> Text
-elementToAnsi brightness = root
-     where root = defaultTheme code
+-- Unpacked, since it is accessed a lot.
+data RenderedPalette = RenderedPalette {
+      p'keyword          :: {-# UNPACK #-} !Text
+    , p'string           :: {-# UNPACK #-} !Text
+    , p'number           :: {-# UNPACK #-} !Text
+    , p'char             :: {-# UNPACK #-} !Text
+    , p'type             :: {-# UNPACK #-} !Text
+    , p'identifier       :: {-# UNPACK #-} !Text
+    , p'call             :: {-# UNPACK #-} !Text
+    , p'comment          :: {-# UNPACK #-} !Text
+    , p'special          :: {-# UNPACK #-} !Text
+    , p'special2         :: {-# UNPACK #-} !Text
+    , p'special3         :: {-# UNPACK #-} !Text
+    , p'curly            :: {-# UNPACK #-} !Text
+    , p'brackets         :: {-# UNPACK #-} !Text
+    , p'parentheses      :: {-# UNPACK #-} !Text
+    , p'ignore           :: {-# UNPACK #-} !Text
+    , p'diffMain         :: {-# UNPACK #-} !Text
+    , p'diffMainExtra    :: {-# UNPACK #-} !Text
+    , p'diffRemove       :: {-# UNPACK #-} !Text
+    , p'diffAdd          :: {-# UNPACK #-} !Text
+    , p'diffMarkAdd      :: {-# UNPACK #-} !Text
+    , p'diffMarkRemove   :: {-# UNPACK #-} !Text
+    , p'diffRemoveFile   :: {-# UNPACK #-} !Text
+    , p'diffAddFile      :: {-# UNPACK #-} !Text
+    , p'diffHunkHeader   :: {-# UNPACK #-} !Text
+    }
 
-           brighter :: Int -> Int
-           brighter x = x + (255 - x) `div` brightness
+renderPalette :: Int -> D.PaletteInt -> RenderedPalette
+renderPalette brightness p = RenderedPalette
+      { p'keyword               = front D.p'keyword
+      , p'string                = front D.p'string
+      , p'number                = front D.p'number
+      , p'char                  = front D.p'char
+      , p'type                  = front D.p'type
+      , p'identifier            = front D.p'identifier
+      , p'call                  = front D.p'call
+      , p'comment               = front D.p'comment
+      , p'special               = front D.p'special
+      , p'special2              = front D.p'special2
+      , p'special3              = front D.p'special3
+      , p'curly                 = front D.p'curly
+      , p'brackets              = front D.p'brackets
+      , p'parentheses           = front D.p'parentheses
+      , p'ignore                = front D.p'ignore
+      , p'diffMain              = wrap $ back D.p'diffMain
+      , p'diffMainExtra         = wrap $ back D.p'diffMainExtra
+      , p'diffRemove            = wrap $ back D.p'diffRemove
+      , p'diffAdd               = wrap $ back D.p'diffAdd
+      , p'diffMarkAdd           = wrap $ back D.p'diffMarkAdd
+      , p'diffMarkRemove        = wrap $ back D.p'diffMarkRemove
+      , p'diffRemoveFile        = wrap $ back D.p'diffRemoveFile
+      , p'diffAddFile           = wrap $ back D.p'diffAddFile
+      , p'diffHunkHeader        = wrap $ T.concat [back D.p'diffHunkHeaderBG, back D.p'diffHunkHeaderFG]
+      }
+    where
+        front access = code Front $ brighter brightness $ access p
+        back access = code Back $ access p
+        wrap t = T.concat [ "\x1b[0m", t, "\x1b[K"]
+        code :: FrontBack -> (Int, Int, Int) -> Text
+        code fb (r, g, b) = do
+            T.concat ["\x1b[", case fb of Front -> "38" ; Back -> "48", ";2;",
+                      T.pack (printf "%d;%d;%d" r g b),
+                      "m"]
 
-           code :: Int -> Int -> Int -> Text
-           code r g b       = trueColor Front (brighter r) (brighter g) (brighter b)
+pick :: Element -> RenderedPalette -> Text
+pick s pal = root s
+    where
+        root D.Keyword      = p'keyword pal
+        root D.Comment      = p'comment pal
+        root D.String       = p'string pal
+        root D.Char         = p'char pal
+        root D.Number       = p'number pal
+        root D.Type         = p'type pal
+        root D.Call         = p'call pal
+        root D.Special      = p'special pal
+        root D.Special2     = p'special2 pal
+        root D.Special3     = p'special3 pal
+        root D.Parentheses  = p'parentheses pal
+        root D.Brackets     = p'brackets pal
+        root D.Curly        = p'curly pal
+        root _              = p'ignore pal
+
+pal3 :: RenderedPalette
+pal3 = renderPalette 3 $ paletteDecode Themes.darkBackground
+
+pal4 :: RenderedPalette
+pal4 = renderPalette 4 $ paletteDecode Themes.darkBackground
+
+pal256 :: RenderedPalette
+pal256 = renderPalette 100 $ paletteDecode Themes.darkBackground
 
 ansiFormatting :: FList -> Text
 ansiFormatting = root
@@ -59,37 +144,30 @@ ansiFormatting = root
                                          [] -> ""
                                          (x:xs) -> T.concat $ x:(map (\y -> T.concat ["\n", rj, y]) xs)
 
-          color b = T.concat [ "\x1b[0m", b, "\x1b[K"]
-
           prev [] =  ""
           prev (Nothing:xs) = prev xs
           prev (Just a:_) = a
 
-          repr _ _ _ DiffMain           = Just $ color $ trueColor Back 0x00 0x20 0xa0
-          repr _ _ _ DiffMainExtra      = Just $ color $ trueColor Back 0x00 0x20 0x80
-          repr _ _ _ DiffRemove         = Just $ color $ trueColor Back 0x40 0x00 0x00
-          repr _ _ _ DiffAdd            = Just $ color $ trueColor Back 0x00 0x40 0x00
+          repr _ _ _ DiffMain           = Just $ p'diffMain pal256
+          repr _ _ _ DiffMainExtra      = Just $ p'diffMainExtra pal256
+          repr _ _ _ DiffRemove         = Just $ p'diffRemove pal256
+          repr _ _ _ DiffAdd            = Just $ p'diffAdd pal256
 
-          repr _ m r Mark               = if | DiffRemove `elem` m ->
-                                                 Just $ color $ trueColor Back 0x68 0x00 0x00
-                                             | DiffAdd    `elem` m ->
-                                                 Just $ color $ trueColor Back 0x00 0x68 0x00
+          repr _ m r Mark               = if | DiffRemove `elem` m -> Just $ p'diffMarkRemove pal256
+                                             | DiffAdd    `elem` m -> Just $ p'diffMarkAdd pal256
                                              | otherwise           -> r
 
-          repr _ _ _ (DiffRemoveFile _) = Just $ color $ trueColor Back 0x30 0x30 0x30
-          repr _ _ _ (DiffAddFile _)    = Just $ color $ trueColor Back 0x40 0x40 0x40
-          repr _ _ _ DiffHunkHeader     = Just $ color $ T.concat [trueColor Back  0x00 0x20 0x60,
-                                                                   trueColor Front 0x80 0x80 0x80]
+          repr _ _ _ (DiffRemoveFile _) = Just $ p'diffRemoveFile pal256
+          repr _ _ _ (DiffAddFile _)    = Just $ p'diffAddFile pal256
+          repr _ _ _ DiffHunkHeader     = Just $ p'diffHunkHeader pal256
           repr _ _ _ DiffUnchanged      = Nothing
           repr _ _ _ DiffNothing        = Nothing
 
           repr _ _ r (Style Ignore)     = r
           repr _ _ r (Style Identifier) = r
-          repr a m _ (Style e)          = if | Mark       `elem` m -> style 3
-                                             | DiffRemove `elem` m -> style 4
-                                             | DiffAdd    `elem` m -> style 4
-                                             | otherwise           -> style 100
-              where style l = Just $ T.concat ["\x1b[0m",
-                                               prev a,
-                                               elementToAnsi l e, "\x1b[K"]
+          repr a m _ (Style e)          = if | Mark       `elem` m -> style pal3
+                                             | DiffRemove `elem` m -> style pal4
+                                             | DiffAdd    `elem` m -> style pal4
+                                             | otherwise           -> style pal256
+              where style l = Just $ T.concat ["\x1b[0m", prev a, pick e l, "\x1b[K"]
           repr _ _ _ _                  = Nothing

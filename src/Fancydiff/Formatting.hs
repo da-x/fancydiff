@@ -26,37 +26,9 @@ import           Data.STRef       (modifySTRef', newSTRef, readSTRef,
 import           Data.Text        (Text)
 import qualified Data.Text        as T
 ------------------------------------------------------------------------------------
-import           Fancydiff.Data   (Element)
+import           Fancydiff.Data   (Element, Format(..))
 import           Lib.Text         (lineSplit, subAText, textToAText, (+@))
 ------------------------------------------------------------------------------------
-
-data Format
-    = DiffMain
-    | DiffMainExtra
-    | DiffHunkHeader
-    | DiffAdd
-    | DiffRemove
-    | DiffSlash
-    | DiffAddFile Text
-    | DiffRemoveFile Text
-    | DiffUnchanged
-    | DiffNothing
-    | Mark
-    | Emphesis
-    | MonospacePar
-    | Monospace
-    | Underline
-    | List
-    | ListItem
-    | Table
-    | TableRow
-    | TableCol Int
-    | TableCellPad Int
-    | Link Text
-    | Footer
-    | Style Element
-    | Dark
-      deriving (Show, Eq, Ord)
 
 type FList = DList Fragment
 

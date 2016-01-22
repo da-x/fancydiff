@@ -6,13 +6,17 @@ module Fancydiff.SourceHighlight
     , nullMatcher
     , haskellMatcher
     , clangMatcher
+    , paletteDecode
+    , brighter
     ) where
 
 ------------------------------------------------------------------------------------
 import qualified Data.ByteString            as BS8
 import qualified Data.ByteString.Lazy.Char8 as BL8
 import           Data.Text                  (Text)
+import qualified Data.Text                  as T
 import qualified Data.Text.Encoding         as T
+import           Numeric                    (readHex)
 ----
 import           Fancydiff.Data
 import           Fancydiff.Formatting       as F
@@ -20,6 +24,19 @@ import           Fancydiff.Lexer            (Token (..), TokenClass (..),
                                              alexMonadScan, alexSetStartCode,
                                              clang, haskell, runAlex)
 ------------------------------------------------------------------------------------
+
+decodeColorString :: ColorString -> (Int, Int, Int)
+decodeColorString (ColorString t) =
+    let r i = fst $ head $ readHex $ T.unpack $ T.take 2 $ T.drop (1 + i*2) t
+     in (r 0, r 1, r 2)
+
+paletteDecode :: Palette ColorString -> PaletteInt
+paletteDecode = fmap decodeColorString
+
+brighter :: Int -> (Int, Int, Int) -> (Int, Int, Int)
+brighter brightness (r, g, b) = (f r, f g, f b)
+    where
+        f x = x + (255 - x) `div` brightness
 
 defaultTheme :: (Int -> Int -> Int -> t) -> Element -> t
 defaultTheme code = root
