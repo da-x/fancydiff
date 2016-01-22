@@ -2,8 +2,7 @@
 {-# LANGUAGE OverloadedStrings         #-}
 
 module Fancydiff.SourceHighlight
-    ( defaultTheme
-    , nullMatcher
+    ( nullMatcher
     , haskellMatcher
     , clangMatcher
     , paletteDecode
@@ -37,23 +36,6 @@ brighter :: Float -> (Int, Int, Int) -> (Int, Int, Int)
 brighter brightness (r, g, b) = (f r, f g, f b)
     where
         f x = floor $ fromIntegral x + ((255 -  fromIntegral x) * brightness)
-
-defaultTheme :: (Int -> Int -> Int -> t) -> Element -> t
-defaultTheme code = root
-     where root Keyword     = code 0xff 0xff 0x00
-           root Comment     = code 0x96 0x98 0x96
-           root String      = code 0x50 0x90 0xff
-           root Char        = code 0x30 0x80 0xd0
-           root Number      = code 0xff 0x40 0x40
-           root Type        = code 0xa0 0xa0 0xa0
-           root Call        = code 0x00 0xa0 0xa0
-           root Special     = code 0xc0 0x80 0x00
-           root Special2    = code 0x80 0xc0 0x00
-           root Special3    = code 0xc0 0xc0 0x00
-           root Parentheses = code 0x00 0xf0 0xf0
-           root Brackets    = code 0x00 0xd0 0xd0
-           root Curly       = code 0x00 0xc0 0xc0
-           root _           = code 0xff 0xff 0xff
 
 parseWithAlex :: Int -> ([(BL8.ByteString, Element)] -> [(BL8.ByteString, Element)]) -> Text -> Either String FList
 parseWithAlex s p t =
