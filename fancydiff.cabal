@@ -1,5 +1,5 @@
 name:                fancydiff
-version:             0.1.0.0
+version:             0.1.0
 synopsis:            Fancy coloring of diffs for Git
 description:         Please see README.md
 homepage:            http://github.com/da-x/fancydiff#readme
@@ -9,7 +9,7 @@ author:              Dan Aloni
 maintainer:          alonid@gmail.com
 copyright:           2016 Dan Aloni
 category:            Console
-build-type:          Simple
+build-type:          Custom
 cabal-version:       >=1.10
 
 library
@@ -50,6 +50,7 @@ executable fancydiff
   hs-source-dirs:      app
   main-is:             Main.hs
   ghc-options:         -Wall -O2 -rtsopts
+  other-modules:       Internal.Version
   build-depends:       array          >= 0.5.1.0
                      , base
                      , bytestring     >= 0.10.6.0

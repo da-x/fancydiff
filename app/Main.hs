@@ -24,14 +24,18 @@ import           Control.Monad.Trans.Control (MonadBaseControl)
 import           Options.Applicative         (subparser, command, info, (<**>),
                                               argument, str, metavar, ParserInfo,
                                               helper, idm, optional, progDesc,
-                                              execParser, (<>))
+                                              switch, long, short,
+                                              help, execParser, (<>))
+import           Data.Version                (showVersion)
 ----
+import           Paths_fancydiff             (version)
 import           Fancydiff.Lib               (tryDiffWithSourceHighlight,
                                               commitHighlight,
                                               highlightByExtension)
 import           Fancydiff.Formatting        (fshow)
 import           Fancydiff.AnsiFormatting    (ansiFormatting)
 import           Lib.Text                    (safeDecode)
+import qualified Internal.Version            as V
 -------------------------------------------------------------------
 
 iterStdinLines :: (MonadBaseControl IO m, MonadIO m) => (B.ByteString -> m ()) -> m () -> m ()
@@ -65,15 +69,19 @@ groupStdinByPred pred' cb = do
 
     iterStdinLines onLine onEnd
 
-data Opts = Opts (Maybe Command)
+data Opts = Opts Bool (Maybe Command)
 data Command
     = SingleFile FilePath
     | RawFile FilePath
 
+getVersion :: T.Text
+getVersion = T.concat [T.pack $ showVersion version, V.version]
+
 opts :: ParserInfo Opts
 opts = info (optsParse <**> helper) idm
    where
-       optsParse = Opts <$> optional (subparser
+       optsParse = Opts <$> switch ( long "version" <> short 'v' <> help "Show version" )
+                        <*> optional (subparser
                                       (command "file" singleFile <>
                                        command "raw-file" rawFile))
        singleFile = info (SingleFile <$> (argument str (metavar "PATHNAME")))
@@ -85,7 +93,9 @@ opts = info (optsParse <**> helper) idm
 main :: IO ()
 main = do
     void $ execParser opts >>= \case
-        Opts Nothing -> do
+        Opts True _ -> do
+            T.putStrLn $ T.concat ["Fancydiff ", getVersion]
+        Opts _ Nothing -> do
             let path = "."
             withRepository lgFactory path $ do
                 let diffStart = B.isPrefixOf "diff "
@@ -100,8 +110,8 @@ main = do
 
                      liftIO $ T.putStr $ ansiFormatting res
                      return ()
-        Opts (Just (SingleFile filepath)) -> onFile ansiFormatting filepath
-        Opts (Just (RawFile filepath)) -> onFile fshow filepath
+        Opts _ (Just (SingleFile filepath)) -> onFile ansiFormatting filepath
+        Opts _ (Just (RawFile filepath)) -> onFile fshow filepath
 
       where onFile f filepath = do
                 content <- B.readFile filepath
