@@ -28,9 +28,9 @@ Optionally, it may be used via aliases:
 
 ```
 [alias]
-    log-fancy = "!git -c color.diff=off -c pager.log='LESSANSIENDCHARS=mK fancydiff | less' log $@ || true"
-    show-fancy = "!git -c color.diff=off -c pager.show='LESSANSIENDCHARS=mK fancydiff | less' show $@ || true"
-    diff-fancy = "!git -c color.diff=off -c pager.diff='LESSANSIENDCHARS=mK fancydiff | less' diff $@ || true"
+    log-fancy = "!git -c color.diff=off -c pager.log='fancydiff | LESSANSIENDCHARS=mK less' log $@ || true"
+    show-fancy = "!git -c color.diff=off -c pager.show='fancydiff | LESSANSIENDCHARS=mK less' show $@ || true"
+    diff-fancy = "!git -c color.diff=off -c pager.diff='fancydiff | LESSANSIENDCHARS=mK less' diff $@ || true"
 ```
 
 ## Limitations
