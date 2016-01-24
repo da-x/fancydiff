@@ -33,6 +33,19 @@ Optionally, it may be used via aliases:
 
 ## Setup on Linux (Ubuntu/Debian)
 
+### Install binaries from author's repo
+
+On Fedora 22 onwards:
+
+```
+dnf copr enable alonid/fancydiff
+dnf install fancydiff
+```
+
+For EPEL/CentOS/Red Hat 7, visit [Copr](https://copr.fedorainfracloud.org/coprs/alonid/fancydiff/).
+
+### Build from source
+
 Download [haskell-stack](http://docs.haskellstack.org/en/stable/install_and_upgrade.html#mac-os-x) for MacOS X,
 and do the following:
 
