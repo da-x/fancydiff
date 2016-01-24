@@ -26,7 +26,7 @@ import           Data.STRef       (modifySTRef', newSTRef, readSTRef,
 import           Data.Text        (Text)
 import qualified Data.Text        as T
 ------------------------------------------------------------------------------------
-import           Fancydiff.Data   (Element, Format(..))
+import           Fancydiff.Data   (Format(..))
 import           Lib.Text         (lineSplit, subAText, textToAText, (+@))
 ------------------------------------------------------------------------------------
 
