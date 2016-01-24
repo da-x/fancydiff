@@ -2,15 +2,11 @@
 
 [![Build Status](https://travis-ci.org/da-x/fancydiff.svg?branch=master)](https://travis-ci.org/da-x/fancydiff)
 
-Fancydiff is a diff coloring wrapper for Git (under Linux or MacOS X) that supports both intra-line diffs, and source code syntax highlighting.
+Fancydiff is a diff coloring wrapper for Git, under Linux or MacOS X, that supports both intra-line diffs, and source code syntax highlighting.
 
 <img src="doc/fancydiff-example.png">
 
 This similar to what you see on Github, but instead it is done in the user's console.
-
-## Dependencies
-
-This can be built with the Haskell community's 'stack' tool.
 
 ## Git configuration
 
@@ -35,8 +31,17 @@ Optionally, it may be used via aliases:
     diff-fancy = "!git -c color.diff=off -c pager.diff='fancydiff | LESSANSIENDCHARS=mK less' diff $@ || true"
 ```
 
-## Setup on MacOS X
+## Setup on Linux (Ubuntu/Debian)
 
+Download [haskell-stack](http://docs.haskellstack.org/en/stable/install_and_upgrade.html#mac-os-x) for MacOS X,
+and do the following:
+
+```
+stack setup
+stack install
+```
+
+## Setup on MacOS X
 
 ### Dependencies
 
