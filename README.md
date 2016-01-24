@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/da-x/fancydiff.svg?branch=master)](https://travis-ci.org/da-x/fancydiff)
 
-Fancydiff is a diff coloring wrapper for Git that supports both intra-line diffs, and source code syntax highlighting.
+Fancydiff is a diff coloring wrapper for Git (under Linux or MacOS X) that supports both intra-line diffs, and source code syntax highlighting.
 
 <img src="doc/fancydiff-example.png">
 
@@ -40,7 +40,7 @@ Optionally, it may be used via aliases:
 
 ### Dependencies
 
-Download a **nightly** of [iTerm2](https://www.iterm2.com/downloads.html), which supports 24-Bit True Color
+Download a **test release or a nightly** of [iTerm2](https://www.iterm2.com/downloads.html), which supports 24-Bit True Color
 ANSI codes.
 
 Download [haskell-stack](http://docs.haskellstack.org/en/stable/install_and_upgrade.html#mac-os-x) for MacOS X,
