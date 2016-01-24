@@ -1,0 +1,36 @@
+language: haskell-multi-ghc
+
+branches:
+  except:
+    - /^TEMP.*$/
+
+sudo: false
+
+cache:
+  directories:
+  - $HOME/.stack/
+
+os:
+  - linux
+  - osx
+
+addons:
+  apt:
+    packages:
+    - libgmp-dev
+
+before_install:
+  - mkdir -p ~/.local/{bin,stack}
+  - export PATH=~/.local/bin:$PATH
+  - travis_retry curl -L https://github.com/commercialhaskell/stack/releases/download/v1.0.2/stack-1.0.2-${TRAVIS_OS_NAME}-x86_64.tar.gz | tar -zxf - -C ~/.local/stack && ln -s ../stack/stack-1.0.2-${TRAVIS_OS_NAME}-x86_64/stack ~/.local/bin/stack
+  - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then brew update ; fi
+  - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then brew install icu4c ; fi
+  - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then brew install openssl ; fi
+
+install:
+  - stack --no-terminal setup
+  - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then stack --no-terminal build --only-snapshot  ; fi
+  - if [ "${TRAVIS_OS_NAME}" == "osx"   ]; then stack --no-terminal build --only-snapshot --extra-include-dirs=/usr/local/opt/icu4c/include  --extra-lib-dirs=/usr/local/opt/icu4c/lib  --extra-include-dirs=/usr/local/opt/openssl/include  --extra-lib-dirs=/usr/local/opt/openssl/lib  ; fi 
+
+script:
+  - echo Done.
