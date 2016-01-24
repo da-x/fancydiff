@@ -30,12 +30,9 @@ Optionally, it may be used via aliases:
 [alias]
     log-fancy = "!git -c color.diff=off -c pager.log='LESSANSIENDCHARS=mK fancydiff | less' log $@ || true"
     show-fancy = "!git -c color.diff=off -c pager.show='LESSANSIENDCHARS=mK fancydiff | less' show $@ || true"
-    diff-fancy = "!git -c color.diff=off -c pager.show='LESSANSIENDCHARS=mK fancydiff | less' diff $@ || true"
+    diff-fancy = "!git -c color.diff=off -c pager.diff='LESSANSIENDCHARS=mK fancydiff | less' diff $@ || true"
 ```
 
 ## Limitations
 
  * Too few source code languages are supported.
- * It is slow than regular diff highlighting, because it needs to do full source
-   highlighting for every changed file in the diff. However, depending on the
-   usage pattern, it may not be noticable.
