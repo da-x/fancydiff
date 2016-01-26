@@ -1,0 +1,103 @@
+#!/bin/bash
+
+set -eu
+
+t=`dirname ${BASH_SOURCE}`
+t=`realpath ${t}`
+PKG_NAME=fancydiff
+PKG_VERSION=$(cat ${t}/../${PKG_NAME}.cabal | grep ^version: | awk -F" " '{print $2}')
+PKG_RELEASE=`${t}/../version.sh simple`
+PKG_SITE=http://github.com/da-x/fancydiff
+PKG_ONELINE="Fancy coloring of diffs for Git"
+
+syntax() {
+    echo "build-srpm -o [output directory]"
+}
+
+while getopts "i:o:m:s:" o; do
+    case "${o}" in
+        o)
+	    outdir=${OPTARG}
+            ;;
+        *)
+	    syntax
+            exit 1
+            ;;
+    esac
+done
+
+if [ -z "$outdir" ] ; then
+    echo error: no output directory specified
+    echo
+    syntax
+    exit 1
+fi
+
+tempdir=`mktemp --tmpdir -d XXXXXXsrpm-packaging`
+
+cleanups () {
+    rm -rf ${tempdir}
+}
+
+trap cleanups EXIT
+
+git diff --exit-code > /dev/null || (echo error: uncommitted changes ; exit -1)
+git diff --cached --exit-code  > /dev/null  || (echo error: uncommitted cached changes; exit -1)
+
+PKG_VERREL=${PKG_VERSION}-${PKG_RELEASE}
+PKG_FULLVER=${PKG_VERREL}-1
+ARCHIVE_NAME=${PKG_NAME}-${PKG_FULLVER}
+RESOLVER=$(cat ${t}/../stack.yaml | grep '^resolver:' | awk -F" " '{print $2}')
+
+git archive --format=tar --prefix=${ARCHIVE_NAME}/ HEAD | tar -xf - -C ${tempdir}
+${t}/../version.sh > ${tempdir}/${ARCHIVE_NAME}/app/Internal/Version.hs
+rm ${tempdir}/${ARCHIVE_NAME}/version.sh
+
+PKG_CHANGELOG_TIMESTAMP=$(date +'%a, %e %b %Y %H:%M:%S %z')
+
+origdir=$(pwd)
+cd ${tempdir}
+
+cd ${t}/../.stack-work
+downloads=$(stack list-archive-downloads | awk -F ".stack-work/" '{print $2}')
+tar -czf ${tempdir}/${ARCHIVE_NAME}/stack-work-downloads.tar.gz ${downloads}
+cd - > /dev/null
+
+tar -czf ${PKG_NAME}_${PKG_VERREL}.orig.tar.gz ${ARCHIVE_NAME}
+cd ${tempdir}/${ARCHIVE_NAME}
+
+i=${tempdir}/spec
+cp packaging/fancydiff.deb.spec ${i}
+
+sed -i 's/@@RESOLVER@@/'"${RESOLVER}"'/g' ${i}
+sed -i 's/@@PKG_NAME@@/'"${PKG_NAME}"'/g' ${i}
+sed -i 's/@@PKG_CHANGELOG_TIMESTAMP@@/'"${PKG_CHANGELOG_TIMESTAMP}"'/g' ${i}
+sed -i 's/@@PKG_FULLVER@@/'"${PKG_FULLVER}"'/g' ${i}
+sed -i 's#@@PKG_SITE@@#'"${PKG_SITE}"'#g' ${i}
+sed -i 's/@@PKG_ONELINE@@/'"${PKG_ONELINE}"'/g' ${i}
+
+python - <<EOF
+import os
+
+f = open("${i}", "r")
+for part in f.read().split('%%%%%%%%%%%%%%%%%%%% CUT %%%%%%%%%%%%%%%%%%%%\n'):
+    if part.startswith('%%%% '):
+       p = part.find('\n')
+       filename = part[5:p].strip()
+       d = os.path.dirname(filename)
+       if d and not os.path.exists(d): os.makedirs(d)
+       open(filename, "w").write(part[p+1:])
+EOF
+cp LICENSE debian/copyright
+
+dpkg-buildpackage -S
+rm -rf ${tempdir}/${ARCHIVE_NAME}
+rm -rf ${tempdir}/spec
+
+cd ${origdir}
+
+ls -l ${tempdir}
+mkdir -p ${outdir}
+for i in `find ${tempdir} -type f` ; do
+    mv ${i} ${outdir}
+done
