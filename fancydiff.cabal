@@ -51,6 +51,7 @@ executable fancydiff
   main-is:             Main.hs
   ghc-options:         -Wall -O2 -rtsopts
   other-modules:       Internal.Version
+                     , Paths_fancydiff
   build-depends:       array          >= 0.5.1.0
                      , base
                      , bytestring     >= 0.10.6.0
