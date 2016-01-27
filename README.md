@@ -35,6 +35,10 @@ Optionally, it may be used via aliases:
 
 ## Setup on Linux (Ubuntu/Debian)
 
+A terminal supporting TrueColor is currently required.
+
+See this [gist](https://gist.github.com/XVilka/8346728).
+
 ### Binaries
 
 On **Fedora** 22 onwards:
