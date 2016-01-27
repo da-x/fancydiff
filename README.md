@@ -54,6 +54,7 @@ On **Ubuntu** Wily:
 
 ```
 sudo add-apt-repository ppa:alonid/fancydiff
+sudo apt-get update
 sudo apt-get install fancydiff
 ```
 
