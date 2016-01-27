@@ -8,6 +8,7 @@ Fancydiff is a diff coloring wrapper for Git, under Linux or MacOS X, that suppo
 
 This similar to what you see on Github, but instead it is done in the user's console.
 
+
 ## Git configuration
 
 With `fancydiff` in `$PATH` the following configuration can be used in `.gitconfig`. It can be a drop-in
@@ -31,28 +32,46 @@ Optionally, it may be used via aliases:
     diff-fancy = "!git -c color.diff=off -c pager.diff='fancydiff | LESSANSIENDCHARS=mK less' diff $@ || true"
 ```
 
+
 ## Setup on Linux (Ubuntu/Debian)
 
-### Install binaries from author's repo
+### Binaries
 
-On Fedora 22 onwards:
+On **Fedora** 22 onwards:
 
 ```
-dnf copr enable alonid/fancydiff
-dnf install fancydiff
+sudo dnf copr enable alonid/fancydiff
+sudo dnf install fancydiff
 ```
 
 For EPEL/CentOS/Red Hat 7, visit [Copr](https://copr.fedorainfracloud.org/coprs/alonid/fancydiff/).
 
+On **Ubuntu/Debian** onwards:
+
+```
+sudo add-apt-repository ppa:alonid/fancydiff
+```
+
+Otherwise visit the [PPA page](https://launchpad.net/~alonid/+archive/ubuntu/fancydiff).
+
 ### Build from source
 
-Download [haskell-stack](http://docs.haskellstack.org/en/stable/install_and_upgrade.html) for Linux,
-and do the following:
+#### Dependencies
+
+For Fedora/CentOS, do `sudo yum install libicu-devel zlib-devel openssl-devel gmp-devel pcre-devel`
+For Debian/Ubuntu, do `sudo apt-get install libicu-dev libz-dev libssl-dev libgmp-dev`
+Download and install [haskell-stack](http://docs.haskellstack.org/en/stable/install_and_upgrade.html) for Linux,
+
+
+#### Build
+
+In the Git clone of Fancydiff, do the following:
 
 ```
 stack setup
 stack install
 ```
+
 
 ## Setup on MacOS X
 
@@ -85,3 +104,4 @@ stack install \
 ## Limitations
 
  * Too few source code languages are supported.
+ * Some small original coloring features from Git itself are missing.
