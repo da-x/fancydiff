@@ -46,10 +46,11 @@ sudo dnf install fancydiff
 
 For EPEL/CentOS/Red Hat 7, visit [Copr](https://copr.fedorainfracloud.org/coprs/alonid/fancydiff/).
 
-On **Ubuntu/Debian** onwards:
+On **Ubuntu** Wily:
 
 ```
 sudo add-apt-repository ppa:alonid/fancydiff
+sudo apt-get install fancydiff
 ```
 
 Otherwise visit the [PPA page](https://launchpad.net/~alonid/+archive/ubuntu/fancydiff).
