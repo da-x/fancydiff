@@ -33,7 +33,7 @@ Optionally, it may be used via aliases:
 ```
 
 
-## Setup on Linux (Fedura-based, Ubuntu/Debian-based)
+## Setup on Linux (Fedora-based, Ubuntu/Debian-based)
 
 A terminal supporting TrueColor is currently required.
 
