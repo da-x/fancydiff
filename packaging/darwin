@@ -1,0 +1,125 @@
+#!/bin/bash
+
+#
+# Scripts that prepares the binary Mac OS X installation and its
+# relevant Homebrew file.
+#
+
+pkgname=fancydiff
+pkgtitle="Fancy coloring of diffs for Git"
+homeurl=http://github.com/da-x/fancydiff
+
+t=$(dirname ${BASH_SOURCE[0]})
+stack_params="--extra-include-dirs=/usr/local/opt/icu4c/include \
+        --extra-lib-dirs=/usr/local/opt/icu4c/lib \
+        --extra-include-dirs=/usr/local/opt/openssl/include \
+        --extra-lib-dirs=/usr/local/opt/openssl/lib"
+
+set -e
+set -u
+
+prep-exe() {
+    brew install icu4c
+    brew install openssl
+
+    cd ${t}
+    stack setup ${stack_params}
+    stack build ${stack_params}
+    cd - > /dev/null
+}
+
+pack() {
+    exe_path=$(cd ${t}/.. && stack exec -- which fancydiff)
+
+    rm -rf ${t}/PACK
+    mkdir ${t}/PACK
+    ver=$(${t}/../version.sh tag-with-simple | awk -F" " '{print $1}')
+
+    tarball=${pkgname}-${ver}-darwin
+    pdir=${t}/PACK/${tarball}
+
+    mkdir -p ${pdir}/bin
+    cp -a ${exe_path} ${pdir}/bin/fancydiff
+    cp -a ${t}/../LICENSE ${pdir}/LICENSE.txt
+
+    mkdir -p ${pdir}/doc
+    cp -a ${t}/../doc ${pdir}/doc
+    cp -a ${t}/../README.md ${pdir}
+
+    packfile=${pkgname}-${ver}-darwin-x86_64.tar.gz
+    packfile_abs=${t}/PACK/${packfile}
+    cd ${t}/PACK
+    tar -cvzf ${packfile} ${tarball}
+    cd - > /dev/null
+    rm -rf ${pdir}
+}
+
+localtest=false
+
+local-test() {
+    localtest=true
+}
+
+mk-brew-formula() {
+    sum=$(shasum -a 256 ${packfile_abs} | awk -F" " '{print $1}')
+    tag=$(${t}/../version.sh tag)
+
+    if [[ "$localtest" == "true" ]] ; then
+	fileurl="file://`pwd`/packaging/PACK/${packfile}"
+    else
+	fileurl="${homeurl}/releases/download/v${tag}/${packfile}"
+    fi
+
+    cat - > ${t}/PACK/fancydiff.rb  <<EOF
+
+class Fancydiff < Formula
+  desc "${pkgtitle}"
+  homepage "${homeurl}"
+  url "${fileurl}"
+  sha256 "${sum}"
+  version "${tag}"
+
+  depends_on :arch => :x86_64
+  depends_on "icu4c"
+  depends_on "openssl"
+
+  bottle :unneeded
+
+  def install
+    bin.install "bin/fancydiff"
+    doc.install Dir["doc/*"]
+  end
+end
+
+EOF
+}
+
+brew-test() {
+    brew install ${t}/PACK/fancydiff.rb
+}
+
+if [[ `uname -s` != "Darwin" ]] ; then
+    echo "Designed to run on Darwin"
+    exit -1
+fi
+
+case "$@" in
+    test)
+	prep-exe
+	local-test
+	pack
+	mk-brew-formula
+	brew-test
+        ;;
+    release)
+	prep-exe
+	pack
+	mk-brew-formula
+        ;;
+    *)
+	echo "$@"
+        for i in "$@" ; do
+            $i
+        done
+        ;;
+esac
