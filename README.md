@@ -8,6 +8,36 @@ Fancydiff is a diff coloring wrapper for Git, under Linux or MacOS X, that suppo
 
 This similar to what you see on Github, but instead it is done in the user's console.
 
+### Download and install
+
+Latest binaries can be installed for both Mac OS X and Linux:
+
+On **Fedora** 22 onwards:
+
+```
+sudo dnf copr enable alonid/fancydiff
+sudo dnf install fancydiff
+```
+
+For EPEL/CentOS/Red Hat 7, visit [Copr](https://copr.fedorainfracloud.org/coprs/alonid/fancydiff/).
+
+On **Ubuntu** Wily:
+
+```
+sudo add-apt-repository ppa:alonid/fancydiff
+sudo apt-get update
+sudo apt-get install fancydiff
+```
+
+On MacOS X:
+
+```
+brew install https://raw.githubusercontent.com/da-x/fancydiff/brew-lastest/fancydiff.rb
+```
+
+#### Compile from source
+
+Follow the [building instructions](doc/compilation-from-source).
 
 ## Git configuration
 
@@ -38,74 +68,6 @@ Optionally, it may be used via aliases:
 A terminal supporting TrueColor is currently required.
 
 See this [gist](https://gist.github.com/XVilka/8346728).
-
-### Binaries
-
-On **Fedora** 22 onwards:
-
-```
-sudo dnf copr enable alonid/fancydiff
-sudo dnf install fancydiff
-```
-
-For EPEL/CentOS/Red Hat 7, visit [Copr](https://copr.fedorainfracloud.org/coprs/alonid/fancydiff/).
-
-On **Ubuntu** Wily:
-
-```
-sudo add-apt-repository ppa:alonid/fancydiff
-sudo apt-get update
-sudo apt-get install fancydiff
-```
-
-Otherwise visit the [PPA page](https://launchpad.net/~alonid/+archive/ubuntu/fancydiff).
-
-### Build from source
-
-#### Dependencies
-
-For Fedora/CentOS, do `sudo yum install libicu-devel zlib-devel openssl-devel gmp-devel pcre-devel`
-For Debian/Ubuntu, do `sudo apt-get install libicu-dev libz-dev libssl-dev libgmp-dev`
-Download and install [haskell-stack](http://docs.haskellstack.org/en/stable/install_and_upgrade.html) for Linux,
-
-
-#### Build
-
-In the Git clone of Fancydiff, do the following:
-
-```
-stack setup
-stack install
-```
-
-
-## Setup on MacOS X
-
-### Dependencies
-
-Download a **test release or a nightly** of [iTerm2](https://www.iterm2.com/downloads.html), which supports 24-Bit True Color
-ANSI codes.
-
-Download [haskell-stack](http://docs.haskellstack.org/en/stable/install_and_upgrade.html#mac-os-x) for MacOS X,
-and do the following:
-
-```
-brew install icu4c
-brew install openssl
-```
-
-### Build and install
-
-Change to the cloned repo of Fancydiff and do the following:
-
-```
-stack setup
-stack install \
-    --extra-include-dirs=/usr/local/opt/icu4c/include   \
-    --extra-lib-dirs=/usr/local/opt/icu4c/lib           \
-    --extra-include-dirs=/usr/local/opt/openssl/include \
-    --extra-lib-dirs=/usr/local/opt/openssl/lib
-```
 
 ## Limitations
 
