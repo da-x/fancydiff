@@ -31,9 +31,6 @@ stack install
 
 #### Dependencies
 
-Download a **test release or a nightly** of [iTerm2](https://www.iterm2.com/downloads.html), which supports 24-Bit True Color
-ANSI codes.
-
 Download [haskell-stack](http://docs.haskellstack.org/en/stable/install_and_upgrade.html#mac-os-x) for MacOS X,
 and do the following:
 

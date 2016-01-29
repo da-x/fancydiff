@@ -10,7 +10,11 @@ This similar to what you see on Github, but instead it is done in the user's con
 
 ### Download and install
 
-Latest binaries can be installed for both Mac OS X and Linux:
+#### Linux
+
+First make sure that you have a terminal program that supports 24 bit True Color (see this [gist](https://gist.github.com/XVilka/8346728)).
+
+Latest binaries of Fancydiff can be installed on major distributions.
 
 On **Fedora** 22 onwards:
 
@@ -29,13 +33,16 @@ sudo apt-get update
 sudo apt-get install fancydiff
 ```
 
-On **MacOS X**:
+#### MacOS X
+
+Download a **test release or a nightly** of [iTerm2](https://www.iterm2.com/downloads.html), which supports 24-Bit True Color
+ANSI codes. Then, do the following:
 
 ```
 brew install https://raw.githubusercontent.com/da-x/fancydiff/brew-lastest/fancydiff.rb
 ```
 
-#### Or, compile from source
+### Or, compile from source
 
 Follow the [building instructions](doc/compilation-from-source.md).
 
@@ -61,13 +68,6 @@ Optionally, it may be used via aliases:
     show-fancy = "!git -c color.diff=off -c pager.show='fancydiff | LESSANSIENDCHARS=mK less' show $@ || true"
     diff-fancy = "!git -c color.diff=off -c pager.diff='fancydiff | LESSANSIENDCHARS=mK less' diff $@ || true"
 ```
-
-
-## Setup on Linux (Fedora-based, Ubuntu/Debian-based)
-
-A terminal supporting TrueColor is currently required.
-
-See this [gist](https://gist.github.com/XVilka/8346728).
 
 ## Limitations
 
