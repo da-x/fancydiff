@@ -29,15 +29,15 @@ sudo apt-get update
 sudo apt-get install fancydiff
 ```
 
-On MacOS X:
+On **MacOS X**:
 
 ```
 brew install https://raw.githubusercontent.com/da-x/fancydiff/brew-lastest/fancydiff.rb
 ```
 
-#### Compile from source
+#### Or, compile from source
 
-Follow the [building instructions](doc/compilation-from-source).
+Follow the [building instructions](doc/compilation-from-source.md).
 
 ## Git configuration
 
