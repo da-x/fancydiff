@@ -198,12 +198,13 @@ commitHighlight commit = do
     where
         parsed       = parse $ lineSplit commit
 
-        parse (x:xs) = case' "commit "   (const FD.CommitMain) parse x xs $
-                       case' "Author: "  (const FD.CommitOther) parse x xs $
-                       case' "AuthorDate: "  (const FD.CommitOther) parse x xs $
-                       case' "Commit: "  (const FD.CommitOther) parse x xs $
-                       case' "CommitDate: "  (const FD.CommitOther) parse x xs $
-                       case' "Date: "    (const FD.CommitOther) parse x xs $
+        parse (x:xs) = case' "commit "            (const FD.CommitMain) parse x xs $
+                       case' "Merge: "            (const FD.CommitMerge) parse x xs $
+                       case' "Author: "           (const FD.CommitOther) parse x xs $
+                       case' "AuthorDate: "       (const FD.CommitOther) parse x xs $
+                       case' "Commit: "           (const FD.CommitOther) parse x xs $
+                       case' "CommitDate: "       (const FD.CommitOther) parse x xs $
+                       case' "Date: "             (const FD.CommitOther) parse x xs $
                        case' "    Signed-off-by:" (const CommitMsgByLines) parse x xs $
                        else' parse x xs
         parse []     = []

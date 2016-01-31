@@ -43,6 +43,7 @@ data Format
     | DiffUnchanged
     | DiffNothing
     | CommitMain
+    | CommitMerge
     | CommitOther
     | CommitMsgByLines
     | Mark
@@ -79,6 +80,7 @@ data Palette a = Palette {
     , p'parentheses      :: !a
     , p'ignore           :: !a
     , p'commitMsgByLines :: !a
+    , p'commitMergeFG    :: !a
     , p'commitMain       :: !a
     , p'commitOther      :: !a
     , p'diffMain         :: !a

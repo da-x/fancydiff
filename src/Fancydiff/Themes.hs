@@ -25,6 +25,7 @@ darkBackground = Palette {
     , p'parentheses      = ColorString "#c0f0f0"
     , p'ignore           = ColorString "#ffffff"
     , p'commitMain       = ColorString "#702070"
+    , p'commitMergeFG    = ColorString "#ffff00"
     , p'commitOther      = ColorString "#502050"
     , p'commitMsgByLines = ColorString "#ffbbff"
     , p'diffMain         = ColorString "#0020a0"

@@ -41,6 +41,7 @@ data RenderedPalette = RenderedPalette {
     , p'parentheses      :: {-# UNPACK #-} !Text
     , p'ignore           :: {-# UNPACK #-} !Text
     , p'commitMain       :: {-# UNPACK #-} !Text
+    , p'commitMerge      :: {-# UNPACK #-} !Text
     , p'commitOther      :: {-# UNPACK #-} !Text
     , p'commitMsgByLines :: {-# UNPACK #-} !Text
     , p'diffMain         :: {-# UNPACK #-} !Text
@@ -72,6 +73,8 @@ renderPalette brightness p = RenderedPalette
     , p'parentheses           = front D.p'parentheses
     , p'ignore                = front D.p'ignore
     , p'commitMain            = wrap $ back D.p'commitMain
+    , p'commitMerge           = wrap $ T.concat [back D.p'commitMain,
+                                                 front D.p'commitMergeFG]
     , p'commitOther           = wrap $ back D.p'commitOther
     , p'commitMsgByLines      = front D.p'commitMsgByLines
     , p'diffMain              = wrap $ back D.p'diffMain
@@ -170,6 +173,7 @@ ansiFormatting = root
         repr _ _ _ DiffNothing        = Nothing
         repr _ _ _ CommitMsgByLines   = Just $ p'commitMsgByLines pal
         repr _ _ _ CommitMain         = Just $ p'commitMain pal
+        repr _ _ _ CommitMerge        = Just $ p'commitMerge pal
         repr _ _ _ CommitOther        = Just $ p'commitOther pal
 
         repr _ _ r (Style Ignore)     = r
