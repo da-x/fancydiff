@@ -14,7 +14,7 @@ For Debian/Ubuntu, do
 sudo apt-get install libicu-dev libz-dev libssl-dev libgmp-dev
 ```
 
-Download and install [haskell-stack](http://docs.haskellstack.org/en/stable/install_and_upgrade.html) for Linux,
+Download and install [haskell-stack](http://docs.haskellstack.org/en/stable/install_and_upgrade.html) **v1.0.3 and above** for Linux,
 
 
 #### Build
@@ -31,7 +31,7 @@ stack install
 
 #### Dependencies
 
-Download [haskell-stack](http://docs.haskellstack.org/en/stable/install_and_upgrade.html#mac-os-x) for MacOS X,
+Download [haskell-stack](http://docs.haskellstack.org/en/stable/install_and_upgrade.html#mac-os-x) **v1.0.3 and above** for MacOS X,
 and do the following:
 
 ```
