@@ -33,6 +33,8 @@ sudo apt-get update
 sudo apt-get install fancydiff
 ```
 
+You can also visit [Fancydiff's PPA in Launchpad](https://launchpad.net/~alonid/+archive/ubuntu/fancydiff).
+
 #### MacOS X
 
 Download a **test release or a nightly** of [iTerm2](https://www.iterm2.com/downloads.html), which supports 24-Bit True Color
@@ -73,3 +75,7 @@ Optionally, it may be used via aliases:
 
  * Too few source code languages are supported.
  * Some small original coloring features from Git itself are missing.
+
+## Contribution and bug reports
+
+Everyone is welcome to contribute and report issues here via Github!
