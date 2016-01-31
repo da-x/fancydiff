@@ -39,10 +39,34 @@ pack() {
     pdir=${t}/PACK/${tarball}
 
     mkdir -p ${pdir}/bin
-    cp -a ${exe_path} ${pdir}/bin/fancydiff
+    cat - > ${pdir}/bin/fancydiff <<EOF
+#!/bin/bash
+
+t=\${BASH_SOURCE[0]}
+d=\$(dirname \${t})
+dl=\$(dirname \${d})/deps
+export DYLD_LIBRARY_PATH=\${dl}
+exec \${d}/../exe/fancydiff "\$@"
+
+EOF
+    chmod a+x ${pdir}/bin/fancydiff
+    mkdir -p ${pdir}/deps
+
+    for i in $(otool -L ${exe_path} | grep /usr/local | awk -F" " '{print $1}') ; do
+	d=$(dirname ${i})
+	b=$(basename ${i})
+	for j in $(ls -1 ${d}) ; do
+	    if [[ "$(readlink $d/$j)" == "$b" ]] ; then
+		ln -s ${b} ${pdir}/deps/${j}
+	    fi
+	done
+	cp $i ${pdir}/deps
+    done
+
+    mkdir -p ${pdir}/exe
+    cp -a ${exe_path} ${pdir}/exe/fancydiff
     cp -a ${t}/../LICENSE ${pdir}/LICENSE.txt
 
-    mkdir -p ${pdir}/doc
     cp -a ${t}/../doc ${pdir}/doc
     cp -a ${t}/../README.md ${pdir}
 
@@ -80,14 +104,13 @@ class Fancydiff < Formula
   version "${tag}"
 
   depends_on :arch => :x86_64
-  depends_on "icu4c"
-  depends_on "openssl"
 
   bottle :unneeded
 
   def install
-    bin.install "bin/fancydiff"
-    doc.install Dir["doc/*"]
+    doc.install Dir["doc/*", "README.md", "LICENSE.txt"]
+    libexec.install Dir["bin", "exe", "deps"]
+    bin.write_exec_script Dir["#{libexec}/bin/*"]
   end
 end
 

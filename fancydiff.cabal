@@ -12,6 +12,10 @@ category:            Console
 build-type:          Custom
 cabal-version:       >=1.10
 
+flag static
+  manual: True
+  default: False
+
 library
   hs-source-dirs:      src
   ghc-options:        -Wall -O2 -rtsopts
@@ -66,6 +70,8 @@ executable fancydiff
                      , transformers   >= 0.4.2.0
                      , optparse-applicative
   default-language:    Haskell2010
+  if flag(static)
+      ld-options: -v
 
 test-suite fancydiff-test
   type:                exitcode-stdio-1.0
