@@ -26,7 +26,7 @@ import           Data.STRef       (modifySTRef', newSTRef, readSTRef,
 import           Data.Text        (Text)
 import qualified Data.Text        as T
 ------------------------------------------------------------------------------------
-import           Fancydiff.Data   (Format(..))
+import           Fancydiff.Data   (Format(..), Element(Ignore))
 import           Lib.Text         (lineSplit, subAText, textToAText, (+@))
 ------------------------------------------------------------------------------------
 
@@ -87,7 +87,7 @@ highlightMonospace :: Text -> FList
 highlightMonospace t = DList.singleton (TForm MonospacePar $ DList.singleton $ TPlain t)
 
 highlightText :: Text -> FList
-highlightText text = DList.singleton (TPlain text)
+highlightText text = DList.singleton (TForm (Style Ignore) (DList.singleton $ TPlain text))
 
 --
 -- Combination examples:

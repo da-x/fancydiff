@@ -14,7 +14,7 @@ import           Data.Text                 (Text)
 import qualified Data.Text                 as T
 import           Text.Printf               (printf)
 ----
-import           Fancydiff.Data            (Element (Ignore, Identifier))
+import           Fancydiff.Data            (Element)
 import qualified Fancydiff.Data            as D
 import           Fancydiff.Formatting
 import           Fancydiff.SourceHighlight (brighter, paletteDecode)
@@ -43,6 +43,7 @@ data RenderedPalette = RenderedPalette {
     , p'commitMain       :: {-# UNPACK #-} !Text
     , p'commitMerge      :: {-# UNPACK #-} !Text
     , p'commitOther      :: {-# UNPACK #-} !Text
+    , p'commitMsg        :: {-# UNPACK #-} !Text
     , p'commitMsgByLines :: {-# UNPACK #-} !Text
     , p'diffMain         :: {-# UNPACK #-} !Text
     , p'diffMainExtra    :: {-# UNPACK #-} !Text
@@ -72,25 +73,25 @@ renderPalette brightness p = RenderedPalette
     , p'brackets              = front D.p'brackets
     , p'parentheses           = front D.p'parentheses
     , p'ignore                = front D.p'ignore
-    , p'commitMain            = wrap $ back D.p'commitMain
-    , p'commitMerge           = wrap $ T.concat [back D.p'commitMain,
-                                                 front D.p'commitMergeFG]
-    , p'commitOther           = wrap $ back D.p'commitOther
+    , p'commitMain            = backAndFront D.p'commitMain       D.p'commitFG
+    , p'commitMerge           = backAndFront D.p'commitMain       D.p'commitMergeFG
+    , p'commitOther           = backAndFront D.p'commitOther      D.p'commitFG
+    , p'commitMsg             = front D.p'commitFG
     , p'commitMsgByLines      = front D.p'commitMsgByLines
-    , p'diffMain              = wrap $ back D.p'diffMain
-    , p'diffMainExtra         = wrap $ back D.p'diffMainExtra
-    , p'diffRemove            = wrap $ back D.p'diffRemove
-    , p'diffAdd               = wrap $ back D.p'diffAdd
-    , p'diffMarkAdd           = wrap $ back D.p'diffMarkAdd
-    , p'diffMarkRemove        = wrap $ back D.p'diffMarkRemove
-    , p'diffRemoveFile        = wrap $ back D.p'diffRemoveFile
-    , p'diffAddFile           = wrap $ back D.p'diffAddFile
-    , p'diffHunkHeader        = wrap $ T.concat [back D.p'diffHunkHeaderBG,
-                                                 front D.p'diffHunkHeaderFG]
+    , p'diffMain              = backAndFront D.p'diffMain         D.p'commitFG
+    , p'diffMainExtra         = backAndFront D.p'diffMainExtra    D.p'commitFG
+    , p'diffRemove            = backAndFront D.p'diffRemove       D.p'commitFG
+    , p'diffAdd               = backAndFront D.p'diffAdd          D.p'commitFG
+    , p'diffMarkAdd           = backAndFront D.p'diffMarkAdd      D.p'commitFG
+    , p'diffMarkRemove        = backAndFront D.p'diffMarkRemove   D.p'commitFG
+    , p'diffRemoveFile        = backAndFront D.p'diffRemoveFile   D.p'commitFG
+    , p'diffAddFile           = backAndFront D.p'diffAddFile      D.p'commitFG
+    , p'diffHunkHeader        = backAndFront D.p'diffHunkHeaderBG D.p'diffHunkHeaderFG
     }
     where
         wrap t = T.concat [ "\x1b[0m", t, "\x1b[K"]
-
+        backAndFront b f =
+            wrap $ T.concat [back b, front f]
         front access = code Front $ brighter brightness $ access p
         back access = code Back $ access p
 
@@ -172,12 +173,11 @@ ansiFormatting = root
         repr _ _ _ DiffUnchanged      = Nothing
         repr _ _ _ DiffNothing        = Nothing
         repr _ _ _ CommitMsgByLines   = Just $ p'commitMsgByLines pal
+        repr _ _ _ CommitMsg          = Just $ p'commitMsg pal
         repr _ _ _ CommitMain         = Just $ p'commitMain pal
         repr _ _ _ CommitMerge        = Just $ p'commitMerge pal
         repr _ _ _ CommitOther        = Just $ p'commitOther pal
 
-        repr _ _ r (Style Ignore)     = r
-        repr _ _ r (Style Identifier) = r
         repr a m _ (Style e)          = if | Mark       `elem` m -> style pal3
                                            | DiffRemove `elem` m -> style pal4
                                            | DiffAdd    `elem` m -> style pal4

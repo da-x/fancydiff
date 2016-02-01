@@ -212,7 +212,8 @@ commitHighlight commit = do
         -- Infra
         case' pref mark next x xs alt =
             if pref `T.isPrefixOf` x
-               then (F.TForm (mark x) (DList.singleton $ F.TPlain x)):(next xs)
+               then (set mark x):(next xs)
                else alt
 
-        else' f x xs    = (F.TPlain x):(f xs)
+        else' f x xs    = (set (const FD.CommitMsg) x):(f xs)
+        set mark x = (F.TForm (mark x) (DList.singleton $ F.TPlain x))

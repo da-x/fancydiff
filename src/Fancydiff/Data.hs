@@ -45,6 +45,7 @@ data Format
     | CommitMain
     | CommitMerge
     | CommitOther
+    | CommitMsg
     | CommitMsgByLines
     | Mark
     | Emphesis
@@ -80,6 +81,7 @@ data Palette a = Palette {
     , p'parentheses      :: !a
     , p'ignore           :: !a
     , p'commitMsgByLines :: !a
+    , p'commitFG         :: !a
     , p'commitMergeFG    :: !a
     , p'commitMain       :: !a
     , p'commitOther      :: !a
