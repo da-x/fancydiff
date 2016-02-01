@@ -37,7 +37,7 @@ import qualified Data.ByteString           as B
 import qualified Data.Text.Encoding        as T
 import           System.FilePath           ((</>))
 import           Data.ByteString (ByteString)
-import           Git                       (catBlob, MonadGit)
+import           Git                       (catBlob, MonadGit, GitException(BackendError))
 import qualified Git
 import           Text.Regex.TDFA           ((=~))
 import           Text.Regex.TDFA.Text      ()
@@ -88,7 +88,14 @@ readMaybeBlob filename hash = do
                                     case hash `T.isPrefixOf` T.pack (show workdirHash) of
                                         True -> liftIO $ B.readFile $ workdir </> T.unpack filename
                                         False -> E.throw e
-                                Nothing -> E.throw e
+                                Nothing -> do
+                                    E.catch (E.throw e) $ \e2 ->
+                                        case e2 of
+                                            BackendError _ ->
+                                                -- Submodules "files" reach this, backend
+                                                -- complains the commit hashes not found.
+                                                return ""
+                                            _ -> E.throw e
                         Nothing -> E.throw e
             E.catch inDb inWorkingDir
 
