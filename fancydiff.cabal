@@ -35,8 +35,10 @@ library
                      , bytestring      >= 0.10.6.0
                      , containers      >= 0.5.6.2
                      , dlist           >= 0.7.1.2
+                     , filepath
                      , gitlib          == 3.1.1.1
                      , gitlib-libgit2  == 3.1.1.1
+                     , hex
                      , lifted-base     >= 0.2.3.6
                      , monad-control   >= 1.0.0.4
                      , patience        >= 0.1.1
@@ -45,8 +47,6 @@ library
                      , regex-tdfa-text >= 1.0.0.3
                      , text            >= 1.2.2.0
                      , transformers    >= 0.4.2.0
-                     , filepath
-                     , hex
   build-tools:         happy, alex
   default-language:    Haskell2010
 
@@ -66,9 +66,10 @@ executable fancydiff
                      , gitlib-libgit2 >= 3.1.1
                      , lifted-base    >= 0.2.3.6
                      , monad-control  >= 1.0.0.4
+                     , optparse-applicative
+                     , process         >= 1.2.3.0
                      , text           >= 1.2.2.0
                      , transformers   >= 0.4.2.0
-                     , optparse-applicative
   default-language:    Haskell2010
   if flag(static)
       ld-options: -v
@@ -80,7 +81,7 @@ test-suite fancydiff-test
   build-depends:       base
                      , containers >= 0.5.6.2
                      , fancydiff
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  ghc-options:         -Wall
   default-language:    Haskell2010
 
 source-repository head

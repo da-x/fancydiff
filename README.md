@@ -57,18 +57,18 @@ replacement for `diff-highlight` and `git`'s own diff coloring, via:
 [color]
     diff = off
 [pager]
-    log = fancydiff | LESSANSIENDCHARS=mK less
-    show = fancydiff | LESSANSIENDCHARS=mK less
-    diff = fancydiff | LESSANSIENDCHARS=mK less
+    log = fancydiff stdin --pager=less
+    show = fancydiff stdin --pager=less
+    diff = fancydiff stdin --pager=less
 ```
 
 Optionally, it may be used via aliases:
 
 ```
 [alias]
-    log-fancy = "!git -c color.diff=off -c pager.log='fancydiff | LESSANSIENDCHARS=mK less' log $@ || true"
-    show-fancy = "!git -c color.diff=off -c pager.show='fancydiff | LESSANSIENDCHARS=mK less' show $@ || true"
-    diff-fancy = "!git -c color.diff=off -c pager.diff='fancydiff | LESSANSIENDCHARS=mK less' diff $@ || true"
+    log-fancy = "!git -c color.diff=off -c pager.log='fancydiff stdin --pager=less' log $@"
+    show-fancy = "!git -c color.diff=off -c pager.show='fancydiff stdin --pager=less' show $@"
+    diff-fancy = "!git -c color.diff=off -c pager.diff='fancydiff stdin --pager=less' diff $@"
 ```
 
 ## Limitations
