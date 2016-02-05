@@ -68,7 +68,7 @@ state:-
 
   <clang>     @sp                     { tok       Ignore  	    }
   <clang>     [\"]                    { tokPush   String    str     }
-  <str>       "\\\""                  { tok       String            }
+  <str>       [\\] [\"]               { tok       String            }
   <str>       [\"]                    { tokPop    String            }
   <str>       [^ \\ \"]+              { tok       String            }
   <str>       [\\]                    { tok       String            }
