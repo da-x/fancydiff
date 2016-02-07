@@ -12,6 +12,7 @@ import qualified Control.Exception.Lifted    as E
 import           Control.Monad               (when)
 import qualified Data.ByteString             as B
 import qualified Data.DList                  as DL
+import           Data.List                   (intersperse)
 import qualified Data.Text                   as T
 import qualified Data.Text.IO                as T
 import           Data.IORef                  (modifyIORef', newIORef, readIORef,
@@ -48,6 +49,7 @@ import           Fancydiff.Lib               (tryDiffWithSourceHighlight,
 import           Fancydiff.Formatting        (fshow)
 import           Fancydiff.AnsiFormatting    (ansiFormatting)
 import           Lib.Text                    (safeDecode)
+import           Lib.Git                     (git')
 import qualified Internal.Version            as V
 -------------------------------------------------------------------
 
@@ -94,6 +96,7 @@ data Pager
 data Command
     = OneFile FilePath
     | Stdin (Maybe Highlighter)
+    | Setup Bool Bool
 
 data Opts
     = Opts Bool OutputFormat (Maybe Pager) (Maybe Command)
@@ -114,7 +117,8 @@ optsParser = info (optsParse <**> helper) idm
                                  <> help "Execute the given pager (currently supporting 'less')" )))
                 <*> optional (hsubparser
                               (command "file" fileCmd <>
-                               command "stdin" stdinCmd))
+                               command "stdin" stdinCmd <>
+                               command "setup" setupCmd))
 
        pagerArg (Just "less") = Just $ Less
        pagerArg _             = Nothing
@@ -129,6 +133,11 @@ optsParser = info (optsParse <**> helper) idm
            (progDesc "Take in a single file, given by a pathname")
        stdinCmd = info (Stdin <$> (fmap (fmap highlighterArg) $ (optional $ argument str (metavar "HIGHLIGHTER"))))
            (progDesc "Take from stdin")
+       setupCmd = info (Setup <$> (switch ( long "aliases" <> short 'a' <>
+                                            help "Setup aliases instead of affecting 'log/diff/show' directly" ))
+                              <*> (switch ( long "local" <> short 'l' <>
+                                            help "Modify the local repo configuration only" )))
+           (progDesc "Modify Git's configuration for the enablement of Fancydiff")
 
 main :: IO ()
 main = do
@@ -169,6 +178,30 @@ main = do
                     Left err -> do T.hPutStrLn stderr $ T.pack err
                                    exitFailure
                     Right ok -> liftIO $ T.hPutStr outHandle $ fmt ok
+
+            onCmd _ (Setup onlyAliases isLocal) _ = do
+                let git'print params = do
+                        T.putStrLn $ T.concat $ ["Running: "] ++ (intersperse " " $ map onParam params)
+                        git' params
+                    onParam param
+                        | T.filter (== ' ') param == "" = param
+                        | otherwise                     = T.concat ["\"", param, "\""]
+                    gitconfig p = if isLocal then git'print $ ["config"] ++ p
+                                             else git'print $ ["config", "--global"] ++ p
+                case onlyAliases of
+                    False -> do gitconfig ["color.diff", "off"]
+                                gitconfig ["pager.log", "fancydiff stdin --pager=less"]
+                                gitconfig ["pager.show", "fancydiff stdin --pager=less"]
+                                gitconfig ["pager.diff", "fancydiff stdin --pager=less"]
+
+                    True ->  do gitconfig ["aliases.log-fancy",
+                                           "!git -c color.diff=off -c pager.log='fancydiff stdin --pager=less' log $@"]
+                                gitconfig ["aliases.show-fancy",
+                                           "!git -c color.diff=off -c pager.show='fancydiff stdin --pager=less' show $@"]
+                                gitconfig ["aliases.diff-fancy",
+                                           "!git -c color.diff=off -c pager.diff='fancydiff stdin --pager=less' diff $@"]
+
+                putStrLn "You are now ready to use Fancydiff"
 
             onCmd fmt (OneFile filepath) outHandle = do
                 content <- B.readFile filepath

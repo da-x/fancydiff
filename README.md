@@ -50,26 +50,14 @@ Follow the [building instructions](doc/compilation-from-source.md).
 
 ## Git configuration
 
-With `fancydiff` in `$PATH` the following configuration can be used in `.gitconfig`. It can be a drop-in
-replacement for `diff-highlight` and `git`'s own diff coloring, via:
+With `fancydiff` in `$PATH` you can use the `setup` command to modify the Git configuration.
 
 ```
-[color]
-    diff = off
-[pager]
-    log = fancydiff stdin --pager=less
-    show = fancydiff stdin --pager=less
-    diff = fancydiff stdin --pager=less
+fancydiff setup [--local] [--aliases]
 ```
 
-Optionally, it may be used via aliases:
-
-```
-[alias]
-    log-fancy = "!git -c color.diff=off -c pager.log='fancydiff stdin --pager=less' log $@"
-    show-fancy = "!git -c color.diff=off -c pager.show='fancydiff stdin --pager=less' show $@"
-    diff-fancy = "!git -c color.diff=off -c pager.diff='fancydiff stdin --pager=less' diff $@"
-```
+More details [here](doc/git-configuration.md) about how the Git configuration is modified
+to enable Fancydiff,
 
 ## Limitations
 
