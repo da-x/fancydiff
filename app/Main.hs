@@ -26,7 +26,7 @@ import           Options.Applicative         (command, info, (<**>),
                                               argument, str, metavar, ParserInfo,
                                               helper, idm, optional, progDesc,
                                               switch, long, short, strOption,
-                                              help, execParser, (<>),
+                                              help, execParser, (<>), hidden,
                                               hsubparser)
 import           Data.Version                (showVersion)
 import           System.Process              (createProcess, proc,
@@ -50,6 +50,7 @@ import           Fancydiff.Formatting        (fshow)
 import           Fancydiff.AnsiFormatting    (ansiFormatting)
 import           Lib.Text                    (safeDecode)
 import           Lib.Git                     (git')
+import qualified Spec as Spec
 import qualified Internal.Version            as V
 -------------------------------------------------------------------
 
@@ -99,7 +100,7 @@ data Command
     | Setup Bool Bool
 
 data Opts
-    = Opts Bool OutputFormat (Maybe Pager) (Maybe Command)
+    = Opts Bool Bool OutputFormat (Maybe Pager) (Maybe Command)
 
 getVersion :: T.Text
 getVersion = T.concat [T.pack $ showVersion version, V.version]
@@ -109,6 +110,7 @@ optsParser = info (optsParse <**> helper) idm
    where
        optsParse =
            Opts <$> switch ( long "version" <> short 'v' <> help "Show version" )
+                <*> switch ( hidden <> long "test-suite" )
                 <*> fmap formatArg (optional (strOption (long
                          "format" <> short 'f'
                                  <> help "Output format (defaults to ANSI codes)" )))
@@ -142,14 +144,17 @@ optsParser = info (optsParse <**> helper) idm
 main :: IO ()
 main = do
     void $ execParser optsParser >>= \case
-        Opts True _ _ _ -> do
+        Opts True _ _ _ _ -> do
             T.putStrLn $ T.concat ["Fancydiff ", getVersion]
 
-        Opts _ _ _ Nothing -> do
+        Opts _ True _ _ _ -> do
+            Spec.main
+
+        Opts _ _ _ _ Nothing -> do
             T.hPutStrLn stderr $ "fancydiff: no command specified (see --help)"
             exitFailure
 
-        Opts _ fmt (Just Less) (Just cmnd) -> do
+        Opts _ _ fmt (Just Less) (Just cmnd) -> do
             curEnv <- getEnvironment
             (Just handleOutToLess, _, _, handle) <-
                 createProcess (proc "less" ["-R"])
@@ -163,7 +168,7 @@ main = do
             _ <- waitForProcess handle
             return ()
 
-        Opts _ fmt Nothing (Just cmnd) -> do
+        Opts _ _ fmt Nothing (Just cmnd) -> do
             onCmd (fmtToFunc fmt) cmnd stdout
 
       where fmtToFunc ANSI = ansiFormatting

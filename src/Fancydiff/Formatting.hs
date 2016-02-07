@@ -47,7 +47,9 @@ class FShow a where
     fshow = T.unlines . fshow'
 
 instance FShow FList where
-    fshow' lst = ["{"] ++ (map ("   " +@) $ concat $ map fshow' (toList lst)) ++ ["}"]
+    fshow' lst = case concat $ map fshow' (toList lst) of
+        [x] -> ["{ " +@ x +@ " }"]
+        xs  -> ["{"] ++ (map ("   " +@) $ xs) ++ ["}"]
 
 instance FShow Fragment where
     fshow' (TPlain t) = [T.pack $ show t]

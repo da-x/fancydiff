@@ -12,10 +12,6 @@ category:            Console
 build-type:          Custom
 cabal-version:       >=1.10
 
-flag static
-  manual: True
-  default: False
-
 library
   hs-source-dirs:      src
   ghc-options:        -Wall -O2 -rtsopts
@@ -53,37 +49,38 @@ library
 
 executable fancydiff
   hs-source-dirs:      app
+                     , test
   main-is:             Main.hs
   ghc-options:         -Wall -O2 -rtsopts
   other-modules:       Internal.Version
                      , Paths_fancydiff
-  build-depends:       array          >= 0.5.1.0
+                     , Spec
+                     , Lib.Process
+                     , Lib.Git
+  build-depends:       base
+                     , ansi-terminal  >= 0.6.2.3
+                     , array          >= 0.5.1.0
                      , base
                      , bytestring     >= 0.10.6.0
                      , containers     >= 0.5.6.2
+                     , directory      >= 1.2.2.0
                      , dlist          >= 0.7.1.2
+                     , exceptions     >= 0.8.2.1
                      , fancydiff
+                     , filepath
                      , gitlib         >= 3.1.1
                      , gitlib-libgit2 >= 3.1.1
+                     , lens           >= 4.13
                      , lifted-base    >= 0.2.3.6
                      , monad-control  >= 1.0.0.4
+                     , mtl            >= 2.2.1
                      , optparse-applicative
-                     , process         >= 1.2.3.0
-                     , process-extras
+                     , process        >= 1.2.3.0
+                     , process-extras >= 0.3.3.7
+                     , temporary      >= 1.2.0.4
                      , text           >= 1.2.2.0
                      , transformers   >= 0.4.2.0
-  default-language:    Haskell2010
-  if flag(static)
-      ld-options: -v
-
-test-suite fancydiff-test
-  type:                exitcode-stdio-1.0
-  hs-source-dirs:      test
-  main-is:             Spec.hs
-  build-depends:       base
-                     , containers >= 0.5.6.2
-                     , fancydiff
-  ghc-options:         -Wall
+                     , yaml >= 0.8.15.3
   default-language:    Haskell2010
 
 source-repository head

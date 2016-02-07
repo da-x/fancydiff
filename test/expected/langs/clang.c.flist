@@ -1,0 +1,58 @@
+{
+   Style Keyword { "typedef" }
+   Style Ignore { " " }
+   Style Keyword { "struct" }
+   Style Ignore { " " }
+   Style Identifier { "struct_tag" }
+   Style Ignore { " {\n\t" }
+   Style Keyword { "int" }
+   Style Ignore { " " }
+   Style Identifier { "field" }
+   Style Ignore { ";\n} " }
+   Style Identifier { "typedef_tag" }
+   Style Ignore { ";\n\n" }
+   Style Keyword { "int" }
+   Style Ignore { " " }
+   Style Call { "main" }
+   Style Ignore { "(" }
+   Style Keyword { "int" }
+   Style Ignore { " " }
+   Style Identifier { "argc" }
+   Style Ignore { ", " }
+   Style Keyword { "char" }
+   Style Ignore { " **" }
+   Style Identifier { "argv" }
+   Style Ignore { "[])\n{\n\t" }
+   Style Keyword { "const" }
+   Style Ignore { " " }
+   Style Keyword { "char" }
+   Style Ignore { " *" }
+   Style Identifier { "s" }
+   Style Ignore { " = " }
+   Style String { "\"a string\\n\"" }
+   Style Ignore { ";\n\t" }
+   Style Keyword { "const" }
+   Style Ignore { " " }
+   Style Keyword { "char" }
+   Style Ignore { " *" }
+   Style Identifier { "s2" }
+   Style Ignore { " = " }
+   Style String { "\"a string with a \\\" in the middle\\n\"" }
+   Style Ignore { ";\n\t" }
+   Style Keyword { "const" }
+   Style Ignore { " " }
+   Style Keyword { "char" }
+   Style Ignore { " *" }
+   Style Identifier { "s3" }
+   Style Ignore { " = " }
+   Style String { "\"a string with a \\\\ and \\\" in the middle\\n\"" }
+   Style Ignore { ";\n\n\t" }
+   Style Call { "func_call" }
+   Style Ignore { "(" }
+   Style Identifier { "argc" }
+   Style Ignore { ");\n\n\t" }
+   Style Keyword { "return" }
+   Style Ignore { " " }
+   Style Number { "0" }
+   Style Ignore { ";\n}\n" }
+}
