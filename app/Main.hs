@@ -48,6 +48,7 @@ import           Fancydiff.Lib               (tryDiffWithSourceHighlight,
                                               stringToHighlighter)
 import           Fancydiff.Formatting        (fshow)
 import           Fancydiff.AnsiFormatting    (ansiFormatting)
+import           Fancydiff.HTMLFormatting    (inlineHtmlFormatting)
 import           Lib.Text                    (safeDecode)
 import           Lib.Git                     (git')
 import qualified Spec as Spec
@@ -89,6 +90,7 @@ groupHandleByPred handle pred' cb = do
 
 data OutputFormat
     = ANSI
+    | HTMLInline
     | Meta
 
 data Pager
@@ -126,6 +128,12 @@ optsParser = info (optsParse <**> helper) idm
        pagerArg _             = Nothing
 
        formatArg (Just "ansi") = ANSI
+       formatArg (Just "html-inline") = HTMLInline
+       -- ToDo:
+       --
+       -- formatArg (Just "html-under-css") = HTMLUnderCSS
+       -- formatArg (Just "html-only-css") = HTMLCSS
+       --
        formatArg (Just "meta") = Meta
        formatArg _             = ANSI
 
@@ -171,8 +179,13 @@ main = do
         Opts _ _ fmt Nothing (Just cmnd) -> do
             onCmd (fmtToFunc fmt) cmnd stdout
 
-      where fmtToFunc ANSI = ansiFormatting
-            fmtToFunc Meta = fshow
+      where fmtToFunc ANSI       = ansiFormatting
+            fmtToFunc HTMLInline =
+                let func fl = T.concat ["<pre><div style=\"font-family: monospace; background: #000000; color: #ffffff\">",
+                                        inlineHtmlFormatting Nothing fl,
+                                        "</div></pre>"]
+                 in func
+            fmtToFunc Meta       = fshow
 
             resourceVanished e =
                 if ioe_type e == ResourceVanished then return () else ioError e
