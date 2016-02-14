@@ -27,6 +27,7 @@ library
                      , Fancydiff.Formatting
   other-modules:       Fancydiff.Lexer
                      , Fancydiff.DiffHighlight
+                     , Fancydiff.Rendering
                      , Fancydiff.Themes
                      , Lib.Regex
                      , Lib.DList
