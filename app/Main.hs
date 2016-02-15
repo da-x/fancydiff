@@ -181,9 +181,7 @@ main = do
 
       where fmtToFunc ANSI       = ansiFormatting
             fmtToFunc HTMLInline =
-                let func fl = T.concat ["<pre><div style=\"font-family: monospace; background: #000000; color: #ffffff\">",
-                                        inlineHtmlFormatting Nothing fl,
-                                        "</div></pre>"]
+                let func fl = inlineHtmlFormatting Nothing fl
                  in func
             fmtToFunc Meta       = fshow
 

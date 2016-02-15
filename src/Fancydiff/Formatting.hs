@@ -220,7 +220,7 @@ combineFLists t a b =
 splitToLinesArray :: FList -> A.Array Int FList
 splitToLinesArray = root
     where root flist                   = A.listArray (1, n) l
-               where l = case onFrag (TForm List flist) of
+               where l = case onFrag (TForm Mark flist) of
                              Left x    -> [DList.singleton x]
                              Right lst -> map snd $ reduce $ map (\(x, a) -> (x, toFList a)) $ lst
                      n = length l

@@ -48,20 +48,10 @@ data Format
     | CommitMsg
     | CommitMsgByLines
     | Mark
-    | Emphesis
     | MonospacePar
     | Monospace
-    | Underline
-    | List
-    | ListItem
-    | Table
-    | TableRow
-    | TableCol Int
-    | TableCellPad Int
     | Link Text
-    | Footer
     | Style Element
-    | Dark
       deriving (Show, Eq, Ord)
 
 data Palette a = Palette {
@@ -95,6 +85,8 @@ data Palette a = Palette {
     , p'diffAddFile      :: !a
     , p'diffHunkHeaderBG :: !a
     , p'diffHunkHeaderFG :: !a
+    , p'defaultBG        :: !a
+    , p'defaultFG        :: !a
     } deriving (Show, Functor)
 
 type PaletteInt = Palette (Int, Int, Int)

@@ -39,4 +39,6 @@ darkBackground = Palette {
     , p'diffAddFile      = ColorString "#404040"
     , p'diffHunkHeaderBG = ColorString "#001b90"
     , p'diffHunkHeaderFG = ColorString "#a0a080"
+    , p'defaultBG        = ColorString "#000000"
+    , p'defaultFG        = ColorString "#dddddd"
   }

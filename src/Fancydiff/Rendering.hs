@@ -42,6 +42,7 @@ data RenderedPalette = RenderedPalette {
     , p'diffRemoveFile   :: {-# UNPACK #-} !Text
     , p'diffAddFile      :: {-# UNPACK #-} !Text
     , p'diffHunkHeader   :: {-# UNPACK #-} !Text
+    , p'default          :: {-# UNPACK #-} !Text
     }
 
 type ColorAccess = D.PaletteInt -> (Int, Int, Int)
@@ -79,6 +80,7 @@ renderPalette front backAndFront = RenderedPalette
     , p'diffRemoveFile        = backAndFront D.p'diffRemoveFile   D.p'commitFG
     , p'diffAddFile           = backAndFront D.p'diffAddFile      D.p'commitFG
     , p'diffHunkHeader        = backAndFront D.p'diffHunkHeaderBG D.p'diffHunkHeaderFG
+    , p'default               = backAndFront D.p'defaultBG        D.p'defaultFG
     }
 
 pick :: Element -> RenderedPalette -> Text

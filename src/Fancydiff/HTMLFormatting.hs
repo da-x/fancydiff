@@ -23,7 +23,7 @@ import           Fancydiff.Rendering           (RenderedPalette (..), pick,
 import           Fancydiff.SourceHighlight     (brighter, paletteDecode)
 import qualified Fancydiff.Themes              as Themes
 import           Lib.DList                     (dlistConcat)
-import           Lib.Text                      (showT, (+@))
+import           Lib.Text                      ((+@))
 ------------------------------------------------------------------------------------
 
 data FrontBack = Front | Back
@@ -46,7 +46,7 @@ data FormatPos = Start | End
 
 inlineHtmlFormatting :: Maybe (Bool -> Text -> Text) -> FList -> Text
 inlineHtmlFormatting fileURL = root
-    where root flist          = T.concat $ toList $ dlistConcat $ fmap (crux []) flist
+    where root flist          = T.concat $ toList $ (before `DList.cons` (dlistConcat $ fmap (crux []) flist)) `DList.snoc` after
           crux _ (TPlain t)   = DList.singleton (plain t)
           crux s (TForm f l)  = ((html Start s f) `DList.cons` (dlistConcat (fmap (crux (f:s)) l))) `DList.snoc` (html End s f)
           delink x            = T.replace "://" ":/&#8203;/" $ T.replace "." "&#8203;." x
@@ -54,8 +54,11 @@ inlineHtmlFormatting fileURL = root
           linkStart h         = T.concat ["<a href=\"" , h, "\" style=\"text-decoration: none\">"]
 
           diffStartFile n t color = T.concat [maybe "" (\f -> linkStart (f n t)) fileURL,
-                                            "<div style=\"", color, "; font-family: monospace\">" ]
-          diffEndFile             = T.concat ["</div>", maybe "" (const "</a>") fileURL]
+                                            "<div style=\"", color, "\">" ]
+          diffEndFile         = T.concat ["</div>", maybe "" (const "</a>") fileURL]
+
+          before              = "<pre><div style=\"" +@ p'default pal +@ "; font-family: monospace\">"
+          after               = "</div></pre>"
 
           pal3 :: RenderedPalette
           pal3 = renderPaletteForInlineHTML 0.3  $ paletteDecode Themes.darkBackground
@@ -83,42 +86,34 @@ inlineHtmlFormatting fileURL = root
 
           html Start _ MonospacePar       = "<font size=\"3\"><div><pre style=\"line-height: 125%\">"
           html End   _ MonospacePar       = "</pre></div></font>"
-          html Start _ Monospace          = "<font size=\"3\"><span style=\"font-family: monospace\">"
-          html End   _ Monospace          = "</span></font>"
-          html Start _ CommitMsgByLines   = "<div style=\"" +@ p'commitMsgByLines pal +@ "; font-family: monospace\">"
-          html Start _ CommitMsg          = "<div style=\"" +@ p'commitMsg pal +@ "; font-family: monospace\">"
-          html Start _ CommitMain         = "<div style=\"" +@ p'commitMain pal +@ "; font-family: monospace\">"
-          html Start _ CommitMerge        = "<div style=\"" +@ p'commitMerge pal +@ "; font-family: monospace\">"
-          html Start _ CommitOther        = "<div style=\"" +@ p'commitOther pal +@ "; font-family: monospace\">"
+          html Start _ Monospace          = "<font size=\"3\">"
+          html End   _ Monospace          = "</font>"
+          html Start _ CommitMsgByLines   = "<div style=\"" +@ p'commitMsgByLines pal +@ "\">"
+          html Start _ CommitMsg          = "<div style=\"" +@ p'commitMsg pal +@ "\">"
+          html Start _ CommitMain         = "<div style=\"" +@ p'commitMain pal +@ "\">"
+          html Start _ CommitMerge        = "<div style=\"" +@ p'commitMerge pal +@ "\">"
+          html Start _ CommitOther        = "<div style=\"" +@ p'commitOther pal +@ "\">"
           html End   _ CommitMsgByLines   = "</div>"
           html End   _ CommitMsg          = "</div>"
           html End   _ CommitMain         = "</div>"
           html End   _ CommitMerge        = "</div>"
           html End   _ CommitOther        = "</div>"
-          html Start _ DiffMain           = "<div style=\"" +@ p'diffMain pal +@ "; font-weight: bold; font-family: monospace\">"
+          html Start _ DiffMain           = "<div style=\"" +@ p'diffMain pal +@ "; font-weight: bold\">"
           html End   _ DiffMain           = "</div>"
-          html Start _ DiffMainExtra      = "<div style=\"" +@ p'diffMainExtra pal +@ "; font-family: monospace\">"
+          html Start _ DiffMainExtra      = "<div style=\"" +@ p'diffMainExtra pal +@ "\">"
           html End   _ DiffMainExtra      = "</div>"
-          html Start _ DiffRemove         = "<div style=\"" +@ p'diffRemove pal +@ "; font-family: monospace\">"
+          html Start _ DiffRemove         = "<div style=\"" +@ p'diffRemove pal +@ "\">"
           html End   _ DiffRemove         = "</div>"
-          html Start _ DiffAdd            = "<div style=\"" +@ p'diffAdd pal +@ "; font-family: monospace\">"
+          html Start _ DiffAdd            = "<div style=\"" +@ p'diffAdd pal +@ "\">"
           html End   _ DiffAdd            = "</div>"
-          html Start _ DiffSlash          = "<div style=\"font-family: monospace\">"
+          html Start _ DiffSlash          = "<div>"
           html End   _ DiffSlash          = "</div>"
-          html Start _ DiffHunkHeader     = "<div style=\"" +@ p'diffHunkHeader pal +@ "; font-weight: bold; font-family: monospace\">"
+          html Start _ DiffHunkHeader     = "<div style=\"" +@ p'diffHunkHeader pal +@ "; font-weight: bold\">"
           html End   _ DiffHunkHeader     = "</div>"
-          html Start _ DiffUnchanged      = "<div style=\"font-family: monospace\">"
+          html Start _ DiffUnchanged      = "<div>"
           html End   _ DiffUnchanged      = "</div>"
-          html Start _ DiffNothing        = "<div style=\"font-family: monospace\">"
+          html Start _ DiffNothing        = "<div>"
           html End   _ DiffNothing        = "</div>"
-          html Start _ Underline          = "<div style=\"text-decoration: underline\">"
-          html End   _ Underline          = "</div>"
-          html Start _ Emphesis           = "<div style=\"font-weight: bold\">"
-          html End   _ Emphesis           = "</div>"
-          html Start _ List               = "<ul>"
-          html End   _ List               = "</ul>"
-          html Start _ ListItem           = "<li>"
-          html End   _ ListItem           = "</li>"
           html _     _ (Style Identifier) = ""
           html _     _ (Style Ignore)     = ""
           html Start m (Style s)      = if | Mark       `elem` m -> style pal3
@@ -127,16 +122,4 @@ inlineHtmlFormatting fileURL = root
                                            | otherwise           -> style pal
                 where style l = "<span style=\"" +@ pick s l +@ "\">"
           html End   _ (Style _)        = "</span>"
-          html Start _ Table            = "<blockqoute><table cellpadding=\"2\">"
-          html End   _ Table            = "</table></blockqoute>"
-          html Start _ (TableRow)       = "<tr>"
-          html End   _ (TableRow)       = "</tr>"
-          html Start _ (TableCellPad i) = "<td width=\"" +@ showT i +@ "\">"
-          html End   _ (TableCellPad _) = "</td>"
-          html Start _ (TableCol i)     = "<td colspan=\"" +@ showT i +@ "\">"
-          html End   _ (TableCol _)     = "</td>"
-          html Start _ Dark             = "<span style=\"color: #a0a0a0\">"
-          html End   _ Dark             = "</span>"
-          html Start _ Footer           = "<div height=\"20\">&nbsp;</div><div style=\"color: #b0b0b0; font-size: 10px\">"
-          html End   _ Footer           = "</div>"
 
