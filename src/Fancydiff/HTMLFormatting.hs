@@ -20,19 +20,18 @@ import qualified Fancydiff.Data                as D
 import           Fancydiff.Formatting
 import           Fancydiff.Rendering           (RenderedPalette (..), pick,
                                                 renderPalette)
-import           Fancydiff.SourceHighlight     (brighter, paletteDecode)
-import qualified Fancydiff.Themes              as Themes
+import           Fancydiff.SourceHighlight     (brighter, darker, paletteDecode)
 import           Lib.DList                     (dlistConcat)
 import           Lib.Text                      ((+@))
 ------------------------------------------------------------------------------------
 
 data FrontBack = Front | Back
 
-renderPaletteForInlineHTML :: Float -> D.PaletteInt -> RenderedPalette
-renderPaletteForInlineHTML brightness p = renderPalette front backAndFront
+renderPaletteForInlineHTML :: ((Int, Int, Int) -> (Int, Int, Int)) -> D.PaletteInt -> RenderedPalette
+renderPaletteForInlineHTML modfunc p = renderPalette front backAndFront
     where
         backAndFront b f = T.concat [back b, "; ", front f]
-        front access = code Front $ brighter brightness $ access p
+        front access = code Front $ modfunc $ access p
         back access = code Back $ access p
 
         code :: FrontBack -> (Int, Int, Int) -> Text
@@ -44,8 +43,8 @@ renderPaletteForInlineHTML brightness p = renderPalette front backAndFront
 data FormatPos = Start | End
     deriving Eq
 
-inlineHtmlFormatting :: Maybe (Bool -> Text -> Text) -> FList -> Text
-inlineHtmlFormatting fileURL = root
+inlineHtmlFormatting :: D.Palette D.ColorString -> Maybe (Bool -> Text -> Text) -> FList -> Text
+inlineHtmlFormatting palette fileURL = root
     where root flist          = T.concat $ toList $ (before `DList.cons` (dlistConcat $ fmap (crux []) flist)) `DList.snoc` after
           crux _ (TPlain t)   = DList.singleton (plain t)
           crux s (TForm f l)  = ((html Start s f) `DList.cons` (dlistConcat (fmap (crux (f:s)) l))) `DList.snoc` (html End s f)
@@ -57,17 +56,22 @@ inlineHtmlFormatting fileURL = root
                                             "<div style=\"", color, "\">" ]
           diffEndFile         = T.concat ["</div>", maybe "" (const "</a>") fileURL]
 
-          before              = "<pre><div style=\"" +@ p'default pal +@ "; font-family: monospace\">"
+          before              = "<pre><div style=\"" +@ p'default pal +@ "; font-family: Monaco, 'Courier New', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', monospace\">"
           after               = "</div></pre>"
 
+          colorMod =
+              case D.p'brightness palette of
+                  D.P'Dark -> darker
+                  D.P'Bright -> brighter
+
           pal3 :: RenderedPalette
-          pal3 = renderPaletteForInlineHTML 0.3  $ paletteDecode Themes.darkBackground
+          pal3 = renderPaletteForInlineHTML (colorMod 0.3) $ paletteDecode palette
 
           pal4 :: RenderedPalette
-          pal4 = renderPaletteForInlineHTML 0.25 $ paletteDecode Themes.darkBackground
+          pal4 = renderPaletteForInlineHTML (colorMod 0.25) $ paletteDecode palette
 
           pal :: RenderedPalette
-          pal = renderPaletteForInlineHTML 0 $ paletteDecode Themes.darkBackground
+          pal = renderPaletteForInlineHTML id $ paletteDecode palette
 
           html Start _ (DiffRemoveFile t) = diffStartFile False t $ p'diffRemoveFile pal
           html End   _ (DiffRemoveFile _) = diffEndFile
@@ -120,6 +124,9 @@ inlineHtmlFormatting fileURL = root
                                            | DiffRemove `elem` m -> style pal4
                                            | DiffAdd    `elem` m -> style pal4
                                            | otherwise           -> style pal
-                where style l = "<span style=\"" +@ pick s l +@ "\">"
+                where style l = "<span style=\"" +@ pick s l +@ boldness +@ "\">"
+                      isBold D.Keyword = (D.p'brightness palette == D.P'Bright)
+                      isBold _ = False
+                      boldness = if isBold s then "; font-weight: bold" else ""
           html End   _ (Style _)        = "</span>"
 

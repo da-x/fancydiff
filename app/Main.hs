@@ -49,6 +49,8 @@ import           Fancydiff.Lib               (tryDiffWithSourceHighlight,
 import           Fancydiff.Formatting        (fshow)
 import           Fancydiff.AnsiFormatting    (ansiFormatting)
 import           Fancydiff.HTMLFormatting    (inlineHtmlFormatting)
+import           Fancydiff.Themes            (darkBackground, brightBackground)
+import           Fancydiff.Data              (Palette, ColorString)
 import           Lib.Text                    (safeDecode)
 import           Lib.Git                     (git')
 import qualified Spec as Spec
@@ -102,7 +104,7 @@ data Command
     | Setup Bool Bool
 
 data Opts
-    = Opts Bool Bool OutputFormat (Maybe Pager) (Maybe Command)
+    = Opts Bool Bool OutputFormat (Maybe Pager) (Palette ColorString) (Maybe Command)
 
 getVersion :: T.Text
 getVersion = T.concat [T.pack $ showVersion version, V.version]
@@ -119,6 +121,9 @@ optsParser = info (optsParse <**> helper) idm
                 <*> fmap pagerArg (optional (strOption (long
                          "pager" <> short 'p'
                                  <> help "Execute the given pager (currently supporting 'less')" )))
+                <*> fmap themeArg (optional (strOption (long
+                         "theme" <> short 't'
+                                 <> help "Choose color theme" )))
                 <*> optional (hsubparser
                               (command "file" fileCmd <>
                                command "stdin" stdinCmd <>
@@ -126,6 +131,10 @@ optsParser = info (optsParse <**> helper) idm
 
        pagerArg (Just "less") = Just $ Less
        pagerArg _             = Nothing
+
+       themeArg (Just "dark")   = darkBackground
+       themeArg (Just "bright") = brightBackground
+       themeArg _               = darkBackground
 
        formatArg (Just "ansi") = ANSI
        formatArg (Just "html-inline") = HTMLInline
@@ -152,17 +161,17 @@ optsParser = info (optsParse <**> helper) idm
 main :: IO ()
 main = do
     void $ execParser optsParser >>= \case
-        Opts True _ _ _ _ -> do
+        Opts True _ _ _ _ _ -> do
             T.putStrLn $ T.concat ["Fancydiff ", getVersion]
 
-        Opts _ True _ _ _ -> do
+        Opts _ True _ _ _ _ -> do
             Spec.main
 
-        Opts _ _ _ _ Nothing -> do
+        Opts _ _ _ _ _ Nothing -> do
             T.hPutStrLn stderr $ "fancydiff: no command specified (see --help)"
             exitFailure
 
-        Opts _ _ fmt (Just Less) (Just cmnd) -> do
+        Opts _ _ fmt (Just Less) theme (Just cmnd) -> do
             curEnv <- getEnvironment
             (Just handleOutToLess, _, _, handle) <-
                 createProcess (proc "less" ["-R"])
@@ -170,20 +179,20 @@ main = do
                    ,  env = Just (("LESSANSIENDCHARS", "mK") : curEnv)
                    }
 
-            let act = do onCmd (fmtToFunc fmt) cmnd handleOutToLess
+            let act = do onCmd (fmtToFunc fmt theme) cmnd handleOutToLess
             act `E.catch` resourceVanished
             hClose handleOutToLess `E.catch` resourceVanished
             _ <- waitForProcess handle
             return ()
 
-        Opts _ _ fmt Nothing (Just cmnd) -> do
-            onCmd (fmtToFunc fmt) cmnd stdout
+        Opts _ _ fmt Nothing theme (Just cmnd) -> do
+            onCmd (fmtToFunc fmt theme) cmnd stdout
 
-      where fmtToFunc ANSI       = ansiFormatting
-            fmtToFunc HTMLInline =
-                let func fl = inlineHtmlFormatting Nothing fl
+      where fmtToFunc ANSI       theme = ansiFormatting theme
+            fmtToFunc HTMLInline theme =
+                let func fl = inlineHtmlFormatting theme Nothing fl
                  in func
-            fmtToFunc Meta       = fshow
+            fmtToFunc Meta       _     = fshow
 
             resourceVanished e =
                 if ioe_type e == ResourceVanished then return () else ioError e

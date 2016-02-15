@@ -6,7 +6,11 @@ module Fancydiff.SourceHighlight
     , haskellMatcher
     , clangMatcher
     , paletteDecode
+    , paletteEncode
+    , modifyColorString
     , brighter
+    , darker
+    , inverseColor
     ) where
 
 ------------------------------------------------------------------------------------
@@ -16,6 +20,7 @@ import           Data.Text                  (Text)
 import qualified Data.Text                  as T
 import qualified Data.Text.Encoding         as T
 import           Numeric                    (readHex)
+import           Text.Printf                (printf)
 ----
 import           Fancydiff.Data
 import           Fancydiff.Formatting       as F
@@ -32,10 +37,30 @@ decodeColorString (ColorString t) =
 paletteDecode :: Palette ColorString -> PaletteInt
 paletteDecode = fmap decodeColorString
 
+encodeColorString :: (Int, Int, Int) -> ColorString
+encodeColorString (r, g, b) = ColorString $ T.pack (printf "#%02x%02x%02x" r g b)
+
+paletteEncode :: PaletteInt -> Palette ColorString
+paletteEncode = fmap encodeColorString
+
+modifyColorString :: ((Int, Int, Int) -> (Int, Int, Int))
+                      -> ColorString -> ColorString
+modifyColorString f cs =  encodeColorString $ f (decodeColorString cs)
+
+
+inverseColor :: (Int, Int, Int) -> (Int, Int, Int)
+inverseColor (r, g, b) = rev
+    where rev = (255 - r, 255 - g, 255 - b)
+
 brighter :: Float -> (Int, Int, Int) -> (Int, Int, Int)
-brighter brightness (r, g, b) = (f r, f g, f b)
+brighter change (r, g, b) = (f r, f g, f b)
     where
-        f x = floor $ fromIntegral x + ((255 -  fromIntegral x) * brightness)
+        f x = floor $ fromIntegral x + ((255 -  fromIntegral x) * change)
+
+darker :: Float -> (Int, Int, Int) -> (Int, Int, Int)
+darker change (r, g, b) = (f r, f g, f b)
+    where
+        f x = floor $ fromIntegral x - ((fromIntegral x) * change)
 
 parseWithAlex :: Int -> ([(BL8.ByteString, Element)] -> [(BL8.ByteString, Element)]) -> Text -> Either String FList
 parseWithAlex s p t =

@@ -7,6 +7,7 @@ module Fancydiff.Data
     , Palette(..)
     , PaletteInt
     , ColorString(..)
+    , Brightness(..)
     ) where
 
 ------------------------------------------------------------------------------------
@@ -54,8 +55,12 @@ data Format
     | Style Element
       deriving (Show, Eq, Ord)
 
+data Brightness = P'Dark | P'Bright
+    deriving (Show, Eq)
+
 data Palette a = Palette {
-      p'keyword          :: !a
+      p'brightness       :: Brightness
+    , p'keyword          :: !a
     , p'string           :: !a
     , p'number           :: !a
     , p'char             :: !a

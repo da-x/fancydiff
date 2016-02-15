@@ -22,10 +22,10 @@ library
                      , Fancydiff.SourceHighlight
                      , Fancydiff.Data
                      , Fancydiff.Formatting
+                     , Fancydiff.Themes
   other-modules:       Fancydiff.Lexer
                      , Fancydiff.DiffHighlight
                      , Fancydiff.Rendering
-                     , Fancydiff.Themes
                      , Lib.Regex
                      , Lib.DList
   build-depends:       array           >= 0.5.1.0

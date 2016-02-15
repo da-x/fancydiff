@@ -17,19 +17,18 @@ import           Text.Printf               (printf)
 import qualified Fancydiff.Data            as D
 import           Fancydiff.Formatting
 import           Fancydiff.Rendering       (renderPalette, RenderedPalette(..), pick)
-import           Fancydiff.SourceHighlight (brighter, paletteDecode)
-import qualified Fancydiff.Themes          as Themes
+import           Fancydiff.SourceHighlight (brighter, darker, paletteDecode)
 ------------------------------------------------------------------------------------
 
 data FrontBack = Front | Back
 
-renderPaletteForAnsi :: Float -> D.PaletteInt -> RenderedPalette
-renderPaletteForAnsi brightness p = renderPalette front backAndFront
+renderPaletteForAnsi :: ((Int, Int, Int) -> (Int, Int, Int)) ->D.PaletteInt -> RenderedPalette
+renderPaletteForAnsi modfunc p = renderPalette front backAndFront
     where
         wrap t = T.concat [ "\x1b[0m", t, "\x1b[K"]
         backAndFront b f =
             wrap $ T.concat [back b, front f]
-        front access = code Front $ brighter brightness $ access p
+        front access = code Front $ modfunc $  access p
         back access = code Back $ access p
 
         code :: FrontBack -> (Int, Int, Int) -> Text
@@ -38,8 +37,8 @@ renderPaletteForAnsi brightness p = renderPalette front backAndFront
                       T.pack (printf "%d;%d;%d" r g b),
                       "m"]
 
-ansiFormatting :: FList -> Text
-ansiFormatting = root
+ansiFormatting :: D.Palette D.ColorString -> FList -> Text
+ansiFormatting palette = root
     where
         root flist               = T.concat $ toList $ snd $ combine [] [] Nothing flist
         combine a m r flist             = foldl (crux a m) (r, Seq.empty) flist
@@ -68,14 +67,19 @@ ansiFormatting = root
         prev (Nothing:xs) = prev xs
         prev (Just a:_) = a
 
+        colorMod =
+            case D.p'brightness palette of
+                D.P'Dark -> brighter
+                D.P'Bright -> darker
+
         pal3 :: RenderedPalette
-        pal3 = renderPaletteForAnsi 0.3  $ paletteDecode Themes.darkBackground
+        pal3 = renderPaletteForAnsi (colorMod 0.3)  $ paletteDecode palette
 
         pal4 :: RenderedPalette
-        pal4 = renderPaletteForAnsi 0.25 $ paletteDecode Themes.darkBackground
+        pal4 = renderPaletteForAnsi (colorMod 0.25) $ paletteDecode palette
 
         pal :: RenderedPalette
-        pal = renderPaletteForAnsi 0 $ paletteDecode Themes.darkBackground
+        pal = renderPaletteForAnsi id $ paletteDecode palette
 
         repr _ _ _ DiffMain           = Just $ p'diffMain pal
         repr _ _ _ DiffMainExtra      = Just $ p'diffMainExtra pal
