@@ -1,0 +1,130 @@
+{
+   Style Special2 { "{-# LANGUAGE NoMonomorphismRestriction #-}" }
+   Style Ignore { "\n" }
+   Style Special2 { "{-# LANGUAGE OverloadedStrings         #-}" }
+   Style Ignore { "\n\n" }
+   Style Keyword { "import" }
+   Style Ignore { " " }
+   Style Type { "Something" }
+   Style Ignore { "\n" }
+   Style Keyword { "import" }
+   Style Ignore { " " }
+   Style Type { "SomethingA" }
+   Style Ignore { " " }
+   Style Keyword { "as" }
+   Style Ignore { " " }
+   Style Type { "A" }
+   Style Ignore { "\n" }
+   Style Keyword { "import" }
+   Style Ignore { " " }
+   Style Keyword { "qualified" }
+   Style Ignore { " " }
+   Style Type { "SomethingElse" }
+   Style Ignore { " " }
+   Style Parentheses { "(" }
+   Style Identifier { "symbol" }
+   Style Ignore { ", " }
+   Style Parentheses { "(" }
+   Style Ignore { ".." }
+   Style Parentheses { "))" }
+   Style Ignore { "\n\n" }
+   Style Keyword { "import" }
+   Style Ignore { " " }
+   Style Type { "SomethingOther" }
+   Style Ignore { " " }
+   Style Comment { "-- This is a comment\n" }
+   Style Ignore { "\n" }
+   Style Call { "f" }
+   Style Ignore { " " }
+   Style Number { "2" }
+   Style Ignore { " " }
+   Style Special { "=" }
+   Style Ignore { " " }
+   Style Number { "1" }
+   Style Ignore { "\n" }
+   Style Call { "f" }
+   Style Ignore { " " }
+   Style Type { "_" }
+   Style Ignore { " " }
+   Style Special { "=" }
+   Style Ignore { " " }
+   Style Number { "0" }
+   Style Ignore { "\n\n" }
+   Style Call { "y" }
+   Style Ignore { " " }
+   Style Comment { "{-\n   multiline comment\n\n  x -}" }
+   Style Ignore { " " }
+   Style Number { "2" }
+   Style Ignore { " " }
+   Style Special { "=" }
+   Style Ignore { " " }
+   Style Number { "1" }
+   Style Ignore { "\n\n" }
+   Style DocComment { "{- |\n   multiline haddock comment\n   a second line\n -}" }
+   Style Ignore { " " }
+   Style Number { "2" }
+   Style Ignore { " " }
+   Style Special { "=" }
+   Style Ignore { " " }
+   Style Number { "1" }
+   Style Ignore { "\n\n" }
+   Style DocComment { "-- | Single haddock\n" }
+   Style Call { "x1" }
+   Style Ignore { " " }
+   Style Special { "=" }
+   Style Ignore { " " }
+   Style Type { "False" }
+   Style Ignore { "\n\n" }
+   Style DocComment { "-- | Single haddock\n-- and continuation.\n" }
+   Style Call { "x2" }
+   Style Ignore { " " }
+   Style Special { "=" }
+   Style Ignore { " " }
+   Style Type { "False" }
+   Style Ignore { "\n\n" }
+   Style DocComment { "-- | Single haddock\n" }
+   Style Call { "x3" }
+   Style Ignore { " " }
+   Style Special { "=" }
+   Style Ignore { " " }
+   Style Type { "False" }
+   Style Ignore { "\n\n" }
+   Style Comment { "-- This is a comment\n" }
+   Style Ignore { "\n" }
+   Style Call { "main" }
+   Style Ignore { " " }
+   Style Special3 { "::" }
+   Style Ignore { " " }
+   Style Type { "IO" }
+   Style Ignore { " " }
+   Style Parentheses { "()" }
+   Style Ignore { "\n" }
+   Style Call { "main" }
+   Style Ignore { " " }
+   Style Special { "=" }
+   Style Ignore { " " }
+   Style Keyword { "do" }
+   Style Ignore { "\n   " }
+   Style Identifier { "print" }
+   Style Ignore { " " }
+   Style String { "\"Hello\"" }
+   Style Ignore { " " }
+   Style Comment { "-- This is a comment\n" }
+   Style Ignore { "   " }
+   Style Identifier { "print" }
+   Style Ignore { " " }
+   Style String { "[quasi|quotation|]" }
+   Style Ignore { "\n   " }
+   Style Identifier { "print" }
+   Style Ignore { " " }
+   Style String { "[quasi|quota\n               tion|]" }
+   Style Ignore { "\n   " }
+   Style Identifier { "print" }
+   Style Ignore { " " }
+   Style String { "\"\\\\\"" }
+   Style Ignore { "\n   " }
+   Style Identifier { "return" }
+   Style Ignore { " " }
+   Style Parentheses { "()" }
+   Style Ignore { "\n" }
+}

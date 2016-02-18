@@ -15,7 +15,7 @@ module Fancydiff.SourceHighlight
     ) where
 
 ------------------------------------------------------------------------------------
-import           Control.Monad              (forM_)
+import           Control.Monad              (forM_, when)
 import           Control.Monad.ST           as ST
 import qualified Data.ByteString            as BS8
 import qualified Data.ByteString.Lazy.Char8 as BL8
@@ -96,21 +96,36 @@ haskellMatcher = parseWithAlex haskell (\x -> runST $ p x)
     where
         p lst = do out <- ST.newSTRef DList.empty
                    underImport <- ST.newSTRef False
+                   docSingleLine <- ST.newSTRef False
                    let append i = ST.modifySTRef out (`DList.snoc` i)
-                       appendKeywordOnly under v = do
+                       choiceUnder opt1 opt2 under k = do
                            b <- ST.readSTRef under
                            if b
-                              then append (v, Keyword)
-                              else append (v, Identifier)
+                              then append (k, opt1)
+                              else append (k, opt2)
+                       doccomment k = do
+                           b <- ST.readSTRef docSingleLine
+                           when (not b  &&   "--" `BL8.isPrefixOf` k) $ do
+                               ST.writeSTRef docSingleLine True
 
-                   forM_ lst $ \case
-                       (1, k@"import",    v@Keyword) -> ST.writeSTRef underImport True >> append (k, v)
-                       (_, k@"as",        _        ) -> appendKeywordOnly underImport k
-                       (_, k@"qualified", _        ) -> appendKeywordOnly underImport k
-                       (_, k@"hiding"   , _        ) -> appendKeywordOnly underImport k
-                       (1, k, Identifier)         -> ST.writeSTRef underImport False >> append (k, Call)
-                       (1, k, v)                  -> ST.writeSTRef underImport False >> append (k, v)
-                       (_, k, v)                  -> append (k, v)
+                   forM_ lst $ \tok -> do
+                       -- traceM $ show tok
+                       case tok of
+                           (1, k@"import",    v@Keyword)    -> ST.writeSTRef underImport True >> append (k, v)
+                           (_, k@"as",        _        )    -> choiceUnder Keyword Identifier underImport k
+                           (_, k@"qualified", _        )    -> choiceUnder Keyword Identifier underImport k
+                           (_, k@"hiding"   , _        )    -> choiceUnder Keyword Identifier underImport k
+                           (_, k            , v@DocComment) -> append (k, v) >> doccomment k
+                           (_, k            , Comment)      -> choiceUnder DocComment Comment docSingleLine k
+                           (1, k, Identifier)               -> ST.writeSTRef underImport False >> append (k, Call)
+                           (1, k, v)                        -> ST.writeSTRef underImport False >> append (k, v)
+                           (_, k, v)                        -> append (k, v)
+
+                       case tok of
+                           (_, _            , DocComment)   -> return ()
+                           (_, _            , Comment)      -> return ()
+                           _                                -> ST.writeSTRef docSingleLine False
+
 
                    ST.readSTRef out
 

@@ -23,6 +23,7 @@ data Element
     | Identifier
     | Call
     | Comment
+    | DocComment
     | Special
     | Special2
     | Special3
@@ -68,6 +69,7 @@ data Palette a = Palette {
     , p'identifier       :: !a
     , p'call             :: !a
     , p'comment          :: !a
+    , p'doccomment       :: !a
     , p'special          :: !a
     , p'special2         :: !a
     , p'special3         :: !a

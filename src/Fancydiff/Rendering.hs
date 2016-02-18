@@ -21,6 +21,7 @@ data RenderedPalette = RenderedPalette {
     , p'identifier       :: {-# UNPACK #-} !Text
     , p'call             :: {-# UNPACK #-} !Text
     , p'comment          :: {-# UNPACK #-} !Text
+    , p'doccomment       :: {-# UNPACK #-} !Text
     , p'special          :: {-# UNPACK #-} !Text
     , p'special2         :: {-# UNPACK #-} !Text
     , p'special3         :: {-# UNPACK #-} !Text
@@ -59,6 +60,7 @@ renderPalette front backAndFront = RenderedPalette
     , p'identifier            = front D.p'identifier
     , p'call                  = front D.p'call
     , p'comment               = front D.p'comment
+    , p'doccomment            = front D.p'doccomment
     , p'special               = front D.p'special
     , p'special2              = front D.p'special2
     , p'special3              = front D.p'special3
@@ -88,6 +90,7 @@ pick s pal = root s
     where
         root D.Keyword      = p'keyword pal
         root D.Comment      = p'comment pal
+        root D.DocComment   = p'doccomment pal
         root D.String       = p'string pal
         root D.Char         = p'char pal
         root D.Number       = p'number pal

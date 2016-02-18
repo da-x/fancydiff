@@ -85,6 +85,7 @@ state:-
   <ccomm>      [\*]                   { tok       Comment           }
   <clang>     "//"                    { tokPush   Comment   comm2   }
   <comm2>     [ ^ \n ]*\n             { tokPop    Comment           }
+  <doccomm2>  [ ^ \n ]*\n             { tokPop    DocComment        }
 
   <clang>     "_Pragma"               { tok       Keyword           }
   <clang>     "__attribute__"         { tok       Keyword           }
@@ -142,10 +143,14 @@ state:-
   <clang>     .                       { tok       Ignore            }
 
   <haskell>   @sp+                    { tok       Ignore  	    }
-  <haskell>   [\"]                    { tokPush   String   str      }
+  <haskell>   [\"]                    { tokPush   String   haskstr  }
   <haskell>   [\']                    { tokPush   Char     charx    }
+  <haskell>   "-- |"                  { tokPush   DocComment  doccomm2 }
   <haskell>   "--"                    { tokPush   Comment  comm2    }
   <haskell>   [\{] [\-] [\#]          { tokPush   Special2 hpragma  }
+  <haskell>   [\{] [\-] " " "|"       { tokPush   DocComment  hmlcomm2 }
+  <haskell>   [\{] [\-]               { tokPush   Comment  hmlcomm  }
+  <haskell>   [\[] @haskBind [\|]     { tokPush   String   haskqq   }
   <haskell>   "as"                    { tok       Keyword           }
   <haskell>   "case"                  { tok       Keyword           }
   <haskell>   "class"                 { tok       Keyword           }
@@ -183,7 +188,18 @@ state:-
 
   <hpragma>   [\#] [\-] [\}]          { tokPop    Special2          }
   <hpragma>   [\n]                    { tok       Special2          }
+  <hpragma>   [^ \#]+                 { tok       Special2          }
   <hpragma>   .                       { tok       Special2          }
+
+  <hmlcomm>   [\-] [\}]               { tokPop    Comment           }
+  <hmlcomm>   [\n]                    { tok       Comment           }
+  <hmlcomm>   [^ \n \-]+              { tok       Comment           }
+  <hmlcomm>   .                       { tok       Comment           }
+
+  <hmlcomm2>  [\-] [\}]               { tokPop    DocComment        }
+  <hmlcomm2>  [^ \n \-]+              { tok       DocComment        }
+  <hmlcomm2>  [\n]                    { tok       DocComment        }
+  <hmlcomm2>  .                       { tok       DocComment        }
 
   <haskell>   \- \>                   { tok       Special           }
   <haskell>   \< \-                   { tok       Special           }
@@ -201,6 +217,17 @@ state:-
   <haskell>   [0-9]+ [\.] [ 0-9  ]+   { tok       Number            }
   <haskell>   [\.] [ 0-9         ]+   { tok       Number            }
   <haskell>   [ 0-9              ]+   { tok       Number            }
+
+  <haskstr>   [\\] .                  { tok       String            }
+  <haskstr>   [\\] [\n]               { tok       String            }
+  <haskstr>   [\"]                    { tokPop    String            }
+  <haskstr>   [\n]+                   { tok       String            }
+  <haskstr>   [^ \\ \"]+              { tok       String            }
+
+  <haskqq>    [\|] [\]]               { tokPop    String            }
+  <haskqq>    [^ \|]+                 { tok       String            }
+  <haskqq>    [\n]+                   { tok       String            }
+  <haskqq>    .                       { tok       String            }
 
   <haskell>   @haskTypeCtr            { tok       Type              }
   <haskell>   @haskBind               { tok       Identifier        }
