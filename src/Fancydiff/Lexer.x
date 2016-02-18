@@ -59,7 +59,7 @@ $nonwhitspace   = . # $white
 		\&    \, \/ \| \.
                 \` \" \< \> \* \= ]
 @cId            = [ a-z A-Z 0-9 \_ \$ ]+
-@haskTypeConst  = [A-Z_][a-z A-Z 0-9 \_ ']*
+@haskTypeCtr    = [A-Z_][a-z A-Z 0-9 \_ ']*
 @haskBind       = [a-z_][a-z A-Z 0-9 \_ ']*
 
 state:-
@@ -68,10 +68,9 @@ state:-
 
   <clang>     @sp                     { tok       Ignore  	    }
   <clang>     [\"]                    { tokPush   String    str     }
-  <str>       [\\] [\"]               { tok       String            }
+  <str>       [\\] .                  { tok       String            }
   <str>       [\"]                    { tokPop    String            }
   <str>       [^ \\ \"]+              { tok       String            }
-  <str>       [\\]                    { tok       String            }
 
   <clang>     [\']                    { tokPush   Char      charx   }
   <charx>     '\\\"'                  { tok       Char              }
@@ -142,91 +141,76 @@ state:-
   <clang>     @punct                  { tok       Ignore            }
   <clang>     .                       { tok       Ignore            }
 
-  <haskell>   @sp                     { tok       Ignore  	    }
-  <haskell>   [\"]                    { tokPush   String    str     }
-  <haskell>   [\']                    { tokPush   Char      charx   }
-  <haskell>   "--"                    { tokPush   Comment   comm2   }
-
-  <haskell>   "_"                     { tok       Ignore            }
-
-
-  <haskell>   "_"                     { tok       Ignore            }
-
-  <haskell>   "let"                   { tok       Keyword           }
+  <haskell>   @sp+                    { tok       Ignore  	    }
+  <haskell>   [\"]                    { tokPush   String   str      }
+  <haskell>   [\']                    { tokPush   Char     charx    }
+  <haskell>   "--"                    { tokPush   Comment  comm2    }
+  <haskell>   [\{] [\-] [\#]          { tokPush   Special2 hpragma  }
+  <haskell>   "as"                    { tok       Keyword           }
   <haskell>   "case"                  { tok       Keyword           }
-  <haskell>   "of"                    { tok       Keyword           }
   <haskell>   "class"                 { tok       Keyword           }
   <haskell>   "data"                  { tok       Keyword           }
-  <haskell>   "data family"           { tok       Keyword           }
-  <haskell>   "data instance"         { tok       Keyword           }
+  <haskell>   "data"                  { tok       Keyword           }
   <haskell>   "default"               { tok       Keyword           }
   <haskell>   "deriving"              { tok       Keyword           }
-  <haskell>   "deriving instance"     { tok       Keyword           }
   <haskell>   "do"                    { tok       Keyword           }
+  <haskell>   "else"                  { tok       Keyword           }
+  <haskell>   "family"                { tok       Keyword           }
   <haskell>   "forall"                { tok       Keyword           }
   <haskell>   "foreign"               { tok       Keyword           }
+  <haskell>   "hiding"                { tok       Keyword           }
   <haskell>   "if"                    { tok       Keyword           }
-  <haskell>   "import"                { tokPush   Keyword haskellI  }
-
-  <haskellI>  \n                      { tokPop    Ignore  	    }
-  <haskellI>  @sp                     { tok       Ignore  	    }
-  <haskellI>  [\"]                    { tokPush   String    str     }
-  <haskellI>  "--"                    { tokPush   Comment   comm2   }
-  <haskellI>  "qualified"             { tok       Keyword           }
-  <haskellI>  "as"                    { tok       Keyword           }
-  <haskellI>  "hiding"                { tok       Keyword           }
-  <haskellI>  @haskTypeConst          { tok       Type              }
-  <haskellI>  @haskBind               { tok       Ignore            }
-  <haskellI>  [ \[ \] ]               { tok       Brackets          }
-  <haskellI>  [ \( \) ]               { tok       Parentheses       }
-  <haskellI>  [ \{ \} ]               { tok       Curly             }
-  <haskellI>  .                       { tok       Ignore            }
-
-  <haskell>   "then"                  { tok       Keyword           }
-  <haskell>   "else"                  { tok       Keyword           }
+  <haskell>   "import"                { tok       Keyword           }
+  <haskell>   "import"                { tok       Keyword           }
+  <haskell>   "import"                { tok       Keyword           }
+  <haskell>   "in"                    { tok       Keyword           }
   <haskell>   "infix"                 { tok       Keyword           }
   <haskell>   "infixl"                { tok       Keyword           }
   <haskell>   "infixr"                { tok       Keyword           }
   <haskell>   "instance"              { tok       Keyword           }
   <haskell>   "let"                   { tok       Keyword           }
-  <haskell>   "in"                    { tok       Keyword           }
+  <haskell>   "let"                   { tok       Keyword           }
   <haskell>   "mdo"                   { tok       Keyword           }
   <haskell>   "module"                { tok       Keyword           }
   <haskell>   "newtype"               { tok       Keyword           }
+  <haskell>   "of"                    { tok       Keyword           }
   <haskell>   "proc"                  { tok       Keyword           }
+  <haskell>   "qualified"             { tok       Keyword           }
   <haskell>   "rec"                   { tok       Keyword           }
+  <haskell>   "then"                  { tok       Keyword           }
   <haskell>   "type"                  { tok       Keyword           }
-  <haskell>   "type family"           { tok       Keyword           }
-  <haskell>   "type instance"         { tok       Keyword           }
   <haskell>   "where"                 { tok       Keyword           }
-  <haskell>    \- \>                  { tok       Special           }
-  <haskell>    \< \-                  { tok       Special           }
-  <haskell>    \= \>                  { tok       Special2          }
-  <haskell>    \: \:                  { tok       Special3          }
-  <haskell>    \=                     { tok       Special           }
-  <haskell>    [ \[ \] ]              { tok       Brackets          }
-  <haskell>    [ \( \) ]              { tok       Parentheses       }
-  <haskell>    [ \{ \} ]              { tok       Curly             }
 
-  <haskell>    @punct                 { tok       Ignore            }
+  <hpragma>   [\#] [\-] [\}]          { tokPop    Special2          }
+  <hpragma>   [\n]                    { tok       Special2          }
+  <hpragma>   .                       { tok       Special2          }
 
-  <haskell>    "0x" [ 0-9 a-f     ]+  { tok       Number            }
-  <haskell>    [0-9]+ [\.] [ 0-9 ]+   { tok       Number            }
-  <haskell>    [\.] [ 0-9         ]+  { tok       Number            }
-  <haskell>    [ 0-9              ]+  { tok       Number            }
+  <haskell>   \- \>                   { tok       Special           }
+  <haskell>   \< \-                   { tok       Special           }
+  <haskell>   \= \>                   { tok       Special2          }
+  <haskell>   \: \:                   { tok       Special3          }
+  <haskell>   [ \[ \] ]               { tok       Brackets          }
+  <haskell>   [ \( \) ]               { tok       Parentheses       }
+  <haskell>   [ \{ \} ]               { tok       Curly             }
+  <haskell>   \$                      { tok       Special           }
+  <haskell>   \=                      { tok       Special           }
 
-  <haskell>    @haskTypeConst         { tok       Type              }
-  <haskell>    @haskBind              { tok       Ignore            }
+  <haskell>   @punct                  { tok       Ignore            }
 
-  <haskell>    @punct                 { tok       Ignore            }
-  <haskell>    .                      { tok       Ignore            }
+  <haskell>   "0x" [ 0-9 a-f     ]+   { tok       Number            }
+  <haskell>   [0-9]+ [\.] [ 0-9  ]+   { tok       Number            }
+  <haskell>   [\.] [ 0-9         ]+   { tok       Number            }
+  <haskell>   [ 0-9              ]+   { tok       Number            }
 
+  <haskell>   @haskTypeCtr            { tok       Type              }
+  <haskell>   @haskBind               { tok       Identifier        }
+  <haskell>   .                       { tok       Ignore            }
 {
 
 -- Some action helpers:
 
-tok x (p, _, input, _) len = do
-    return $ Token (TokenDemark x) (B.take (fromIntegral len) input)
+tok x ((AlexPn _ line column), _, input, _) len = do
+    return $ Token (TokenDemark line column x) (B.take (fromIntegral len) input)
 
 tokPush cls code inp len = do
     alexGetStartCode >>= pushStateStack
@@ -247,7 +231,7 @@ data Token = Token TokenClass B.ByteString
   deriving (Show)
 
 data TokenClass
- = TokenDemark !Element
+ = TokenDemark !Int !Int !Element
  | TokenEOF
  deriving (Eq, Show)
 

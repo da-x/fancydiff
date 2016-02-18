@@ -40,7 +40,11 @@ import           System.Exit                (ExitCode (..), exitWith)
 import           Data.IORef
 ----
 import           Lib.Process                (readProcess, readProcess'')
-import qualified Paths_fancydiff             as Paths_fancydiff
+import           Fancydiff.Lib              (getHighlighterByFilename,
+                                             highlighterToString,
+                                             Highlighter(HL'Generic))
+import           Internal.Opts
+import qualified Paths_fancydiff            as Paths_fancydiff
 ------------------------------------------------------------------------------------
 
 data UnexpectedState = UnexpectedState String deriving (Typeable)
@@ -201,6 +205,24 @@ run = do
 
             return ()
 
-main :: IO ()
-main = do
-    void $ contextNew >>= evalStateT run
+recursiveScan :: FilePath -> Opts -> (Opts -> IO ()) -> IO ()
+recursiveScan gitRepoPath opts realMain = do
+    liftIO $ setCurrentDirectory gitRepoPath
+    x <- readProcess "git" ["ls-files", "."]
+    forM_ (T.lines x) $ \tfp -> do
+        let fp = T.unpack tfp
+        case getHighlighterByFilename tfp of
+            HL'Generic -> return ()
+            v -> do let hr = T.putStrLn "----------------------------------------------------------------"
+                    T.putStrLn "" >> hr >> T.putStrLn (T.concat [highlighterToString v, " :: ", tfp])  >> hr
+                    let newOpts = opts
+                           { optCommand = Just $ OneFile  fp
+                           , optTestingMode = False
+                           }
+                    realMain newOpts
+
+main :: (Opts -> IO ()) -> Opts -> IO ()
+main realMain opts@Opts{..} =
+    case optTestRecursiveScan of
+        (Just fp) -> recursiveScan fp opts realMain
+        Nothing   -> void $ contextNew >>= evalStateT run

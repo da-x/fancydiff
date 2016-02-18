@@ -1,12 +1,13 @@
 module Lib.Git
-       (git
-       , git') where
+       ( git
+       , git'
+       ) where
 
 ------------------------------------------------------------------------------------
+import           Control.Monad          (void)
 import           Control.Monad.IO.Class (MonadIO)
-import           Lib.Process            (readProcess)
 import           Data.Text              (Text)
-import           Control.Monad               (void)
+import           Lib.Process            (readProcess)
 ------------------------------------------------------------------------------------
 
 git :: (MonadIO m) => [Text] -> m Text

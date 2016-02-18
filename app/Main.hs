@@ -4,6 +4,7 @@
 {-# LANGUAGE FlexibleContexts          #-}
 {-# LANGUAGE LambdaCase                #-}
 {-# LANGUAGE MultiWayIf                #-}
+{-# LANGUAGE RecordWildCards           #-}
 
 module Main where
 
@@ -22,12 +23,7 @@ import           Git                         (withRepository)
 import           Git.Libgit2                 (lgFactory)
 import           Control.Monad.IO.Class      (MonadIO, liftIO)
 import           Control.Monad.Trans.Control (MonadBaseControl)
-import           Options.Applicative         (command, info, (<**>),
-                                              argument, str, metavar, ParserInfo,
-                                              helper, idm, optional, progDesc,
-                                              switch, long, short, strOption,
-                                              help, execParser, (<>), hidden,
-                                              hsubparser)
+import           Options.Applicative         (execParser)
 import           Data.Version                (showVersion)
 import           System.Process              (createProcess, proc,
                                               CreateProcess(std_in),
@@ -43,18 +39,17 @@ import           Paths_fancydiff             (version)
 import           Fancydiff.Lib               (tryDiffWithSourceHighlight,
                                               commitHighlight,
                                               getHighlighterFunc,
-                                              getHighlighterByFilename,
-                                              Highlighter(..),
-                                              stringToHighlighter)
+                                              getHighlighterFuncByFilename)
 import           Fancydiff.Formatting        (fshow)
 import           Fancydiff.AnsiFormatting    (ansiFormatting)
 import           Fancydiff.HTMLFormatting    (inlineHtmlFormatting)
-import           Fancydiff.Themes            (darkBackground, brightBackground)
-import           Fancydiff.Data              (Palette, ColorString)
+
+
 import           Lib.Text                    (safeDecode)
 import           Lib.Git                     (git')
 import qualified Spec as Spec
 import qualified Internal.Version            as V
+import           Internal.Opts
 -------------------------------------------------------------------
 
 iterHandleLines :: (MonadBaseControl IO m, MonadIO m) =>
@@ -90,103 +85,33 @@ groupHandleByPred handle pred' cb = do
 
     iterHandleLines handle onLine onEnd
 
-data OutputFormat
-    = ANSI
-    | HTMLInline
-    | Meta
-
-data Pager
-    = Less
-
-data Command
-    = OneFile FilePath
-    | Stdin (Maybe Highlighter)
-    | Setup Bool Bool
-
-data Opts
-    = Opts Bool Bool OutputFormat (Maybe Pager) (Palette ColorString) (Maybe Command)
-
 getVersion :: T.Text
 getVersion = T.concat [T.pack $ showVersion version, V.version]
 
-optsParser :: ParserInfo Opts
-optsParser = info (optsParse <**> helper) idm
-   where
-       optsParse =
-           Opts <$> switch ( long "version" <> short 'v' <> help "Show version" )
-                <*> switch ( hidden <> long "test-suite" )
-                <*> fmap formatArg (optional (strOption (long
-                         "format" <> short 'f'
-                                 <> help "Output format (defaults to ANSI codes)" )))
-                <*> fmap pagerArg (optional (strOption (long
-                         "pager" <> short 'p'
-                                 <> help "Execute the given pager (currently supporting 'less')" )))
-                <*> fmap themeArg (optional (strOption (long
-                         "theme" <> short 't'
-                                 <> help "Choose color theme" )))
-                <*> optional (hsubparser
-                              (command "file" fileCmd <>
-                               command "stdin" stdinCmd <>
-                               command "setup" setupCmd))
+mainOpts :: Opts -> IO ()
+mainOpts opts@Opts{..} = do
+    if | optGetVersion          -> T.putStrLn $ T.concat ["Fancydiff ", getVersion]
+       | optTestingMode         -> Spec.main mainOpts opts
+       | otherwise ->
+         case optCommand of
+             Nothing -> do T.hPutStrLn stderr $ "fancydiff: no command specified (see --help)"
+                           exitFailure
+             Just cmnd ->
+                 case optPager of
+                     Nothing -> onCmd (fmtToFunc optOutputFormat optPalette) cmnd stdout
+                     Just Less -> do
+                          curEnv <- getEnvironment
+                          (Just handleOutToLess, _, _, handle) <-
+                              createProcess (proc "less" ["-R"])
+                                 {  std_in = CreatePipe
+                                 ,  env = Just (("LESSANSIENDCHARS", "mK") : curEnv)
+                                 }
 
-       pagerArg (Just "less") = Just $ Less
-       pagerArg _             = Nothing
-
-       themeArg (Just "dark")   = darkBackground
-       themeArg (Just "bright") = brightBackground
-       themeArg _               = darkBackground
-
-       formatArg (Just "ansi") = ANSI
-       formatArg (Just "html-inline") = HTMLInline
-       -- ToDo:
-       --
-       -- formatArg (Just "html-under-css") = HTMLUnderCSS
-       -- formatArg (Just "html-only-css") = HTMLCSS
-       --
-       formatArg (Just "meta") = Meta
-       formatArg _             = ANSI
-
-       highlighterArg = stringToHighlighter . T.pack
-
-       fileCmd = info (OneFile <$> (argument str (metavar "PATHNAME")))
-           (progDesc "Take in a single file, given by a pathname")
-       stdinCmd = info (Stdin <$> (fmap (fmap highlighterArg) $ (optional $ argument str (metavar "HIGHLIGHTER"))))
-           (progDesc "Take from stdin")
-       setupCmd = info (Setup <$> (switch ( long "aliases" <> short 'a' <>
-                                            help "Setup aliases instead of affecting 'log/diff/show' directly" ))
-                              <*> (switch ( long "local" <> short 'l' <>
-                                            help "Modify the local repo configuration only" )))
-           (progDesc "Modify Git's configuration for the enablement of Fancydiff")
-
-main :: IO ()
-main = do
-    void $ execParser optsParser >>= \case
-        Opts True _ _ _ _ _ -> do
-            T.putStrLn $ T.concat ["Fancydiff ", getVersion]
-
-        Opts _ True _ _ _ _ -> do
-            Spec.main
-
-        Opts _ _ _ _ _ Nothing -> do
-            T.hPutStrLn stderr $ "fancydiff: no command specified (see --help)"
-            exitFailure
-
-        Opts _ _ fmt (Just Less) theme (Just cmnd) -> do
-            curEnv <- getEnvironment
-            (Just handleOutToLess, _, _, handle) <-
-                createProcess (proc "less" ["-R"])
-                   {  std_in = CreatePipe
-                   ,  env = Just (("LESSANSIENDCHARS", "mK") : curEnv)
-                   }
-
-            let act = do onCmd (fmtToFunc fmt theme) cmnd handleOutToLess
-            act `E.catch` resourceVanished
-            hClose handleOutToLess `E.catch` resourceVanished
-            _ <- waitForProcess handle
-            return ()
-
-        Opts _ _ fmt Nothing theme (Just cmnd) -> do
-            onCmd (fmtToFunc fmt theme) cmnd stdout
+                          let act = do onCmd (fmtToFunc optOutputFormat optPalette) cmnd handleOutToLess
+                          act `E.catch` resourceVanished
+                          hClose handleOutToLess `E.catch` resourceVanished
+                          _ <- waitForProcess handle
+                          return ()
 
       where fmtToFunc ANSI       theme = ansiFormatting theme
             fmtToFunc HTMLInline theme =
@@ -230,7 +155,7 @@ main = do
 
             onCmd fmt (OneFile filepath) outHandle = do
                 content <- B.readFile filepath
-                formatOne fmt content outHandle (getHighlighterByFilename (T.pack filepath))
+                formatOne fmt content outHandle (getHighlighterFuncByFilename (T.pack filepath))
 
             onCmd fmt (Stdin Nothing) outHandle = do
                 let path = "."
@@ -251,3 +176,6 @@ main = do
             onCmd fmt (Stdin (Just highlighter)) outHandle = do
                 content <- B.hGetContents stdin
                 formatOne fmt content outHandle (getHighlighterFunc highlighter)
+
+main :: IO ()
+main = void $ execParser optsParser >>= mainOpts

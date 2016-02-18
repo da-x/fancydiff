@@ -57,6 +57,7 @@ executable fancydiff
   other-modules:       Internal.Version
                      , Paths_fancydiff
                      , Spec
+                     , Internal.Opts
                      , Lib.Process
                      , Lib.Git
   build-depends:       base

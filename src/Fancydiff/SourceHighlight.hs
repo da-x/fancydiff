@@ -1,5 +1,6 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE OverloadedStrings         #-}
+{-# LANGUAGE LambdaCase                #-}
 
 module Fancydiff.SourceHighlight
     ( nullMatcher
@@ -14,8 +15,13 @@ module Fancydiff.SourceHighlight
     ) where
 
 ------------------------------------------------------------------------------------
+import           Control.Monad              (forM_)
+import           Control.Monad.ST           as ST
 import qualified Data.ByteString            as BS8
 import qualified Data.ByteString.Lazy.Char8 as BL8
+import           Data.DList                 (DList)
+import qualified Data.DList                 as DList
+import           Data.STRef                 as ST
 import           Data.Text                  (Text)
 import qualified Data.Text                  as T
 import qualified Data.Text.Encoding         as T
@@ -27,6 +33,7 @@ import           Fancydiff.Formatting       as F
 import           Fancydiff.Lexer            (Token (..), TokenClass (..),
                                              alexMonadScan, alexSetStartCode,
                                              clang, haskell, runAlex)
+import           Lib.Text                   (safeDecode)
 ------------------------------------------------------------------------------------
 
 decodeColorString :: ColorString -> (Int, Int, Int)
@@ -62,21 +69,22 @@ darker change (r, g, b) = (f r, f g, f b)
     where
         f x = floor $ fromIntegral x - ((fromIntegral x) * change)
 
-parseWithAlex :: Int -> ([(BL8.ByteString, Element)] -> [(BL8.ByteString, Element)]) -> Text -> Either String FList
+parseWithAlex :: Int -> (DList (Int, BL8.ByteString, Element)
+                         -> DList (BL8.ByteString, Element)) -> Text -> Either String FList
 parseWithAlex s p t =
-    let getTokens bs'     = runAlex bs' (alexSetStartCode s >> loop [])
+    let getTokens bs'     = runAlex bs' (alexSetStartCode s >> loop DList.empty)
         bs                = BL8.fromChunks [ T.encodeUtf8 t ]
-        toText txt        = T.decodeUtf8 $ BS8.concat $ BL8.toChunks txt
+        toText txt        = safeDecode $ BS8.concat $ BL8.toChunks txt
         loop s' = do
             Token cls bs' <- alexMonadScan
             case cls of
                 TokenEOF -> return s'
-                TokenDemark e -> loop $ (bs', e):s'
+                TokenDemark _line col e -> loop $ s' `DList.snoc` (col, bs', e)
 
     in case getTokens bs of
         Left err -> Left err
         Right ok -> Right $ F.fragmentize
-                          $ map (\(bs', e) -> (toText bs', Just $ Style e)) $ p ok
+                          $ map (\(bs', e) -> (toText bs', Just $ Style e)) $ DList.toList $ p ok
 
 nullMatcher,
   haskellMatcher,
@@ -84,9 +92,44 @@ nullMatcher,
 
 nullMatcher t = Right $ F.highlightText t
 
-haskellMatcher = parseWithAlex haskell reverse
+haskellMatcher = parseWithAlex haskell (\x -> runST $ p x)
+    where
+        p lst = do out <- ST.newSTRef DList.empty
+                   underImport <- ST.newSTRef False
+                   let append i = ST.modifySTRef out (`DList.snoc` i)
+                       appendKeywordOnly under v = do
+                           b <- ST.readSTRef under
+                           if b
+                              then append (v, Keyword)
+                              else append (v, Identifier)
 
-clangMatcher = parseWithAlex clang (p [])
-    where p r []                            = r
-          p r (("(", f):(x, Identifier):xs) = p ((x, Call):(("(", f):r)) xs
-          p r (x:xs)                        = p (x:r) xs
+                   forM_ lst $ \case
+                       (1, k@"import",    v@Keyword) -> ST.writeSTRef underImport True >> append (k, v)
+                       (_, k@"as",        _        ) -> appendKeywordOnly underImport k
+                       (_, k@"qualified", _        ) -> appendKeywordOnly underImport k
+                       (_, k@"hiding"   , _        ) -> appendKeywordOnly underImport k
+                       (1, k, Identifier)         -> ST.writeSTRef underImport False >> append (k, Call)
+                       (1, k, v)                  -> ST.writeSTRef underImport False >> append (k, v)
+                       (_, k, v)                  -> append (k, v)
+
+                   ST.readSTRef out
+
+clangMatcher = parseWithAlex clang (\x -> runST $ p x)
+    where
+        p lst = do out <- ST.newSTRef DList.empty
+                   lastId <- ST.newSTRef Nothing
+                   let append i = ST.modifySTRef out (`DList.snoc` i)
+                       cleanupLast asType = do
+                           ST.readSTRef lastId >>= \case
+                               Nothing -> return ()
+                               Just k -> do append (k, asType)
+                                            ST.writeSTRef lastId $ Nothing
+                   forM_ lst $ \(_, k, v) -> do
+                       case k of
+                           "(" -> cleanupLast Call
+                           _   -> cleanupLast Identifier
+                       case v of
+                           Identifier -> (ST.writeSTRef lastId $ Just k)
+                           _          -> append (k, v)
+                   cleanupLast Identifier
+                   ST.readSTRef out

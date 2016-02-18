@@ -18,6 +18,7 @@ module Fancydiff.Lib
     , F.ansiFormatting
     , Highlighter(..)
     , commitHighlight
+    , getHighlighterFuncByFilename
     , getHighlighterByFilename
     , getHighlighterFunc
     , highlighterToString
@@ -66,6 +67,19 @@ highlighterToString HL'CLang   = "clang"
 highlighterToString HL'Haskell = "haskell"
 highlighterToString HL'Generic = "generic"
 
+getHighlighterByFilename :: Text -> Highlighter
+getHighlighterByFilename filename
+    | ".hs"  `T.isSuffixOf` filename   = HL'Haskell
+    | ".c"   `T.isSuffixOf` filename   = HL'CLang
+    | ".h"   `T.isSuffixOf` filename   = HL'CLang
+    | ".cc"  `T.isSuffixOf` filename   = HL'CLang
+    | ".hh"  `T.isSuffixOf` filename   = HL'CLang
+    | ".cpp" `T.isSuffixOf` filename   = HL'CLang
+    | ".hpp" `T.isSuffixOf` filename   = HL'CLang
+    | ".hxx" `T.isSuffixOf` filename   = HL'CLang
+    | ".cxx" `T.isSuffixOf` filename   = HL'CLang
+    | otherwise                        = HL'Generic
+
 stringToHighlighter :: Text -> Highlighter
 stringToHighlighter s =
     let l = [minBound ..]
@@ -77,22 +91,13 @@ getHighlighterFunc HL'CLang   = clangMatcher
 getHighlighterFunc HL'Haskell = haskellMatcher
 getHighlighterFunc HL'Generic = nullMatcher
 
-getHighlighterByFilename :: Text -> Text -> Either String F.FList
-getHighlighterByFilename filename
-    | ".hs"  `T.isSuffixOf` filename   = haskellMatcher
-    | ".c"   `T.isSuffixOf` filename   = clangMatcher
-    | ".h"   `T.isSuffixOf` filename   = clangMatcher
-    | ".cc"  `T.isSuffixOf` filename   = clangMatcher
-    | ".hh"  `T.isSuffixOf` filename   = clangMatcher
-    | ".cpp" `T.isSuffixOf` filename   = clangMatcher
-    | ".hpp" `T.isSuffixOf` filename   = clangMatcher
-    | ".hxx" `T.isSuffixOf` filename   = clangMatcher
-    | ".cxx" `T.isSuffixOf` filename   = clangMatcher
-    | otherwise                        = nullMatcher
+getHighlighterFuncByFilename :: Text -> Text -> Either String F.FList
+getHighlighterFuncByFilename =
+    getHighlighterFunc . getHighlighterByFilename
 
 highlightByExtension :: Text -> Text -> F.FList
 highlightByExtension filename content =
-    case getHighlighterByFilename filename content of
+    case getHighlighterFuncByFilename filename content of
         Left _ -> F.highlightText content
         Right ok -> ok
 
