@@ -42,9 +42,11 @@ import           Fancydiff.Lib               (tryDiffWithSourceHighlight,
                                               getHighlighterFuncByFilename)
 import           Fancydiff.Formatting        (fshow)
 import           Fancydiff.AnsiFormatting    (ansiFormatting)
-import           Fancydiff.HTMLFormatting    (inlineHtmlFormatting)
-
-
+import           Fancydiff.HTMLFormatting    ( htmlFormatting
+                                             , mkHtmlFormat
+                                             , HTMLStyles(..)
+                                             , HTMLFormat(fmtCSS)
+                                             )
 import           Lib.Text                    (safeDecode)
 import           Lib.Git                     (git')
 import qualified Spec as Spec
@@ -113,9 +115,10 @@ mainOpts opts@Opts{..} = do
                           _ <- waitForProcess handle
                           return ()
 
-      where fmtToFunc ANSI       theme = ansiFormatting theme
-            fmtToFunc HTMLInline theme =
-                let func fl = inlineHtmlFormatting theme Nothing fl
+      where fmtToFunc ANSI              theme = ansiFormatting theme
+            fmtToFunc (HTML htmlstyle)  theme =
+                let func fl = htmlFormatting format fl
+                    format = mkHtmlFormat htmlstyle theme
                  in func
             fmtToFunc Meta       _     = fshow
 
@@ -152,6 +155,13 @@ mainOpts opts@Opts{..} = do
                                            "!git -c color.diff=off -c pager.diff='fancydiff stdin --pager=less' diff $@"]
 
                 putStrLn "You are now ready to use Fancydiff"
+
+            onCmd _ MakeSCSS outHandle = do
+                case fmtCSS $ mkHtmlFormat HTMLSCSS optPalette of
+                    Just css -> do
+                        T.hPutStr outHandle css
+                        return ()
+                    Nothing -> return ()
 
             onCmd fmt (OneFile filepath) outHandle = do
                 content <- B.readFile filepath

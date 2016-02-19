@@ -1,7 +1,9 @@
 module Fancydiff.Rendering
        ( renderPalette
        , RenderedPalette(..)
+       , PaletteVar
        , pick
+       , paletteVarText
        ) where
 
 ------------------------------------------------------------------------------------
@@ -47,44 +49,114 @@ data RenderedPalette = RenderedPalette {
     , p'default          :: {-# UNPACK #-} !Text
     }
 
+data PaletteVar
+    = P_keyword
+    | P_string
+    | P_number
+    | P_char
+    | P_type
+    | P_identifier
+    | P_call
+    | P_toplevel
+    | P_comment
+    | P_doccomment
+    | P_special
+    | P_special2
+    | P_special3
+    | P_curly
+    | P_brackets
+    | P_parentheses
+    | P_ignore
+    | P_commitMain
+    | P_commitMerge
+    | P_commitOther
+    | P_commitMsg
+    | P_commitMsgByLines
+    | P_diffMain
+    | P_diffMainExtra
+    | P_diffRemove
+    | P_diffAdd
+    | P_diffMarkAdd
+    | P_diffMarkRemove
+    | P_diffRemoveFile
+    | P_diffAddFile
+    | P_diffHunkHeader
+    | P_default
+    deriving (Enum, Bounded, Show)
+
+paletteVarText :: PaletteVar -> RenderedPalette -> Text
+paletteVarText pv rp = (x pv) rp
+    where x P_keyword            = p'keyword
+          x P_string             = p'string
+          x P_number             = p'number
+          x P_char               = p'char
+          x P_type               = p'type
+          x P_identifier         = p'identifier
+          x P_call               = p'call
+          x P_toplevel           = p'toplevel
+          x P_comment            = p'comment
+          x P_doccomment         = p'doccomment
+          x P_special            = p'special
+          x P_special2           = p'special2
+          x P_special3           = p'special3
+          x P_curly              = p'curly
+          x P_brackets           = p'brackets
+          x P_parentheses        = p'parentheses
+          x P_ignore             = p'ignore
+          x P_commitMain         = p'commitMain
+          x P_commitMerge        = p'commitMerge
+          x P_commitOther        = p'commitOther
+          x P_commitMsg          = p'commitMsg
+          x P_commitMsgByLines   = p'commitMsgByLines
+          x P_diffMain           = p'diffMain
+          x P_diffMainExtra      = p'diffMainExtra
+          x P_diffRemove         = p'diffRemove
+          x P_diffAdd            = p'diffAdd
+          x P_diffMarkAdd        = p'diffMarkAdd
+          x P_diffMarkRemove     = p'diffMarkRemove
+          x P_diffRemoveFile     = p'diffRemoveFile
+          x P_diffAddFile        = p'diffAddFile
+          x P_diffHunkHeader     = p'diffHunkHeader
+          x P_default            = p'default
+
 type ColorAccess = D.PaletteInt -> (Int, Int, Int)
 
-renderPalette :: (ColorAccess -> Text)
-                 -> (ColorAccess -> ColorAccess -> Text)
+renderPalette :: (PaletteVar -> ColorAccess -> Text)
+                 -> (PaletteVar -> ColorAccess -> ColorAccess -> Text)
                  -> RenderedPalette
 renderPalette front backAndFront = RenderedPalette
-    { p'keyword               = front D.p'keyword
-    , p'string                = front D.p'string
-    , p'number                = front D.p'number
-    , p'char                  = front D.p'char
-    , p'type                  = front D.p'type
-    , p'identifier            = front D.p'identifier
-    , p'call                  = front D.p'call
-    , p'toplevel              = front D.p'toplevel
-    , p'comment               = front D.p'comment
-    , p'doccomment            = front D.p'doccomment
-    , p'special               = front D.p'special
-    , p'special2              = front D.p'special2
-    , p'special3              = front D.p'special3
-    , p'curly                 = front D.p'curly
-    , p'brackets              = front D.p'brackets
-    , p'parentheses           = front D.p'parentheses
-    , p'ignore                = front D.p'ignore
-    , p'commitMain            = backAndFront D.p'commitMain       D.p'commitFG
-    , p'commitMerge           = backAndFront D.p'commitMain       D.p'commitMergeFG
-    , p'commitOther           = backAndFront D.p'commitOther      D.p'commitFG
-    , p'commitMsg             = front D.p'commitFG
-    , p'commitMsgByLines      = front D.p'commitMsgByLines
-    , p'diffMain              = backAndFront D.p'diffMain         D.p'commitFG
-    , p'diffMainExtra         = backAndFront D.p'diffMainExtra    D.p'commitFG
-    , p'diffRemove            = backAndFront D.p'diffRemove       D.p'commitFG
-    , p'diffAdd               = backAndFront D.p'diffAdd          D.p'commitFG
-    , p'diffMarkAdd           = backAndFront D.p'diffMarkAdd      D.p'commitFG
-    , p'diffMarkRemove        = backAndFront D.p'diffMarkRemove   D.p'commitFG
-    , p'diffRemoveFile        = backAndFront D.p'diffRemoveFile   D.p'commitFG
-    , p'diffAddFile           = backAndFront D.p'diffAddFile      D.p'commitFG
-    , p'diffHunkHeader        = backAndFront D.p'diffHunkHeaderBG D.p'diffHunkHeaderFG
-    , p'default               = backAndFront D.p'defaultBG        D.p'defaultFG
+    { p'keyword               = front P_keyword               D.p'keyword
+    , p'string                = front P_string                D.p'string
+    , p'number                = front P_number                D.p'number
+    , p'char                  = front P_char                  D.p'char
+    , p'type                  = front P_type                  D.p'type
+    , p'identifier            = front P_identifier            D.p'identifier
+    , p'call                  = front P_call                  D.p'call
+    , p'toplevel              = front P_toplevel              D.p'toplevel
+    , p'comment               = front P_comment               D.p'comment
+    , p'doccomment            = front P_doccomment            D.p'doccomment
+    , p'special               = front P_special               D.p'special
+    , p'special2              = front P_special2              D.p'special2
+    , p'special3              = front P_special3              D.p'special3
+    , p'curly                 = front P_curly                 D.p'curly
+    , p'brackets              = front P_brackets              D.p'brackets
+    , p'parentheses           = front P_parentheses           D.p'parentheses
+    , p'ignore                = front P_ignore                D.p'ignore
+    , p'commitMain            = backAndFront P_commitMain     D.p'commitMain         D.p'commitFG
+    , p'commitMerge           = backAndFront P_commitMerge    D.p'commitMain         D.p'commitMergeFG
+    , p'commitOther           = backAndFront P_commitOther    D.p'commitOther        D.p'commitFG
+    , p'commitMsg             = front P_commitMsg             D.p'commitFG
+    , p'commitMsgByLines      = front P_commitMsgByLines      D.p'commitMsgByLines
+    , p'diffMain              = backAndFront P_diffMain       D.p'diffMain           D.p'commitFG
+    , p'diffMainExtra         = backAndFront P_diffMainExtra  D.p'diffMainExtra      D.p'commitFG
+    , p'diffRemove            = backAndFront P_diffRemove     D.p'diffRemove         D.p'commitFG
+    , p'diffAdd               = backAndFront P_diffAdd        D.p'diffAdd            D.p'commitFG
+    , p'diffMarkAdd           = backAndFront P_diffMarkAdd    D.p'diffMarkAdd        D.p'commitFG
+    , p'diffMarkRemove        = backAndFront P_diffMarkRemove D.p'diffMarkRemove     D.p'commitFG
+    , p'diffRemoveFile        = backAndFront P_diffRemoveFile D.p'diffRemoveFile     D.p'commitFG
+    , p'diffAddFile           = backAndFront P_diffAddFile    D.p'diffAddFile        D.p'commitFG
+    , p'diffHunkHeader        = backAndFront P_diffHunkHeader D.p'diffHunkHeaderBG   D.p'diffHunkHeaderFG
+    , p'default               = backAndFront P_default        D.p'defaultBG          D.p'defaultFG
     }
 
 pick :: Element -> RenderedPalette -> Text

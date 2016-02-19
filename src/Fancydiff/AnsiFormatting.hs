@@ -26,9 +26,9 @@ renderPaletteForAnsi :: ((Int, Int, Int) -> (Int, Int, Int)) ->D.PaletteInt -> R
 renderPaletteForAnsi modfunc p = renderPalette front backAndFront
     where
         wrap t = T.concat [ "\x1b[0m", t, "\x1b[K"]
-        backAndFront b f =
-            wrap $ T.concat [back b, front f]
-        front access = code Front $ modfunc $  access p
+        backAndFront x b f =
+            wrap $ T.concat [back b, front x f]
+        front _ access = code Front $ modfunc $  access p
         back access = code Back $ access p
 
         code :: FrontBack -> (Int, Int, Int) -> Text

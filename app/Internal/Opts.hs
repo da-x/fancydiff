@@ -12,11 +12,13 @@ import qualified Data.Text                   as T
 import           Fancydiff.Lib               (Highlighter(..), stringToHighlighter)
 import           Fancydiff.Data              (Palette, ColorString)
 import           Fancydiff.Themes            (darkBackground, brightBackground)
+import           Fancydiff.HTMLFormatting    (HTMLStyles(..))
+
 -------------------------------------------------------------------
 
 data OutputFormat
     = ANSI
-    | HTMLInline
+    | HTML HTMLStyles
     | Meta
 
 data Pager
@@ -25,6 +27,7 @@ data Pager
 data Command
     = OneFile FilePath
     | Stdin (Maybe Highlighter)
+    | MakeSCSS
     | Setup Bool Bool
 
 data Opts = Opts
@@ -56,6 +59,7 @@ optsParser = info (optsParse <**> helper) idm
                 <*> optional (hsubparser
                               (command "file" fileCmd <>
                                command "stdin" stdinCmd <>
+                               command "make-scss" makeSCSS <>
                                command "setup" setupCmd))
 
        pagerArg (Just "less") = Just $ Less
@@ -65,15 +69,12 @@ optsParser = info (optsParse <**> helper) idm
        themeArg (Just "bright") = brightBackground
        themeArg _               = darkBackground
 
-       formatArg (Just "ansi") = ANSI
-       formatArg (Just "html-inline") = HTMLInline
-       -- ToDo:
-       --
-       -- formatArg (Just "html-under-css") = HTMLUnderCSS
-       -- formatArg (Just "html-only-css") = HTMLCSS
-       --
-       formatArg (Just "meta") = Meta
-       formatArg _             = ANSI
+       formatArg (Just "ansi")        = ANSI
+       formatArg (Just "html")        = HTML HTMLInline -- defaults to inline
+       formatArg (Just "html-inline") = HTML HTMLInline
+       formatArg (Just "html-css")    = HTML HTMLSCSS
+       formatArg (Just "meta")        = Meta
+       formatArg _                    = ANSI
 
        highlighterArg = stringToHighlighter . T.pack
 
@@ -81,6 +82,8 @@ optsParser = info (optsParse <**> helper) idm
            (progDesc "Take in a single file, given by a pathname")
        stdinCmd = info (Stdin <$> (fmap (fmap highlighterArg) $ (optional $ argument str (metavar "HIGHLIGHTER"))))
            (progDesc "Take from stdin")
+       makeSCSS = info (pure MakeSCSS)
+           (progDesc "Generate the SCSS for the requrested theme")
        setupCmd = info (Setup <$> (switch ( long "aliases" <> short 'a' <>
                                             help "Setup aliases instead of affecting 'log/diff/show' directly" ))
                               <*> (switch ( long "local" <> short 'l' <>
