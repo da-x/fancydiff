@@ -10,7 +10,7 @@ gitVersion = do
         versionSh = "./version.sh"
     hasVersionSh <- doesFileExist versionSh
     when hasVersionSh $ do
-        ver <- fmap BS.pack $ readProcess versionSh [] ""
+        ver <- fmap BS.pack $ readProcess "bash" [versionSh] ""
 
         let override = BS.writeFile filename ver
         e <- doesFileExist filename
