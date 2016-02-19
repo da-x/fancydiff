@@ -117,7 +117,7 @@ haskellMatcher = parseWithAlex haskell (\x -> runST $ p x)
                            (_, k@"hiding"   , _        )    -> choiceUnder Keyword Identifier underImport k
                            (_, k            , v@DocComment) -> append (k, v) >> doccomment k
                            (_, k            , Comment)      -> choiceUnder DocComment Comment docSingleLine k
-                           (1, k, Identifier)               -> ST.writeSTRef underImport False >> append (k, Call)
+                           (1, k, Identifier)               -> ST.writeSTRef underImport False >> append (k, TopLevel)
                            (1, k, v)                        -> ST.writeSTRef underImport False >> append (k, v)
                            (_, k, v)                        -> append (k, v)
 

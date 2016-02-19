@@ -15,7 +15,6 @@ import           Text.Blaze.Html               (toHtml)
 import           Text.Blaze.Html.Renderer.Text (renderHtml)
 import           Text.Printf                   (printf)
 ----
-import           Fancydiff.Data                (Element (Ignore, Identifier))
 import qualified Fancydiff.Data                as D
 import           Fancydiff.Formatting
 import           Fancydiff.Rendering           (RenderedPalette (..), pick,
@@ -118,14 +117,13 @@ inlineHtmlFormatting palette fileURL = root
           html End   _ DiffUnchanged      = "</div>"
           html Start _ DiffNothing        = "<div>"
           html End   _ DiffNothing        = "</div>"
-          html _     _ (Style Identifier) = ""
-          html _     _ (Style Ignore)     = ""
           html Start m (Style s)      = if | Mark       `elem` m -> style pal3
                                            | DiffRemove `elem` m -> style pal4
                                            | DiffAdd    `elem` m -> style pal4
                                            | otherwise           -> style pal
                 where style l = "<span style=\"" +@ pick s l +@ boldness +@ "\">"
-                      isBold D.Keyword = (D.p'brightness palette == D.P'Bright)
+                      isBold D.Keyword  = (D.p'brightness palette == D.P'Bright)
+                      isBold D.TopLevel = (D.p'brightness palette == D.P'Bright)
                       isBold _ = False
                       boldness = if isBold s then "; font-weight: bold" else ""
           html End   _ (Style _)        = "</span>"

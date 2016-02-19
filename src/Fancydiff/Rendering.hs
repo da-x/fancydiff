@@ -20,6 +20,7 @@ data RenderedPalette = RenderedPalette {
     , p'type             :: {-# UNPACK #-} !Text
     , p'identifier       :: {-# UNPACK #-} !Text
     , p'call             :: {-# UNPACK #-} !Text
+    , p'toplevel         :: {-# UNPACK #-} !Text
     , p'comment          :: {-# UNPACK #-} !Text
     , p'doccomment       :: {-# UNPACK #-} !Text
     , p'special          :: {-# UNPACK #-} !Text
@@ -59,6 +60,7 @@ renderPalette front backAndFront = RenderedPalette
     , p'type                  = front D.p'type
     , p'identifier            = front D.p'identifier
     , p'call                  = front D.p'call
+    , p'toplevel              = front D.p'toplevel
     , p'comment               = front D.p'comment
     , p'doccomment            = front D.p'doccomment
     , p'special               = front D.p'special
@@ -96,6 +98,7 @@ pick s pal = root s
         root D.Number       = p'number pal
         root D.Type         = p'type pal
         root D.Call         = p'call pal
+        root D.TopLevel     = p'toplevel pal
         root D.Special      = p'special pal
         root D.Special2     = p'special2 pal
         root D.Special3     = p'special3 pal

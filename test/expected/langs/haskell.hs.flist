@@ -34,7 +34,7 @@
    Style Ignore { " " }
    Style Comment { "-- This is a comment\n" }
    Style Ignore { "\n" }
-   Style Call { "f" }
+   Style TopLevel { "f" }
    Style Ignore { " " }
    Style Number { "2" }
    Style Ignore { " " }
@@ -42,7 +42,7 @@
    Style Ignore { " " }
    Style Number { "1" }
    Style Ignore { "\n" }
-   Style Call { "f" }
+   Style TopLevel { "f" }
    Style Ignore { " " }
    Style Type { "_" }
    Style Ignore { " " }
@@ -50,7 +50,7 @@
    Style Ignore { " " }
    Style Number { "0" }
    Style Ignore { "\n\n" }
-   Style Call { "y" }
+   Style TopLevel { "y" }
    Style Ignore { " " }
    Style Comment { "{-\n   multiline comment\n\n  x -}" }
    Style Ignore { " " }
@@ -69,21 +69,21 @@
    Style Number { "1" }
    Style Ignore { "\n\n" }
    Style DocComment { "-- | Single haddock\n" }
-   Style Call { "x1" }
+   Style TopLevel { "x1" }
    Style Ignore { " " }
    Style Special { "=" }
    Style Ignore { " " }
    Style Type { "False" }
    Style Ignore { "\n\n" }
    Style DocComment { "-- | Single haddock\n-- and continuation.\n" }
-   Style Call { "x2" }
+   Style TopLevel { "x2" }
    Style Ignore { " " }
    Style Special { "=" }
    Style Ignore { " " }
    Style Type { "False" }
    Style Ignore { "\n\n" }
    Style DocComment { "-- | Single haddock\n" }
-   Style Call { "x3" }
+   Style TopLevel { "x3" }
    Style Ignore { " " }
    Style Special { "=" }
    Style Ignore { " " }
@@ -91,7 +91,7 @@
    Style Ignore { "\n\n" }
    Style Comment { "-- This is a comment\n" }
    Style Ignore { "\n" }
-   Style Call { "main" }
+   Style TopLevel { "main" }
    Style Ignore { " " }
    Style Special3 { "::" }
    Style Ignore { " " }
@@ -99,7 +99,7 @@
    Style Ignore { " " }
    Style Parentheses { "()" }
    Style Ignore { "\n" }
-   Style Call { "main" }
+   Style TopLevel { "main" }
    Style Ignore { " " }
    Style Special { "=" }
    Style Ignore { " " }
