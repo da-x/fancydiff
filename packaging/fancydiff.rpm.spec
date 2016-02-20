@@ -15,6 +15,7 @@ BuildRequires:  stackage-dist-@@RESOLVER@@-stack
 BuildRequires:  stackage-dist-@@RESOLVER@@-indices
 
 BuildRequires:  git
+BuildRequires:  ncurses-devel
 BuildRequires:  libicu-devel
 BuildRequires:  zlib-devel
 BuildRequires:  openssl-devel
