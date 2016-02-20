@@ -2,7 +2,7 @@
 
 set -eu
 
-distros="wily vivid precise trusy"
+distros="wily vivid precise trusty"
 
 t=`dirname ${BASH_SOURCE}`
 t=`realpath ${t}`
