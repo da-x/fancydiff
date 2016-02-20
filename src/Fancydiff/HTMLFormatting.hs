@@ -187,6 +187,7 @@ htmlFormatting format = root
           html Start _ DiffNothing        = "<div>"
           html End   _ DiffNothing        = "</div>"
 
+          html Start _ (Style (D.FreeForm cls)) = "<span class=\"" +@ cls +@ "\">"
           html Start m (Style s)      = if | Mark       `elem` m -> style pal3
                                            | DiffRemove `elem` m -> style pal4
                                            | DiffAdd    `elem` m -> style pal4

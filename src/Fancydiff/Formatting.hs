@@ -6,11 +6,11 @@
 
 module Fancydiff.Formatting
        (combineFLists, FList, Fragment(..),
-        test, Format(..), mkForm, clearFormatting,
+        Format(..), mkForm, clearFormatting,
         mkFormS, mkPlain, fshow, fragmentize,
         flistToText, highlightText, highlightMonospace,
         splitToLinesArray, flistToIList, applyIList,
-        combineILists) where
+        applyMarkers, makeFreeForm, combineILists) where
 
 ------------------------------------------------------------------------------------
 import           Control.Monad    (when)
@@ -25,8 +25,8 @@ import           Data.STRef       (modifySTRef', newSTRef, readSTRef,
                                    writeSTRef)
 import           Data.Text        (Text)
 import qualified Data.Text        as T
-------------------------------------------------------------------------------------
-import           Fancydiff.Data   (Format(..), Element(Ignore))
+----
+import           Fancydiff.Data   (Element (Ignore, FreeForm), Format (..))
 import           Lib.Text         (lineSplit, subAText, textToAText, (+@))
 ------------------------------------------------------------------------------------
 
@@ -254,8 +254,18 @@ flistToText = root
           crux (TPlain t)  = [t]
           crux (TForm _ l) = concat $ map crux $ toList l
 
-test :: IO ()
-test = do
+makeFreeForm :: Text -> Text -> Fragment
+makeFreeForm cls t = TForm (Style (FreeForm cls)) $ DList.singleton (TPlain t)
+
+applyMarkers :: Text -> Text -> (Text -> Fragment) -> Text -> FList
+applyMarkers mStart mEnd fragMakerF t = root
+    where startSplit = map (T.splitOn mEnd) $ T.splitOn mStart t
+          root = DList.fromList $ concat $ map addMarker startSplit
+          addMarker [a, b] = [fragMakerF a, TPlain b]
+          addMarker z = map TPlain z
+
+_test :: IO ()
+_test = do
     print $ splitToLinesArray $
              DList.fromList [TForm Mark    $ DList.fromList [
                                    TForm Monospace $ DList.fromList [

@@ -32,6 +32,7 @@ data Element
     | Brackets
     | Parentheses
     | Ignore
+    | FreeForm !Text
     deriving (Show, Eq, Ord)
 
 data Format
