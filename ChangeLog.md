@@ -1,5 +1,33 @@
 # Changelog
 
+## Unreleased
+
+Bug fixes:
+
+- Haskell syntax highlighting received a face lift. Now looking
+  much fancier.
+
+Features:
+
+- Added a 'setup' command for easy manipulation of Git configuration
+  for installing Fancydiff. Supports both local and global Git configs, 
+  via pager overrides, or command aliases.
+
+  For a quick start, just run 'fancydiff setup --global' after 
+  upgrading.
+
+- Support for bright terminals (e.g. white backgrounds). Now there are 
+  two builtin themes: dark and bright.
+- HTML generation, both for inline and CSS. Can be used as 
+  a Haskell library for generating syntax highlighting in blogging
+  platforms such as Hakyll. The exported interfaces from the Library 
+  are experimental.
+  See [example](http://blog.aloni.org/posts/st-monad-perf-with-exceptions/).
+- Fancydiff is sporting a new command line interface, exposing 
+  more functionality, including a builtin method to invoke a pager
+  (currently only `less` is supported). Old command line interface
+  is not compatible with the new one.
+
 ## 0.1.3
 
 Bug fixes:
