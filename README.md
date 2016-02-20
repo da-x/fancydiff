@@ -59,12 +59,14 @@ fancydiff setup [--local] [--aliases]
 ```
 
 More details [here](doc/git-configuration.md) about how the Git configuration is modified
-to enable Fancydiff,
+to enable Fancydiff.
 
 ## Limitations
 
  * Too few source code languages are supported.
  * Some small original coloring features from Git itself are missing.
+ * Some special Git modes don't use the pager (e.g. `git checkout -p`, 
+   in which Fancydiff is not presently activated.
 
 ## Contribution and bug reports
 
