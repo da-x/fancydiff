@@ -2,6 +2,8 @@
 
 set -eu
 
+distros="wily vivid precise trusy"
+
 t=`dirname ${BASH_SOURCE}`
 t=`realpath ${t}`
 PKG_NAME=fancydiff
@@ -67,16 +69,18 @@ tar -czf ${PKG_NAME}_${PKG_VERREL}.orig.tar.gz ${ARCHIVE_NAME}
 cd ${tempdir}/${ARCHIVE_NAME}
 
 i=${tempdir}/spec
-cp packaging/fancydiff.deb.spec ${i}
+for distro in ${distros}; do
+    cp packaging/fancydiff.deb.spec ${i}
 
-sed -i 's/@@RESOLVER@@/'"${RESOLVER}"'/g' ${i}
-sed -i 's/@@PKG_NAME@@/'"${PKG_NAME}"'/g' ${i}
-sed -i 's/@@PKG_CHANGELOG_TIMESTAMP@@/'"${PKG_CHANGELOG_TIMESTAMP}"'/g' ${i}
-sed -i 's/@@PKG_FULLVER@@/'"${PKG_FULLVER}"'/g' ${i}
-sed -i 's#@@PKG_SITE@@#'"${PKG_SITE}"'#g' ${i}
-sed -i 's/@@PKG_ONELINE@@/'"${PKG_ONELINE}"'/g' ${i}
+    sed -i 's/@@RESOLVER@@/'"${RESOLVER}"'/g' ${i}
+    sed -i 's/@@PKG_NAME@@/'"${PKG_NAME}"'/g' ${i}
+    sed -i 's/@@PKG_CHANGELOG_TIMESTAMP@@/'"${PKG_CHANGELOG_TIMESTAMP}"'/g' ${i}
+    sed -i 's/@@PKG_FULLVER@@/'"${PKG_FULLVER}"'/g' ${i}
+    sed -i 's#@@PKG_SITE@@#'"${PKG_SITE}"'#g' ${i}
+    sed -i 's/@@PKG_ONELINE@@/'"${PKG_ONELINE}"'/g' ${i}
+    sed -i 's/@@DISTRO@@/'"${distro}"'/g' ${i}
 
-python - <<EOF
+    python - <<EOF
 import os
 
 f = open("${i}", "r")
@@ -88,9 +92,11 @@ for part in f.read().split('%%%%%%%%%%%%%%%%%%%% CUT %%%%%%%%%%%%%%%%%%%%\n'):
        if d and not os.path.exists(d): os.makedirs(d)
        open(filename, "w").write(part[p+1:])
 EOF
-cp LICENSE debian/copyright
+    cp LICENSE debian/copyright
 
-dpkg-buildpackage -S
+    dpkg-buildpackage -S
+done
+
 rm -rf ${tempdir}/${ARCHIVE_NAME}
 rm -rf ${tempdir}/spec
 

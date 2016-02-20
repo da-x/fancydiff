@@ -14,6 +14,8 @@ This similar to what you see on Github, but instead it is done in the user's con
 
 First make sure that you have a terminal program that supports 24 bit True Color (see this [gist](https://gist.github.com/XVilka/8346728)).
 
+Ubuntu users of URxvt can install from [my build of urxvt on Launchpad](https://launchpad.net/~alonid/+archive/ubuntu/rxvt-console-24bit-color).
+
 Latest binaries of Fancydiff can be installed on major distributions.
 
 On **Fedora** 22 onwards:
@@ -25,7 +27,7 @@ sudo dnf install fancydiff
 
 For EPEL/CentOS/Red Hat 7, visit [Copr](https://copr.fedorainfracloud.org/coprs/alonid/fancydiff/).
 
-On **Ubuntu** Wily:
+On **Ubuntu**:
 
 ```
 sudo add-apt-repository ppa:alonid/fancydiff

@@ -69,7 +69,7 @@ override_dh_auto_install:
 
 %%%%%%%%%%%%%%%%%%%% CUT %%%%%%%%%%%%%%%%%%%%
 %%%% debian/changelog
-@@PKG_NAME@@ (@@PKG_FULLVER@@) wily; urgency=low
+@@PKG_NAME@@ (@@PKG_FULLVER@@.@@DISTRO@@) @@DISTRO@@; urgency=low
 
   * Ubuntu/Debian build. See upstream changelog.
 
