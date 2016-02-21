@@ -15,7 +15,12 @@ BuildRequires:  stackage-dist-@@RESOLVER@@-stack
 BuildRequires:  stackage-dist-@@RESOLVER@@-indices
 
 BuildRequires:  git
-BuildRequires:  ncurses-devel
+
+%if 0%{?fedora} >= 24
+# GHC builds need tinfo.so.5
+BuildRequires:  ncurses-compat-libs
+%endif
+
 BuildRequires:  libicu-devel
 BuildRequires:  zlib-devel
 BuildRequires:  openssl-devel
