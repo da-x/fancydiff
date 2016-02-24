@@ -39,4 +39,5 @@ main = do
    print [quasi|quota
                tion|]
    print "\\"
+   print ('a', '\'':'"')
    return ()

@@ -123,6 +123,16 @@
    Style Ignore { " " }
    Style String { "\"\\\\\"" }
    Style Ignore { "\n   " }
+   Style Identifier { "print" }
+   Style Ignore { " " }
+   Style Parentheses { "(" }
+   Style Char { "'a'" }
+   Style Ignore { ", " }
+   Style Char { "'\\''" }
+   Style Ignore { ":" }
+   Style Char { "'\"'" }
+   Style Parentheses { ")" }
+   Style Ignore { "\n   " }
    Style Identifier { "return" }
    Style Ignore { " " }
    Style Parentheses { "()" }

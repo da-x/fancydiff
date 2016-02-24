@@ -73,11 +73,10 @@ state:-
   <str>       [^ \\ \"]+              { tok       String            }
 
   <clang>     [\']                    { tokPush   Char      charx   }
-  <charx>     '\\\"'                  { tok       Char              }
+  <charx>     [\\] .                  { tok       Char              }
   <charx>     [\']                    { tokPop    Char              }
   <charx>     [\n]                    { tokPop    Char              }
   <charx>     [^ \\ \']+              { tok       Char              }
-  <charx>     [\\]                    { tok       Char              }
 
   <clang>     "/*"                    { tokPush   Comment   ccomm   }
   <ccomm>      "*/"                   { tokPop    Comment           }
