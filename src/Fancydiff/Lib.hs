@@ -53,7 +53,7 @@ import           Fancydiff.SourceHighlight
 import           Fancydiff.Data            as FD
 import           Lib.DList                 (dlistConcat, dlistForM)
 import           Lib.Regex                 ((=~+))
-import           Lib.Text                  (lineSplit)
+import           Lib.Text                  (lineSplit, safeDecode)
 ------------------------------------------------------------------------------------
 
 data Highlighter
@@ -152,7 +152,7 @@ highlightSourceInDiffFile fromBlobHash toBlobHash diffMeta content  = do
 
             let highlightWholeBlob filename blob =
                     F.splitToLinesArray $
-                           (highlightByExtension filename) (T.decodeUtf8 blob)
+                           (highlightByExtension filename) (safeDecode blob)
                 fromHighlighted = highlightWholeBlob fromFilename fromB
                 toHighlighted = highlightWholeBlob toFilename toB
 
