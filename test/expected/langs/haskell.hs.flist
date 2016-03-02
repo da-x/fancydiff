@@ -82,6 +82,18 @@
    Style Ignore { " " }
    Style Type { "False" }
    Style Ignore { "\n\n" }
+   Style Keyword { "class" }
+   Style Ignore { " " }
+   Style Type { "Foo" }
+   Style Ignore { " " }
+   Style Identifier { "a" }
+   Style Ignore { " " }
+   Style Keyword { "where" }
+   Style Ignore { "\n  " }
+   Style DocComment { "-- | Indented hadock\n" }
+   Style Ignore { "  " }
+   Style DocComment { "-- and multiline\n" }
+   Style Ignore { "\n" }
    Style DocComment { "-- | Single haddock\n" }
    Style TopLevel { "x3" }
    Style Ignore { " " }

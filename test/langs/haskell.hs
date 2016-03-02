@@ -27,6 +27,10 @@ x1 = False
 -- and continuation.
 x2 = False
 
+class Foo a where
+  -- | Indented hadock
+  -- and multiline
+
 -- | Single haddock
 x3 = False
 

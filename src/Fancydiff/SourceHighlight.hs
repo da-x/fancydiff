@@ -124,6 +124,7 @@ haskellMatcher = parseWithAlex haskell (\x -> runST $ p x)
                        case tok of
                            (_, _            , DocComment)   -> return ()
                            (_, _            , Comment)      -> return ()
+                           (_, _            , Ignore)       -> return ()
                            _                                -> ST.writeSTRef docSingleLine False
 
 
