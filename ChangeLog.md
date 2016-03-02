@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+Bug fixes:
+
+- Reading file blob content from Git that contains invalid UTF-8
+  should not resulted in an exception.
+- Small Haskell highlighting fixes.
+
 ## 0.2.0
 
 Bug fixes:
