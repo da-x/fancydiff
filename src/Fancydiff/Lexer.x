@@ -23,6 +23,7 @@ module Fancydiff.Lexer
   , runAlex
   , clang
   , haskell
+  , js
   )
 where
 
@@ -78,42 +79,67 @@ $nonwhitspace   = . # $white
 @haskellRsv4 = proc|qualified|rec|then|type|where
 @haskellRsv  = @haskellRsv1|@haskellRsv2|@haskellRsv3|@haskellRsv4
 
+@jsRsv1 = abstract|arguments|boolean|break|byte|case|catch|char
+@jsRsv2 = class|const|continue|debugger|default|delete|do|double
+@jsRsv3 = else|enum|eval|export|extends|false|final|finally
+@jsRsv4 = float|for|function|goto|if|implements|import|in
+@jsRsv5 = instanceof|int|interface|let|long|native|new|null
+@jsRsv6 = package|private|protected|public|return|short|static|super
+@jsRsv7 = switch|synchronized|this|throw|throws|transient|true|try
+@jsRsv8 = typeof|var|void|volatile|while|with|yield
+
+@jsRsv = @jsRsv1|@jsRsv2|@jsRsv3|@jsRsv4|@jsRsv5|@jsRsv6|@jsRsv8
+
 state:-
 
   <0>         @sp                     { tok       Ignore  	    }
 
-  <clang>     @sp                     { tok       Ignore  	    }
-  <clang>     [\"]                    { tokPush   String    str     }
   <str>       [\\] .                  { tok       String            }
   <str>       [\"]                    { tokPop    String            }
   <str>       [^ \\ \"]+              { tok       String            }
 
-  <clang>     [\']                    { tokPush   Char      charx   }
+  <strsq>     [\\] .                  { tok       String            }
+  <strsq>     [\']                    { tokPop    String            }
+  <strsq>     [^ \\ \']+              { tok       String            }
+  
   <charx>     [\\] .                  { tok       Char              }
   <charx>     [\']                    { tokPop    Char              }
   <charx>     [\n]                    { tokPop    Char              }
   <charx>     [^ \\ \']+              { tok       Char              }
 
-  <clang>     "/*"                    { tokPush   Comment   ccomm   }
   <ccomm>      "*/"                   { tokPop    Comment           }
   <ccomm>      [ [^ \*] \n]+          { tok       Comment           }
   <ccomm>      [\*]                   { tok       Comment           }
-  <clang>     "//"                    { tokPush   Comment   comm2   }
   <comm2>     [ ^ \n ]*\n             { tokPop    Comment           }
   <doccomm2>  [ ^ \n ]*\n             { tokPop    DocComment        }
 
+  <clang>     @sp                     { tok       Ignore  	    }
+  <clang>     [\"]                    { tokPush   String    str     }
+  <clang>     [\']                    { tokPush   Char      charx   }
+  <clang>     "/*"                    { tokPush   Comment   ccomm   }
+  <clang>     "//"                    { tokPush   Comment   comm2   }
   <clang>     @clangRsv               { tok       Keyword           }
-
   <clang>     "0x" [ 0-9 a-f      ]+  { tok       Number            }
   <clang>     [0-9]+ [\.] [ 0-9 ]+    { tok       Number            }
   <clang>     [\.] [ 0-9 ]+           { tok       Number            }
   <clang>     [ 0-9               ]+  { tok       Number            }
-
   <clang>     @cId                    { tok       Identifier        }
   <clang>     @punct                  { tok       Ignore            }
   <clang>     .                       { tok       Ignore            }
 
   <js>        @sp                     { tok       Ignore  	    }
+  <js>        [\"]                    { tokPush   String    str     }
+  <js>        [\']                    { tokPush   String    strsq   }
+  <js>        "/*"                    { tokPush   Comment   ccomm   }
+  <js>        "//"                    { tokPush   Comment   comm2   }
+  <js>        @jsRsv                  { tok       Keyword           }
+  <js>        "0x" [ 0-9 a-f      ]+  { tok       Number            }
+  <js>        [0-9]+ [\.] [ 0-9 ]+    { tok       Number            }
+  <js>        [\.] [ 0-9 ]+           { tok       Number            }
+  <js>        [ 0-9               ]+  { tok       Number            }
+  <js>        @cId                    { tok       Identifier        }
+  <js>        @punct                  { tok       Ignore            }
+  <js>        .                       { tok       Ignore            }
 
   <haskell>   @sp+                    { tok       Ignore  	    }
   <haskell>   [\"]                    { tokPush   String   haskstr  }

@@ -58,18 +58,22 @@ import           Lib.Text                  (lineSplit, safeDecode)
 
 data Highlighter
     = HL'CLang
+    | HL'JavaScript
     | HL'Haskell
     | HL'Generic
     deriving (Enum, Bounded)
 
 highlighterToString :: Highlighter -> Text
-highlighterToString HL'CLang   = "clang"
-highlighterToString HL'Haskell = "haskell"
-highlighterToString HL'Generic = "generic"
+highlighterToString HL'CLang      = "clang"
+highlighterToString HL'JavaScript = "javascript"
+highlighterToString HL'Haskell    = "haskell"
+highlighterToString HL'Generic    = "generic"
+
 
 getHighlighterByFilename :: Text -> Highlighter
 getHighlighterByFilename filename
     | ".hs"  `T.isSuffixOf` filename   = HL'Haskell
+    | ".js"  `T.isSuffixOf` filename   = HL'JavaScript
     | ".c"   `T.isSuffixOf` filename   = HL'CLang
     | ".h"   `T.isSuffixOf` filename   = HL'CLang
     | ".cc"  `T.isSuffixOf` filename   = HL'CLang
@@ -87,9 +91,10 @@ stringToHighlighter s =
     in fromMaybe HL'Generic (lookup s m)
 
 getHighlighterFunc :: Highlighter -> Text -> Either String F.FList
-getHighlighterFunc HL'CLang   = clangMatcher
-getHighlighterFunc HL'Haskell = haskellMatcher
-getHighlighterFunc HL'Generic = nullMatcher
+getHighlighterFunc HL'CLang      = clangMatcher
+getHighlighterFunc HL'JavaScript = javascriptMatcher
+getHighlighterFunc HL'Haskell    = haskellMatcher
+getHighlighterFunc HL'Generic    = nullMatcher
 
 getHighlighterFuncByFilename :: Text -> Text -> Either String F.FList
 getHighlighterFuncByFilename =
