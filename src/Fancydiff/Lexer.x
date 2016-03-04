@@ -62,6 +62,22 @@ $nonwhitspace   = . # $white
 @haskTypeCtr    = [A-Z_][a-z A-Z 0-9 \_ ']*
 @haskBind       = [a-z_][a-z A-Z 0-9 \_ ']*
 
+@clangRsv1 = _Pragma|__attribute__|asm|auto|break|case|char|const
+@clangRsv2 = continue|default|define|do|double|else|endif|enum
+@clangRsv3 = extern|float|for|goto|if|ifdef|ifndef|include|include_once
+@clangRsv4 = inline|int|int|long|pragma|register|return|short
+@clangRsv5 = signed|sizeof|static|struct|switch|typedef|undef
+@clangRsv6 = union|unsigned|void|volatile|while
+@clangRsvA = @clangRsv1|@clangRsv2|@clangRsv3
+@clangRsvB = @clangRsv4|@clangRsv5|@clangRsv6
+@clangRsv  = @clangRsvA|@clangRsvB
+
+@haskellRsv1 = as|case|class|data|data|default|deriving|do|else|family
+@haskellRsv2 = forall|foreign|hiding|if|import|import|import|in|infix
+@haskellRsv3 = infixl|infixr|instance|let|let|mdo|module|newtype|of
+@haskellRsv4 = proc|qualified|rec|then|type|where
+@haskellRsv  = @haskellRsv1|@haskellRsv2|@haskellRsv3|@haskellRsv4
+
 state:-
 
   <0>         @sp                     { tok       Ignore  	    }
@@ -86,51 +102,7 @@ state:-
   <comm2>     [ ^ \n ]*\n             { tokPop    Comment           }
   <doccomm2>  [ ^ \n ]*\n             { tokPop    DocComment        }
 
-  <clang>     "_Pragma"               { tok       Keyword           }
-  <clang>     "__attribute__"         { tok       Keyword           }
-  <clang>     "asm"                   { tok       Keyword           }
-  <clang>     "auto"                  { tok       Keyword           }
-  <clang>     "break"                 { tok       Keyword           }
-  <clang>     "case"                  { tok       Keyword           }
-  <clang>     "char"                  { tok       Keyword           }
-  <clang>     "const"                 { tok       Keyword           }
-  <clang>     "continue"              { tok       Keyword           }
-  <clang>     "default"               { tok       Keyword           }
-  <clang>     "define"                { tok       Keyword           }
-  <clang>     "do"                    { tok       Keyword           }
-  <clang>     "double"                { tok       Keyword           }
-  <clang>     "else"                  { tok       Keyword           }
-  <clang>     "endif"                 { tok       Keyword           }
-  <clang>     "enum"                  { tok       Keyword           }
-  <clang>     "extern"                { tok       Keyword           }
-  <clang>     "float"                 { tok       Keyword           }
-  <clang>     "for"                   { tok       Keyword           }
-  <clang>     "goto"                  { tok       Keyword           }
-  <clang>     "if"                    { tok       Keyword           }
-  <clang>     "ifdef"                 { tok       Keyword           }
-  <clang>     "ifndef"                { tok       Keyword           }
-  <clang>     "include"               { tok       Keyword           }
-  <clang>     "include_once"          { tok       Keyword           }
-  <clang>     "inline"                { tok       Keyword           }
-  <clang>     "int"                   { tok       Keyword           }
-  <clang>     "int"                   { tok       Keyword           }
-  <clang>     "long"                  { tok       Keyword           }
-  <clang>     "pragma"                { tok       Keyword           }
-  <clang>     "register"              { tok       Keyword           }
-  <clang>     "return"                { tok       Keyword           }
-  <clang>     "short"                 { tok       Keyword           }
-  <clang>     "signed"                { tok       Keyword           }
-  <clang>     "sizeof"                { tok       Keyword           }
-  <clang>     "static"                { tok       Keyword           }
-  <clang>     "struct"                { tok       Keyword           }
-  <clang>     "switch"                { tok       Keyword           }
-  <clang>     "typedef"               { tok       Keyword           }
-  <clang>     "undef"                 { tok       Keyword           }
-  <clang>     "union"                 { tok       Keyword           }
-  <clang>     "unsigned"              { tok       Keyword           }
-  <clang>     "void"                  { tok       Keyword           }
-  <clang>     "volatile"              { tok       Keyword           }
-  <clang>     "while"                 { tok       Keyword           }
+  <clang>     @clangRsv               { tok       Keyword           }
 
   <clang>     "0x" [ 0-9 a-f      ]+  { tok       Number            }
   <clang>     [0-9]+ [\.] [ 0-9 ]+    { tok       Number            }
@@ -141,6 +113,8 @@ state:-
   <clang>     @punct                  { tok       Ignore            }
   <clang>     .                       { tok       Ignore            }
 
+  <js>        @sp                     { tok       Ignore  	    }
+
   <haskell>   @sp+                    { tok       Ignore  	    }
   <haskell>   [\"]                    { tokPush   String   haskstr  }
   <haskell>   [\']                    { tokPush   Char     charx    }
@@ -150,40 +124,7 @@ state:-
   <haskell>   [\{] [\-] " " "|"       { tokPush   DocComment  hmlcomm2 }
   <haskell>   [\{] [\-]               { tokPush   Comment  hmlcomm  }
   <haskell>   [\[] @haskBind [\|]     { tokPush   String   haskqq   }
-  <haskell>   "as"                    { tok       Keyword           }
-  <haskell>   "case"                  { tok       Keyword           }
-  <haskell>   "class"                 { tok       Keyword           }
-  <haskell>   "data"                  { tok       Keyword           }
-  <haskell>   "data"                  { tok       Keyword           }
-  <haskell>   "default"               { tok       Keyword           }
-  <haskell>   "deriving"              { tok       Keyword           }
-  <haskell>   "do"                    { tok       Keyword           }
-  <haskell>   "else"                  { tok       Keyword           }
-  <haskell>   "family"                { tok       Keyword           }
-  <haskell>   "forall"                { tok       Keyword           }
-  <haskell>   "foreign"               { tok       Keyword           }
-  <haskell>   "hiding"                { tok       Keyword           }
-  <haskell>   "if"                    { tok       Keyword           }
-  <haskell>   "import"                { tok       Keyword           }
-  <haskell>   "import"                { tok       Keyword           }
-  <haskell>   "import"                { tok       Keyword           }
-  <haskell>   "in"                    { tok       Keyword           }
-  <haskell>   "infix"                 { tok       Keyword           }
-  <haskell>   "infixl"                { tok       Keyword           }
-  <haskell>   "infixr"                { tok       Keyword           }
-  <haskell>   "instance"              { tok       Keyword           }
-  <haskell>   "let"                   { tok       Keyword           }
-  <haskell>   "let"                   { tok       Keyword           }
-  <haskell>   "mdo"                   { tok       Keyword           }
-  <haskell>   "module"                { tok       Keyword           }
-  <haskell>   "newtype"               { tok       Keyword           }
-  <haskell>   "of"                    { tok       Keyword           }
-  <haskell>   "proc"                  { tok       Keyword           }
-  <haskell>   "qualified"             { tok       Keyword           }
-  <haskell>   "rec"                   { tok       Keyword           }
-  <haskell>   "then"                  { tok       Keyword           }
-  <haskell>   "type"                  { tok       Keyword           }
-  <haskell>   "where"                 { tok       Keyword           }
+  <haskell>   @haskellRsv             { tok       Keyword           }
 
   <hpragma>   [\#] [\-] [\}]          { tokPop    Special2          }
   <hpragma>   [\n]                    { tok       Special2          }
