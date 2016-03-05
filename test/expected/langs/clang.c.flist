@@ -10,7 +10,11 @@
    Style Identifier { "field" }
    Style Ignore { ";\n} " }
    Style Identifier { "typedef_tag" }
-   Style Ignore { ";\n\n" }
+   Style Ignore { ";\n\n# " }
+   Style Identifier { "error" }
+   Style Ignore { " " }
+   Style String { "\"multiline. \\\nstring.\"" }
+   Style Ignore { "\n\n" }
    Style Keyword { "int" }
    Style Ignore { " " }
    Style Call { "main" }

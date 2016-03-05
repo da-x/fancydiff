@@ -2,6 +2,9 @@ typedef struct struct_tag {
 	int field;
 } typedef_tag;
 
+# error "multiline. \
+string."
+
 int main(int argc, char **argv[])
 {
 	const char *s = "a string\n";

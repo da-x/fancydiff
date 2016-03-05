@@ -95,13 +95,14 @@ state:-
   <0>         @sp                     { tok       Ignore  	    }
 
   <str>       [\\] .                  { tok       String            }
+  <str>       [\\] [ \n ]             { tok       String            }
   <str>       [\"]                    { tokPop    String            }
   <str>       [^ \\ \"]+              { tok       String            }
 
   <strsq>     [\\] .                  { tok       String            }
   <strsq>     [\']                    { tokPop    String            }
   <strsq>     [^ \\ \']+              { tok       String            }
-  
+
   <charx>     [\\] .                  { tok       Char              }
   <charx>     [\']                    { tokPop    Char              }
   <charx>     [\n]                    { tokPop    Char              }
@@ -110,8 +111,8 @@ state:-
   <ccomm>      "*/"                   { tokPop    Comment           }
   <ccomm>      [ [^ \*] \n]+          { tok       Comment           }
   <ccomm>      [\*]                   { tok       Comment           }
-  <comm2>     [ ^ \n ]*\n             { tokPop    Comment           }
-  <doccomm2>  [ ^ \n ]*\n             { tokPop    DocComment        }
+  <comm2>     [ ^ \n ]*\n?            { tokPop    Comment           }
+  <doccomm2>  [ ^ \n ]*\n?            { tokPop    DocComment        }
 
   <clang>     @sp                     { tok       Ignore  	    }
   <clang>     [\"]                    { tokPush   String    str     }
@@ -128,6 +129,9 @@ state:-
   <clang>     .                       { tok       Ignore            }
 
   <js>        @sp                     { tok       Ignore  	    }
+  <js>        [\/] [\[] [\/] [^ \/]+ [\/]
+  	                              { tok       String            }
+  <js>        [\/] [^ \/]+ [\/]       { tok       String            }
   <js>        [\"]                    { tokPush   String    str     }
   <js>        [\']                    { tokPush   String    strsq   }
   <js>        "/*"                    { tokPush   Comment   ccomm   }
