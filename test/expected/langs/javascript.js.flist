@@ -1,0 +1,17 @@
+{
+   Style Keyword { "function" }
+   Style Ignore { " " }
+   Style Call { "test" }
+   Style Ignore { "(" }
+   Style Identifier { "a" }
+   Style Ignore { ", " }
+   Style Identifier { "b" }
+   Style Ignore { ")\n{\n    " }
+   Style Keyword { "var" }
+   Style Ignore { " " }
+   Style Identifier { "regex" }
+   Style Ignore { " = " }
+   Style String { "/test/" }
+   Style Identifier { "g" }
+   Style Ignore { ";\n}\n" }
+}

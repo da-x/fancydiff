@@ -129,9 +129,8 @@ state:-
   <clang>     .                       { tok       Ignore            }
 
   <js>        @sp                     { tok       Ignore  	    }
-  <js>        [\/] [\[] [\/] [^ \/]+ [\/]
+  <js>        [\/] ([\[] ([^\\ \]]|[\\].) * [\]] | [^\/ \\] | [\\] .) + [\/]
   	                              { tok       String            }
-  <js>        [\/] [^ \/]+ [\/]       { tok       String            }
   <js>        [\"]                    { tokPush   String    str     }
   <js>        [\']                    { tokPush   String    strsq   }
   <js>        "/*"                    { tokPush   Comment   ccomm   }
