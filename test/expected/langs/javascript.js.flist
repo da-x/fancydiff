@@ -13,5 +13,21 @@
    Style Ignore { " = " }
    Style String { "/test/" }
    Style Identifier { "g" }
-   Style Ignore { ";\n}\n" }
+   Style Ignore { ";\n    " }
+   Style Keyword { "var" }
+   Style Ignore { " " }
+   Style Identifier { "regex1" }
+   Style Ignore { " = " }
+   Style String { "/te\\/st/" }
+   Style Identifier { "g" }
+   Style Ignore { ";\n    " }
+   Style Keyword { "var" }
+   Style Ignore { " " }
+   Style Identifier { "regex1" }
+   Style Ignore { " = " }
+   Style String { "/tq[/]ee\\/st/" }
+   Style Identifier { "g" }
+   Style Ignore { ";\n    " }
+   Style Comment { "// comment\n" }
+   Style Ignore { "}\n" }
 }
