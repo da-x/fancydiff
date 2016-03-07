@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Fix an exception occuring when Sub-module changes are in the history.
+- Support for JavaScript syntax highlighting.
+- Color adjustments for bright theme.
+
 ## 0.2.1
 
 Bug fixes:
