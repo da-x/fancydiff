@@ -66,8 +66,8 @@ mkHtmlFormat styles palette = HTMLFormat
     where
         colorMod =
             case D.p'brightness palette of
-                D.P'Dark -> darker
-                D.P'Bright -> brighter
+                D.P'Dark -> brighter
+                D.P'Bright -> darker
 
         css =
             case styles of
