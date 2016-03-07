@@ -5,3 +5,5 @@
 *_source.changes
 *_source.ppa.upload
 *.orig.tar.gz
+\#*\#
+.\#*
