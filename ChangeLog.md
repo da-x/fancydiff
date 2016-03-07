@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.2
 
 - Fix an exception occuring when Sub-module changes are in the history.
 - Support for JavaScript syntax highlighting.

@@ -1,5 +1,5 @@
 name:                fancydiff
-version:             0.2.1
+version:             0.2.2
 synopsis:            Fancy coloring of diffs for Git
 description:         Please see README.md
 homepage:            http://github.com/da-x/fancydiff#readme
