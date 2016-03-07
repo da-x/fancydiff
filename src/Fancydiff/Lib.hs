@@ -131,7 +131,9 @@ readMaybeBlob filename hash = do
                                                 -- complains the commit hashes not found.
                                                 return ""
                                             _ -> E.throw e
-                        Nothing -> E.throw e
+                        Nothing -> do
+                            -- Could be a sub-project not cloned yet.
+                            return ""
             E.catch inDb inWorkingDir
 
 highlightSourceInDiffFile :: (MonadGit o m, MonadIO m, MonadBaseControl IO m) => Text -> Text -> DH.DiffHeader -> DH.DiffContent -> m (Maybe F.FList)
