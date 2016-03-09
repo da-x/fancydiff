@@ -61,7 +61,7 @@ data Highlighter
     | HL'JavaScript
     | HL'Haskell
     | HL'Generic
-    deriving (Enum, Bounded)
+    deriving (Enum, Ord, Eq, Bounded)
 
 highlighterToString :: Highlighter -> Text
 highlighterToString HL'CLang      = "clang"

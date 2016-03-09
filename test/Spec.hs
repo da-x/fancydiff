@@ -20,14 +20,13 @@ import           Control.Monad.IO.Class      (MonadIO, liftIO)
 import           Control.Monad.State.Strict  (StateT, evalStateT, get, MonadState,
                                               modify)
 import           Control.Lens                (makeLenses)
-
 import           Control.Monad.Trans.Control (MonadBaseControl)
 import           Data.Typeable               (Typeable)
-
+import qualified Data.IORef                 as IORef
+import qualified Data.Map                  as Map
 import           Data.List                   (intersperse)
 import           Data.Text                   (Text)
 import qualified Data.Text                 as T
-
 import qualified Data.Text.IO              as T
 import           System.Console.ANSI
 import           System.Environment         (setEnv)
@@ -206,20 +205,39 @@ run = do
             return ()
 
 recursiveScan :: FilePath -> Opts -> (Opts -> IO ()) -> IO ()
-recursiveScan gitRepoPath opts realMain = do
+recursiveScan gitRepoPath opts@Opts{..} realMain = do
     liftIO $ setCurrentDirectory gitRepoPath
-    x <- readProcess "git" ["ls-files", "."]
-    forM_ (T.lines x) $ \tfp -> do
+    lsFiles <- readProcess "git" ["ls-files", "."]
+    filesTyped <- IORef.newIORef $ Map.empty
+    when optTestRecursiveSkipKnown $ do
+        putStrLn "Looking for files that we don't know how to highlight: "
+        putStrLn ""
+
+    forM_ (T.lines lsFiles) $ \tfp -> do
         let fp = T.unpack tfp
+        let fileType = getHighlighterByFilename tfp
+        let alter Nothing = Just (1 :: Int)
+            alter (Just x') = Just $ x' + 1
+        IORef.atomicModifyIORef' filesTyped $ \m -> (Map.alter alter fileType m, ())
         case getHighlighterByFilename tfp of
-            HL'Generic -> return ()
-            v -> do let hr = T.putStrLn "----------------------------------------------------------------"
+            HL'Generic -> do
+                when optTestRecursiveSkipKnown $ do
+                    T.putStrLn tfp
+            v -> when (not optTestRecursiveSkipKnown)    $ do
+                    let hr = T.putStrLn "----------------------------------------------------------------"
                     T.putStrLn "" >> hr >> T.putStrLn (T.concat [highlighterToString v, " :: ", tfp])  >> hr
                     let newOpts = opts
                            { optCommand = Just $ OneFile  fp
                            , optTestingMode = False
                            }
                     realMain newOpts
+
+    putStrLn ""
+    putStrLn "Total highlighting breakdown: "
+    putStrLn ""
+    filesTypesM <- IORef.readIORef filesTyped
+    forM_ (Map.toList filesTypesM) $ \(ftype, count) -> do
+        T.putStrLn $ T.concat [highlighterToString ftype, ": ", T.pack $ show count, " files"]
 
 main :: (Opts -> IO ()) -> Opts -> IO ()
 main realMain opts@Opts{..} =

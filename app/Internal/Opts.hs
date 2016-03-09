@@ -31,13 +31,14 @@ data Command
     | Setup Bool Bool
 
 data Opts = Opts
-    { optGetVersion        :: Bool
-    , optTestingMode       :: Bool
-    , optTestRecursiveScan :: Maybe FilePath
-    , optOutputFormat      :: OutputFormat
-    , optPager             :: Maybe Pager
-    , optPalette           :: (Palette ColorString)
-    , optCommand           :: (Maybe Command)
+    { optGetVersion             :: Bool
+    , optTestingMode            :: Bool
+    , optTestRecursiveScan      :: Maybe FilePath
+    , optTestRecursiveSkipKnown :: Bool
+    , optOutputFormat           :: OutputFormat
+    , optPager                  :: Maybe Pager
+    , optPalette                :: (Palette ColorString)
+    , optCommand                :: (Maybe Command)
     }
 
 optsParser :: ParserInfo Opts
@@ -46,7 +47,8 @@ optsParser = info (optsParse <**> helper) idm
        optsParse = do
            Opts <$> switch ( long "version" <> short 'v' <> help "Show version" )
                 <*> switch ( hidden <> long "test-suite" )
-                <*> optional ( strOption (long "test-recursive-scan" <> hidden))
+                <*> optional ( strOption (long "test-recursive-scan" <> hidden ))
+                <*> switch (long "test-recursive-skip-known" <> hidden )
                 <*> fmap formatArg (optional (strOption (long
                          "format" <> short 'f'
                                  <> help "Output format (defaults to ANSI codes)" )))
