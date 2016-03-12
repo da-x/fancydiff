@@ -60,6 +60,7 @@ data Highlighter
     = HL'CLang
     | HL'JavaScript
     | HL'Haskell
+    | HL'Python
     | HL'Generic
     deriving (Enum, Ord, Eq, Bounded)
 
@@ -67,6 +68,7 @@ highlighterToString :: Highlighter -> Text
 highlighterToString HL'CLang      = "clang"
 highlighterToString HL'JavaScript = "javascript"
 highlighterToString HL'Haskell    = "haskell"
+highlighterToString HL'Python     = "python"
 highlighterToString HL'Generic    = "generic"
 
 
@@ -74,6 +76,7 @@ getHighlighterByFilename :: Text -> Highlighter
 getHighlighterByFilename filename
     | ".hs"  `T.isSuffixOf` filename   = HL'Haskell
     | ".js"  `T.isSuffixOf` filename   = HL'JavaScript
+    | ".py"  `T.isSuffixOf` filename   = HL'Python
     | ".c"   `T.isSuffixOf` filename   = HL'CLang
     | ".h"   `T.isSuffixOf` filename   = HL'CLang
     | ".cc"  `T.isSuffixOf` filename   = HL'CLang
@@ -93,6 +96,7 @@ stringToHighlighter s =
 getHighlighterFunc :: Highlighter -> Text -> Either String F.FList
 getHighlighterFunc HL'CLang      = clangMatcher
 getHighlighterFunc HL'JavaScript = javascriptMatcher
+getHighlighterFunc HL'Python     = pythonMatcher
 getHighlighterFunc HL'Haskell    = haskellMatcher
 getHighlighterFunc HL'Generic    = nullMatcher
 

@@ -23,6 +23,7 @@ module Fancydiff.Lexer
   , runAlex
   , clang
   , haskell
+  , python
   , js
   )
 where
@@ -63,6 +64,14 @@ $nonwhitspace   = . # $white
 @haskTypeCtr    = [A-Z_][a-z A-Z 0-9 \_ ']*
 @haskBind       = [a-z_][a-z A-Z 0-9 \_ ']*
 
+@hexnumber      = "0x" [0-9a-fA-F]+
+@fracpart       = [ 0-9 ]+ ([e E] [\-]? [0-9]+ )?
+@fracnumber1    = [0-9]+ [\.] @fracpart
+@fracnumber2    = [\.] @fracpart
+@fracnumber     = @fracnumber1 | @fracnumber2
+@decnumber      = [0-9]+
+@number         = ([\-])? (@hexnumber | @decnumber | @fracnumber)
+
 @clangRsv1 = _Pragma|__attribute__|asm|auto|break|case|char|const
 @clangRsv2 = continue|default|define|do|double|else|endif|enum
 @clangRsv3 = extern|float|for|goto|if|ifdef|ifndef|include|include_once
@@ -89,6 +98,13 @@ $nonwhitspace   = . # $white
 @jsRsv8 = typeof|var|void|volatile|while|with|yield
 
 @jsRsv = @jsRsv1|@jsRsv2|@jsRsv3|@jsRsv4|@jsRsv5|@jsRsv6|@jsRsv8
+
+@pythonRsv1 = and|as|assert|break|class|continue|def|del
+@pythonRsv2 = elif|else|except|exec|False|finally|for|from
+@pythonRsv3 = global|if|import|in|is|lambda|None|nonlocal
+@pythonRsv4 = not|or|pass|print|raise|return|True|try|while|with|yield
+
+@pythonRsv = @pythonRsv1 | @pythonRsv2 | @pythonRsv3 | @pythonRsv4
 
 state:-
 
@@ -136,13 +152,33 @@ state:-
   <js>        "/*"                    { tokPush   Comment   ccomm   }
   <js>        "//"                    { tokPush   Comment   comm2   }
   <js>        @jsRsv                  { tok       Keyword           }
-  <js>        "0x" [ 0-9 a-f      ]+  { tok       Number            }
-  <js>        [0-9]+ [\.] [ 0-9 ]+    { tok       Number            }
-  <js>        [\.] [ 0-9 ]+           { tok       Number            }
-  <js>        [ 0-9               ]+  { tok       Number            }
+  <js>        @number                 { tok       Number            }
   <js>        @cId                    { tok       Identifier        }
   <js>        @punct                  { tok       Ignore            }
   <js>        .                       { tok       Ignore            }
+
+  <python>    @sp                     { tok       Ignore  	    }
+  <python>    [\"][\"][\"]            { tokPush   String    pmstr1  }
+  <python>    [\'][\'][\']            { tokPush   String    pmstr2  }
+  <python>    [\"]                    { tokPush   String    str     }
+  <python>    [\']                    { tokPush   String    strsq   }
+  <python>    "#"                     { tokPush   Comment   comm2   }
+  <python>    @pythonRsv              { tok       Keyword           }
+  <python>    @number                 { tok       Number            }
+  <python>    @cId                    { tok       Identifier        }
+  <python>    "@"                     { tok       Special2          }
+  <python>    @punct                  { tok       Ignore            }
+  <python>    .                       { tok       Ignore            }
+
+  <pmstr1>    [\"][\"][\"]            { tokPop    String            }
+  <pmstr1>    [\"][\"]                { tok       String            }
+  <pmstr1>    [\"]                    { tok       String            }
+  <pmstr1>    [ \n ]                  { tok       String            }
+  <pmstr1>    [ [^ \"] \n ]+          { tok       String            }
+  <pmstr2>    [\'][\'][\']            { tokPop    String            }
+  <pmstr2>    [\'][\']                { tok       String            }
+  <pmstr2>    [\']                    { tok       String            }
+  <pmstr2>    [ [^ \'] \n ]+          { tok       String            }
 
   <haskell>   @sp+                    { tok       Ignore  	    }
   <haskell>   [\"]                    { tokPush   String   haskstr  }
@@ -181,11 +217,7 @@ state:-
   <haskell>   \=                      { tok       Special           }
 
   <haskell>   @punct                  { tok       Ignore            }
-
-  <haskell>   "0x" [ 0-9 a-f     ]+   { tok       Number            }
-  <haskell>   [0-9]+ [\.] [ 0-9  ]+   { tok       Number            }
-  <haskell>   [\.] [ 0-9         ]+   { tok       Number            }
-  <haskell>   [ 0-9              ]+   { tok       Number            }
+  <haskell>   @number                 { tok       Number            }
 
   <haskstr>   [\\] .                  { tok       String            }
   <haskstr>   [\\] [\n]               { tok       String            }
