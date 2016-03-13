@@ -7,6 +7,7 @@ module Fancydiff.SourceHighlight
     , haskellMatcher
     , clangMatcher
     , javascriptMatcher
+    , javaMatcher
     , pythonMatcher
     , paletteDecode
     , paletteEncode
@@ -34,7 +35,7 @@ import           Fancydiff.Data
 import           Fancydiff.Formatting       as F
 import           Fancydiff.Lexer            (Token (..), TokenClass (..),
                                              alexMonadScan, alexSetStartCode,
-                                             clang, js, python,
+                                             clang, js, python, java,
                                              haskell, runAlex)
 import           Lib.Text                   (safeDecode)
 ------------------------------------------------------------------------------------
@@ -92,6 +93,7 @@ parseWithAlex s p t =
 nullMatcher,
   haskellMatcher,
   clangMatcher,
+  javaMatcher,
   javascriptMatcher,
   pythonMatcher :: Text -> Either String FList
 
@@ -157,6 +159,7 @@ proceduralMatcher startCode = parseWithAlex startCode (\x -> runST $ p x)
                    ST.readSTRef out
 
 
+javaMatcher = proceduralMatcher java
 clangMatcher = proceduralMatcher clang
 javascriptMatcher = proceduralMatcher js
 pythonMatcher = proceduralMatcher python

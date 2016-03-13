@@ -61,30 +61,34 @@ data Highlighter
     | HL'JavaScript
     | HL'Haskell
     | HL'Python
+    | HL'Java
     | HL'Generic
     deriving (Enum, Ord, Eq, Bounded)
 
 highlighterToString :: Highlighter -> Text
 highlighterToString HL'CLang      = "clang"
-highlighterToString HL'JavaScript = "javascript"
-highlighterToString HL'Haskell    = "haskell"
-highlighterToString HL'Python     = "python"
 highlighterToString HL'Generic    = "generic"
+highlighterToString HL'Haskell    = "haskell"
+highlighterToString HL'Java       = "java"
+highlighterToString HL'JavaScript = "javascript"
+highlighterToString HL'Python     = "python"
 
 
 getHighlighterByFilename :: Text -> Highlighter
 getHighlighterByFilename filename
-    | ".hs"  `T.isSuffixOf` filename   = HL'Haskell
-    | ".js"  `T.isSuffixOf` filename   = HL'JavaScript
-    | ".py"  `T.isSuffixOf` filename   = HL'Python
-    | ".c"   `T.isSuffixOf` filename   = HL'CLang
-    | ".h"   `T.isSuffixOf` filename   = HL'CLang
-    | ".cc"  `T.isSuffixOf` filename   = HL'CLang
-    | ".hh"  `T.isSuffixOf` filename   = HL'CLang
-    | ".cpp" `T.isSuffixOf` filename   = HL'CLang
-    | ".hpp" `T.isSuffixOf` filename   = HL'CLang
-    | ".hxx" `T.isSuffixOf` filename   = HL'CLang
-    | ".cxx" `T.isSuffixOf` filename   = HL'CLang
+    | ".c"    `T.isSuffixOf` filename   = HL'CLang
+    | ".cc"   `T.isSuffixOf` filename   = HL'CLang
+    | ".cpp"  `T.isSuffixOf` filename   = HL'CLang
+    | ".cxx"  `T.isSuffixOf` filename   = HL'CLang
+    | ".h"    `T.isSuffixOf` filename   = HL'CLang
+    | ".hh"   `T.isSuffixOf` filename   = HL'CLang
+    | ".hpp"  `T.isSuffixOf` filename   = HL'CLang
+    | ".hs"   `T.isSuffixOf` filename   = HL'Haskell
+    | ".hxx"  `T.isSuffixOf` filename   = HL'CLang
+    | ".java" `T.isSuffixOf` filename   = HL'Java
+    | ".js"   `T.isSuffixOf` filename   = HL'JavaScript
+    | ".json" `T.isSuffixOf` filename   = HL'JavaScript
+    | ".py"   `T.isSuffixOf` filename   = HL'Python
     | otherwise                        = HL'Generic
 
 stringToHighlighter :: Text -> Highlighter
@@ -95,10 +99,11 @@ stringToHighlighter s =
 
 getHighlighterFunc :: Highlighter -> Text -> Either String F.FList
 getHighlighterFunc HL'CLang      = clangMatcher
+getHighlighterFunc HL'Generic    = nullMatcher
+getHighlighterFunc HL'Haskell    = haskellMatcher
+getHighlighterFunc HL'Java       = javaMatcher
 getHighlighterFunc HL'JavaScript = javascriptMatcher
 getHighlighterFunc HL'Python     = pythonMatcher
-getHighlighterFunc HL'Haskell    = haskellMatcher
-getHighlighterFunc HL'Generic    = nullMatcher
 
 getHighlighterFuncByFilename :: Text -> Text -> Either String F.FList
 getHighlighterFuncByFilename =

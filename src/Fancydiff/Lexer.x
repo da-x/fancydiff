@@ -25,6 +25,7 @@ module Fancydiff.Lexer
   , haskell
   , python
   , js
+  , java
   )
 where
 
@@ -106,6 +107,15 @@ $nonwhitspace   = . # $white
 
 @pythonRsv = @pythonRsv1 | @pythonRsv2 | @pythonRsv3 | @pythonRsv4
 
+@javaRsv1 = abstract|assert|boolean|break|byte|case|catch|char|class|const
+@javaRsv2 = continue|default|do|double|else|enum|extends|final|finally|float
+@javaRsv3 = for|goto|if|implements|import|instanceof|int|interface|long|native
+@javaRsv4 = new|package|private|protected|public|return|short|static|strictfp|super
+@javaRsv5 = switch|synchronized|this|throw|throws|transient|try
+@javaRsv6 = void|volatile|while
+
+@javaRsv = @javaRsv1 | @javaRsv2 | @javaRsv3 | @javaRsv4 | @javaRsv5 | @javaRsv6
+
 state:-
 
   <0>         @sp                     { tok       Ignore  	    }
@@ -136,13 +146,21 @@ state:-
   <clang>     "/*"                    { tokPush   Comment   ccomm   }
   <clang>     "//"                    { tokPush   Comment   comm2   }
   <clang>     @clangRsv               { tok       Keyword           }
-  <clang>     "0x" [ 0-9 a-f      ]+  { tok       Number            }
-  <clang>     [0-9]+ [\.] [ 0-9 ]+    { tok       Number            }
-  <clang>     [\.] [ 0-9 ]+           { tok       Number            }
-  <clang>     [ 0-9               ]+  { tok       Number            }
+  <clang>     @number                 { tok       Number            }
   <clang>     @cId                    { tok       Identifier        }
   <clang>     @punct                  { tok       Ignore            }
   <clang>     .                       { tok       Ignore            }
+
+  <java>      @sp                     { tok       Ignore  	    }
+  <java>      [\"]                    { tokPush   String    str     }
+  <java>      [\']                    { tokPush   Char      charx   }
+  <java>      "/*"                    { tokPush   Comment   ccomm   }
+  <java>      "//"                    { tokPush   Comment   comm2   }
+  <java>      @javaRsv                { tok       Keyword           }
+  <java>      @number                 { tok       Number            }
+  <java>      @cId                    { tok       Identifier        }
+  <java>      @punct                  { tok       Ignore            }
+  <java>      .                       { tok       Ignore            }
 
   <js>        @sp                     { tok       Ignore  	    }
   <js>        [\/] ([\[] ([^\\ \]]|[\\].) * [\]] | [^\/ \\] | [\\] .) + [\/]
