@@ -40,8 +40,8 @@ import           Data.IORef
 ----
 import           Lib.Process                (readProcess, readProcess'')
 import           Fancydiff.Lib              (getHighlighterByFilename,
-                                             highlighterToString,
-                                             Highlighter(HL'Generic))
+                                             highlighterToString)
+import qualified Fancydiff.SourceHighlight  as SH
 import           Internal.Opts
 import qualified Paths_fancydiff            as Paths_fancydiff
 ------------------------------------------------------------------------------------
@@ -220,7 +220,7 @@ recursiveScan gitRepoPath opts@Opts{..} realMain = do
             alter (Just x') = Just $ x' + 1
         IORef.atomicModifyIORef' filesTyped $ \m -> (Map.alter alter fileType m, ())
         case getHighlighterByFilename tfp of
-            HL'Generic -> do
+            SH.Generic -> do
                 when optTestRecursiveSkipKnown $ do
                     T.putStrLn tfp
             v -> when (not optTestRecursiveSkipKnown)    $ do

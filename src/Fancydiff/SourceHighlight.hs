@@ -1,14 +1,11 @@
+{-# LANGUAGE LambdaCase                #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE OverloadedStrings         #-}
-{-# LANGUAGE LambdaCase                #-}
 
 module Fancydiff.SourceHighlight
     ( nullMatcher
-    , haskellMatcher
-    , clangMatcher
-    , javascriptMatcher
-    , javaMatcher
-    , pythonMatcher
+    , syntaxMap
+    , Highlighter(..)
     , paletteDecode
     , paletteEncode
     , modifyColorString
@@ -24,6 +21,7 @@ import qualified Data.ByteString            as BS8
 import qualified Data.ByteString.Lazy.Char8 as BL8
 import           Data.DList                 (DList)
 import qualified Data.DList                 as DList
+import qualified Data.Map                   as Map
 import           Data.STRef                 as ST
 import           Data.Text                  (Text)
 import qualified Data.Text                  as T
@@ -35,8 +33,8 @@ import           Fancydiff.Data
 import           Fancydiff.Formatting       as F
 import           Fancydiff.Lexer            (Token (..), TokenClass (..),
                                              alexMonadScan, alexSetStartCode,
-                                             clang, js, python, java,
-                                             haskell, runAlex)
+                                             runAlex)
+import qualified Fancydiff.Lexer            as Lexer
 import           Lib.Text                   (safeDecode)
 ------------------------------------------------------------------------------------
 
@@ -90,16 +88,11 @@ parseWithAlex s p t =
         Right ok -> Right $ F.fragmentize
                           $ map (\(bs', e) -> (toText bs', Just $ Style e)) $ DList.toList $ p ok
 
-nullMatcher,
-  haskellMatcher,
-  clangMatcher,
-  javaMatcher,
-  javascriptMatcher,
-  pythonMatcher :: Text -> Either String FList
-
+nullMatcher :: Text -> Either String FList
 nullMatcher t = Right $ F.highlightText t
 
-haskellMatcher = parseWithAlex haskell (\x -> runST $ p x)
+haskellMatcher :: Text -> Either String FList
+haskellMatcher = parseWithAlex Lexer.haskell (\x -> runST $ p x)
     where
         p lst = do out <- ST.newSTRef DList.empty
                    underImport <- ST.newSTRef False
@@ -158,8 +151,38 @@ proceduralMatcher startCode = parseWithAlex startCode (\x -> runST $ p x)
                    cleanupLast Identifier
                    ST.readSTRef out
 
+data Highlighter
+    = CLang
+    | JavaScript
+    | Haskell
+    | Python
+    | Java
+    | Generic
+    deriving (Enum, Ord, Eq, Bounded)
 
-javaMatcher = proceduralMatcher java
-clangMatcher = proceduralMatcher clang
-javascriptMatcher = proceduralMatcher js
-pythonMatcher = proceduralMatcher python
+{-# NOINLINE syntaxMap #-}
+syntaxMap :: Map.Map Text (Highlighter, Text -> Either String FList, [Text])
+syntaxMap = Map.fromList
+   [ ("clang",   (CLang,
+                 proceduralMatcher Lexer.clang,
+                 [".c", ".cc", ".cpp", ".cxx",
+                  ".h", ".hh", ".hpp", ".hxx"]))
+
+   , ("haskell", (Haskell,
+                 haskellMatcher,
+                 [".hs", ".hsc"]))
+
+   , ("python",  (Python,
+                 proceduralMatcher Lexer.python,
+                 [".py"]))
+
+   , ("javascript",
+                 (JavaScript,
+                 proceduralMatcher Lexer.js,
+                 [".js", ".json"]))
+
+   , ("java",    (Java,
+                 proceduralMatcher Lexer.java,
+                 [".java"]))
+   ]
+

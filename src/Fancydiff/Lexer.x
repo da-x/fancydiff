@@ -11,23 +11,7 @@
 {-# OPTIONS_GHC -fno-warn-tabs			#-}
 {-# OPTIONS_GHC -funbox-strict-fields           #-}
 
-module Fancydiff.Lexer
-  ( Alex(..)
-  , AlexPosn(..)
-  , AlexState(..)
-  , Token(..)
-  , TokenClass(..)
-  , alexMonadScan
-  , alexSetStartCode
-  , alexStructError
-  , runAlex
-  , clang
-  , haskell
-  , python
-  , js
-  , java
-  )
-where
+module Fancydiff.Lexer where
 
 import Data.Int (Int64)
 import qualified Data.ByteString.Lazy.Char8 as B

@@ -45,65 +45,41 @@ import           Git                       (catBlob, MonadGit, GitException(Back
 import qualified Git
 import           Text.Regex.TDFA           ((=~))
 import           Text.Regex.TDFA.Text      ()
+import qualified Data.Map                   as Map
 ----
 import qualified Fancydiff.DiffHighlight   as DH
 import qualified Fancydiff.AnsiFormatting  as F
 import qualified Fancydiff.Formatting      as F
-import           Fancydiff.SourceHighlight
+import qualified Fancydiff.SourceHighlight as SH
+import           Fancydiff.SourceHighlight (Highlighter, syntaxMap)
 import           Fancydiff.Data            as FD
 import           Lib.DList                 (dlistConcat, dlistForM)
 import           Lib.Regex                 ((=~+))
 import           Lib.Text                  (lineSplit, safeDecode)
 ------------------------------------------------------------------------------------
 
-data Highlighter
-    = HL'CLang
-    | HL'JavaScript
-    | HL'Haskell
-    | HL'Python
-    | HL'Java
-    | HL'Generic
-    deriving (Enum, Ord, Eq, Bounded)
-
 highlighterToString :: Highlighter -> Text
-highlighterToString HL'CLang      = "clang"
-highlighterToString HL'Generic    = "generic"
-highlighterToString HL'Haskell    = "haskell"
-highlighterToString HL'Java       = "java"
-highlighterToString HL'JavaScript = "javascript"
-highlighterToString HL'Python     = "python"
-
+highlighterToString o = fromMaybe "generic" (Map.lookup o m)
+    where m = Map.fromList $ map (\(k, (d, _, _)) -> (d, k)) $ Map.toList syntaxMap
 
 getHighlighterByFilename :: Text -> Highlighter
-getHighlighterByFilename filename
-    | ".c"    `T.isSuffixOf` filename   = HL'CLang
-    | ".cc"   `T.isSuffixOf` filename   = HL'CLang
-    | ".cpp"  `T.isSuffixOf` filename   = HL'CLang
-    | ".cxx"  `T.isSuffixOf` filename   = HL'CLang
-    | ".h"    `T.isSuffixOf` filename   = HL'CLang
-    | ".hh"   `T.isSuffixOf` filename   = HL'CLang
-    | ".hpp"  `T.isSuffixOf` filename   = HL'CLang
-    | ".hs"   `T.isSuffixOf` filename   = HL'Haskell
-    | ".hxx"  `T.isSuffixOf` filename   = HL'CLang
-    | ".java" `T.isSuffixOf` filename   = HL'Java
-    | ".js"   `T.isSuffixOf` filename   = HL'JavaScript
-    | ".json" `T.isSuffixOf` filename   = HL'JavaScript
-    | ".py"   `T.isSuffixOf` filename   = HL'Python
-    | otherwise                        = HL'Generic
+getHighlighterByFilename filename = t l
+    where l = concat $ map (\(_, (d, _, e)) -> map (\i -> (i, d)) e) $ Map.toList syntaxMap
+          t ((ext, highlighter):xs) =
+              if ext `T.isSuffixOf` filename
+                  then highlighter
+                  else t xs
+          t [] = SH.Generic
 
 stringToHighlighter :: Text -> Highlighter
 stringToHighlighter s =
     let l = [minBound ..]
         m = zip (map highlighterToString l) l
-    in fromMaybe HL'Generic (lookup s m)
+    in fromMaybe SH.Generic (lookup s m)
 
 getHighlighterFunc :: Highlighter -> Text -> Either String F.FList
-getHighlighterFunc HL'CLang      = clangMatcher
-getHighlighterFunc HL'Generic    = nullMatcher
-getHighlighterFunc HL'Haskell    = haskellMatcher
-getHighlighterFunc HL'Java       = javaMatcher
-getHighlighterFunc HL'JavaScript = javascriptMatcher
-getHighlighterFunc HL'Python     = pythonMatcher
+getHighlighterFunc o = fromMaybe SH.nullMatcher (Map.lookup o m)
+    where m = Map.fromList $ map (\(_, (d, f, _)) -> (d, f)) $ Map.toList syntaxMap
 
 getHighlighterFuncByFilename :: Text -> Text -> Either String F.FList
 getHighlighterFuncByFilename =
