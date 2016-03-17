@@ -5,7 +5,7 @@ module Fancydiff.HTMLFormatting
        ( htmlFormatting
        , mkHtmlFormat
        , HTMLStyles(..)
-       , HTMLFormat(fmtFileLinker, fmtCSS),
+       , HTMLFormat(fmtFileLinker, fmtBlockingEnv, fmtCSS),
        ) where
 
 ------------------------------------------------------------------------------------
@@ -47,6 +47,7 @@ data HTMLFormat = HTMLFormat
     , fmtOrigPalette  :: D.Palette D.ColorString
     , fmtDelink       :: !Bool
     , fmtFileLinker   :: Maybe (Bool -> Text -> Text)
+    , fmtBlockingEnv  :: !Bool
     , fmtCSS          :: Maybe Text
     }
 
@@ -61,6 +62,7 @@ mkHtmlFormat styles palette = HTMLFormat
                       HTMLInline -> True
                       _ -> False
     , fmtFileLinker = Nothing
+    , fmtBlockingEnv = True
     , fmtCSS = css
     }
     where
@@ -137,8 +139,8 @@ htmlFormatting format = root
                                             "<div ", color, ">" ]
           diffEndFile         = T.concat ["</div>", maybe "" (const "</a>") fileURL]
 
-          before              = "<pre><div " +@ p'default pal' +@ ">"
-          after               = "</div></pre>"
+          before              = if fmtBlockingEnv format then "<pre><div " +@ p'default pal' +@ ">" else ""
+          after               = if fmtBlockingEnv format then "</div></pre>" else ""
 
           html Start _ (DiffRemoveFile t) = diffStartFile False t $ p'diffRemoveFile pal'
           html End   _ (DiffRemoveFile _) = diffEndFile
