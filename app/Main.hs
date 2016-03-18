@@ -44,7 +44,7 @@ import           Fancydiff.Formatting        (fshow)
 import           Fancydiff.AnsiFormatting    (ansiFormatting)
 import           Fancydiff.HTMLFormatting    ( htmlFormatting
                                              , mkHtmlFormat
-                                             , HTMLStyles(..)
+                                             , HTMLStyle(..)
                                              , HTMLFormat(fmtCSS)
                                              )
 import           Lib.Text                    (safeDecode)

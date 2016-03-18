@@ -12,13 +12,13 @@ import qualified Data.Text                   as T
 import           Fancydiff.Lib               (Highlighter(..), stringToHighlighter)
 import           Fancydiff.Data              (Palette, ColorString)
 import           Fancydiff.Themes            (darkBackground, brightBackground)
-import           Fancydiff.HTMLFormatting    (HTMLStyles(..))
+import           Fancydiff.HTMLFormatting    (HTMLStyle(..))
 
 -------------------------------------------------------------------
 
 data OutputFormat
     = ANSI
-    | HTML HTMLStyles
+    | HTML HTMLStyle
     | Meta
 
 data Pager

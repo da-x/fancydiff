@@ -4,7 +4,7 @@
 module Fancydiff.HTMLFormatting
        ( htmlFormatting
        , mkHtmlFormat
-       , HTMLStyles(..)
+       , HTMLStyle(..)
        , HTMLFormat(fmtFileLinker, fmtBlockingEnv, fmtCSS),
        ) where
 
@@ -49,20 +49,25 @@ data HTMLFormat = HTMLFormat
     , fmtFileLinker   :: Maybe (Bool -> Text -> Text)
     , fmtBlockingEnv  :: !Bool
     , fmtCSS          :: Maybe Text
+    , fmtStyle        :: HTMLStyle
     }
 
-data HTMLStyles = HTMLInline | HTMLSCSS
+data HTMLStyle = HTMLInline | HTMLSCSS
 
-mkHtmlFormat :: HTMLStyles -> D.Palette D.ColorString -> HTMLFormat
-mkHtmlFormat styles palette = HTMLFormat
+monospace :: Text
+monospace = "font-family: monospace"
+
+mkHtmlFormat :: HTMLStyle -> D.Palette D.ColorString -> HTMLFormat
+mkHtmlFormat style palette = HTMLFormat
     { fmtNormalWeight = pm False False
     , fmtBoldWeight = pm False True
     , fmtOrigPalette = palette
-    , fmtDelink = case styles of
+    , fmtDelink = case style of
                       HTMLInline -> True
                       _ -> False
     , fmtFileLinker = Nothing
     , fmtBlockingEnv = True
+    , fmtStyle = style
     , fmtCSS = css
     }
     where
@@ -72,7 +77,7 @@ mkHtmlFormat styles palette = HTMLFormat
                 D.P'Bright -> darker
 
         css =
-            case styles of
+            case style of
                 HTMLInline -> Nothing
                 HTMLSCSS -> Just $ T.unlines $ concat $ map (\pal' -> map (\var -> (paletteVarText var) pal') [minBound ..]) $
                                    concat $ map paletteModsToList [pm True False, pm True True]
@@ -88,8 +93,8 @@ mkHtmlFormat styles palette = HTMLFormat
 
                   renderInline _ modfunc p = renderPalette front backAndFront
                       where
-                          backAndFront _ b f = T.concat ["style=\"", back' b, "; ", front' f, boldStyle, "\""]
-                          front _ f          = T.concat ["style=\"", front' f, boldStyle, "\""]
+                          backAndFront _ b f = T.concat ["style=\"", monospace, "; ", back' b, "; ", front' f, boldStyle, "\""]
+                          front _ f          = T.concat ["style=\"", monospace, "; ", front' f, boldStyle, "\""]
                           front' access      = colorAttr Front $ modfunc $ access p
                           back' access       = colorAttr Back $ access p
 
@@ -108,7 +113,7 @@ mkHtmlFormat styles palette = HTMLFormat
                           front' access      = colorAttr Front $ modfunc $ access p
                           back' access       = colorAttr Back $ access p
 
-                  render = case (makeCSS, styles) of
+                  render = case (makeCSS, style) of
                                (True, _) -> renderToCSS
                                (_, HTMLInline) -> renderInline
                                _ -> renderUseCSS
@@ -141,6 +146,10 @@ htmlFormatting format = root
 
           before              = if fmtBlockingEnv format then "<pre><div " +@ p'default pal' +@ ">" else ""
           after               = if fmtBlockingEnv format then "</div></pre>" else ""
+
+          ediv = case fmtStyle format of
+                  HTMLInline -> T.concat ["<div style=\"", monospace, "\">"]
+                  HTMLSCSS   -> "<div>"
 
           html Start _ (DiffRemoveFile t) = diffStartFile False t $ p'diffRemoveFile pal'
           html End   _ (DiffRemoveFile _) = diffEndFile
@@ -180,13 +189,13 @@ htmlFormatting format = root
           html End   _ DiffRemove         = "</div>"
           html Start _ DiffAdd            = "<div " +@ p'diffAdd pal' +@ ">"
           html End   _ DiffAdd            = "</div>"
-          html Start _ DiffSlash          = "<div>"
+          html Start _ DiffSlash          = ediv
           html End   _ DiffSlash          = "</div>"
           html Start _ DiffHunkHeader     = "<div " +@ p'diffHunkHeader palbold' +@ ">"
           html End   _ DiffHunkHeader     = "</div>"
-          html Start _ DiffUnchanged      = "<div>"
+          html Start _ DiffUnchanged      = ediv
           html End   _ DiffUnchanged      = "</div>"
-          html Start _ DiffNothing        = "<div>"
+          html Start _ DiffNothing        = ediv
           html End   _ DiffNothing        = "</div>"
 
           html Start _ (Style (D.FreeForm cls)) = "<span class=\"" +@ cls +@ "\">"
