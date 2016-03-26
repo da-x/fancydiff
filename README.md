@@ -14,7 +14,9 @@ This similar to what you see on Github, but instead it is done in the user's con
 
 First make sure that you have a terminal program that supports 24 bit True Color (see this [gist](https://gist.github.com/XVilka/8346728)).
 
-Ubuntu users of URxvt can install from [my build of urxvt on Launchpad](https://launchpad.net/~alonid/+archive/ubuntu/rxvt-console-24bit-color).
+Ubuntu users of URxvt can install from [my build of urxvt on Launchpad](https://launchpad.net/~alonid/+archive/ubuntu/rxvt-console-24bit-color),
+
+Fedora/CentOS users can use my patched builds of URxvt installable from [Copr](https://copr.fedorainfracloud.org/coprs/alonid/rxvt-unicode-24bit-ansi-color/).
 
 Latest binaries of Fancydiff can be installed on major distributions.
 
@@ -63,7 +65,8 @@ to enable Fancydiff.
 
 ## Limitations
 
- * Too few source code languages are supported.
+ * Too few source code languages are supported (currently: C/C++, Haskell,
+   Python, Java, JavaScript).
  * Some small original coloring features from Git itself are missing.
  * Some special Git modes don't use the pager (e.g. `git checkout -p`, 
    in which Fancydiff is not presently activated.
