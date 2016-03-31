@@ -147,11 +147,11 @@ mainOpts opts@Opts{..} = do
                                 gitconfig ["pager.show", "fancydiff stdin --pager=less"]
                                 gitconfig ["pager.diff", "fancydiff stdin --pager=less"]
 
-                    True ->  do gitconfig ["aliases.log-fancy",
+                    True ->  do gitconfig ["alias.log-fancy",
                                            "!git -c color.diff=off -c pager.log='fancydiff stdin --pager=less' log $@"]
-                                gitconfig ["aliases.show-fancy",
+                                gitconfig ["alias.show-fancy",
                                            "!git -c color.diff=off -c pager.show='fancydiff stdin --pager=less' show $@"]
-                                gitconfig ["aliases.diff-fancy",
+                                gitconfig ["alias.diff-fancy",
                                            "!git -c color.diff=off -c pager.diff='fancydiff stdin --pager=less' diff $@"]
 
                 putStrLn "You are now ready to use Fancydiff"
