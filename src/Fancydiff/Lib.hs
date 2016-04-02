@@ -213,13 +213,7 @@ tryDiffWithSourceHighlight diff = do
     sourceInDiffHighlighted <- highlightSourceInDiff (DH.parseDiff diff)
     let text = F.flistToText sourceInDiffHighlighted
         diffHighlighted = DH.highlight text
-    case F.combineFLists text diffHighlighted sourceInDiffHighlighted of
-        Left _ -> do
-            -- ToDo: this error should be emitted.
-            -- liftIO $ T.putStrLn $ T.pack str
-            return diffHighlighted
-        Right combined -> do
-            return combined
+    return $ F.combineFLists text diffHighlighted sourceInDiffHighlighted
 
 commitHighlight :: (MonadGit o m, MonadIO m, MonadBaseControl IO m) => Text -> m F.FList
 commitHighlight commit = do

@@ -124,7 +124,6 @@ applyIList text ilist     = fst $ fr 0 id ilist
     where atext           = textToAText text
           m               = T.length text
           range !o !len   = if o > m || o + len > m then "" else subAText atext o len
-                            -- ToDo: better EH
           fr :: Int -> (FList -> a) -> IList -> (a, Int)
           fr o f l        = case foldl h (DList.empty, o) l of
                                 (l', eo) -> (f l', eo)
@@ -213,9 +212,9 @@ combineILists fa' fb' = runST root where
         inBR <- newSTRef (DList.toList fb')
         merge inAR inBR
 
-combineFLists :: Text -> FList -> FList -> Either String FList
+combineFLists :: Text -> FList -> FList -> FList
 combineFLists t a b =
-    Right $ applyIList t $ combineILists (flistToIList a) (flistToIList b)
+    applyIList t $ combineILists (flistToIList a) (flistToIList b)
 
 splitToLinesArray :: FList -> A.Array Int FList
 splitToLinesArray = root
