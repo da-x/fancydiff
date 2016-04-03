@@ -31,7 +31,7 @@ import qualified Control.Exception.Lifted  as E
 import           Control.Monad             (forM_)
 import           Control.Monad.IO.Class    (MonadIO, liftIO)
 import           Control.Monad.Trans.Control (MonadBaseControl)
-import qualified Data.Array                as A
+import qualified Data.Vector               as V
 import qualified Data.DList                as DList
 import           Data.IORef                (newIORef, readIORef, writeIORef)
 import           Data.Maybe                (fromMaybe)
@@ -143,7 +143,7 @@ highlightSourceInDiffFile fromBlobHash toBlobHash diffMeta content  = do
             toB <- readMaybeBlob toFilename toBlobHash
 
             let highlightWholeBlob filename blob =
-                    F.splitToLinesArray $
+                    F.splitToLinesVector $
                            (highlightByExtension filename) (safeDecode blob)
                 fromHighlighted = highlightWholeBlob fromFilename fromB
                 toHighlighted = highlightWholeBlob toFilename toB
@@ -152,15 +152,14 @@ highlightSourceInDiffFile fromBlobHash toBlobHash diffMeta content  = do
             content' <- dlistForM content $ \x ->
                 let (def, _) = x
                     keepIt = return $ F.fragmentize [(def, Nothing)]
-                    takeLine src prepText a1 b1 f = do
+                    takeLine src prefix a1 b1 f = do
                         mIndexes <- liftIO $ readIORef hunkIndexesI
                         case mIndexes of
                             Just (fromIdx, toIdx) -> do
                                 liftIO $ writeIORef hunkIndexesI (Just (fromIdx + a1, toIdx + b1))
-                                -- TODO: idx error handling
-                                let r = F.TPlain prepText `DList.cons` (src A.! f (fromIdx, toIdx))
-                                return r
-
+                                case src V.!? (f (fromIdx, toIdx) - 1) of
+                                    Just line -> return $ F.TPlain prefix `DList.cons` line
+                                    Nothing -> keepIt
                             Nothing -> keepIt
 
                 in case x of
@@ -168,7 +167,8 @@ highlightSourceInDiffFile fromBlobHash toBlobHash diffMeta content  = do
                     let r = "^@@ -([0-9]+),[0-9]+ [+]([0-9]+),[0-9]+ @@" :: Text
                     case (t =~ r) :: [[Text]] of
                         [[_, startFromStr, startToStr]] -> do
-                            -- TODO: error handling
+                            -- We got local reasoning for 'read' not to fail here,
+                            -- from the regex above.
                             liftIO $ writeIORef hunkIndexesI
                                 (Just ((read $ T.unpack startFromStr) :: Int,
                                        (read $ T.unpack startToStr)   :: Int))

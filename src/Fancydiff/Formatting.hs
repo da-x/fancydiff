@@ -9,13 +9,13 @@ module Fancydiff.Formatting
         Format(..), mkForm, clearFormatting,
         mkFormS, mkPlain, fshow, fragmentize,
         flistToText, highlightText, highlightMonospace,
-        splitToLinesArray, flistToIList, applyIList,
+        splitToLinesVector, flistToIList, applyIList,
         applyMarkers, makeFreeForm, combineILists) where
 
 ------------------------------------------------------------------------------------
 import           Control.Monad    (when)
 import           Control.Monad.ST (runST)
-import qualified Data.Array       as A
+import qualified Data.Vector      as V
 import           Data.DList       (DList)
 import qualified Data.DList       as DList
 import           Data.Either      (isLeft, partitionEithers)
@@ -216,9 +216,9 @@ combineFLists :: Text -> FList -> FList -> FList
 combineFLists t a b =
     applyIList t $ combineILists (flistToIList a) (flistToIList b)
 
-splitToLinesArray :: FList -> A.Array Int FList
-splitToLinesArray = root
-    where root flist                   = A.listArray (1, n) l
+splitToLinesVector :: FList -> V.Vector FList
+splitToLinesVector = root
+    where root flist                   = V.fromListN n l
                where l = case onFrag (TForm Mark flist) of
                              Left x    -> [DList.singleton x]
                              Right lst -> map snd $ reduce $ map (\(x, a) -> (x, toFList a)) $ lst
@@ -237,10 +237,10 @@ splitToLinesArray = root
           onFrag x@(TForm f flist)     = crux
                   where slist = onFlist flist
                         y lr  = case partitionEithers lr of
-                                   (l, []) -> [(0 :: Int, TForm f $ DList.fromList l)]
-                                   ([], r) -> map (\(t,s) -> (t, TForm f $ DList.singleton s))
-                                               (concat r)
-                                   _ -> error "splitToLinesArray"
+                                   (l, [])  -> [(0 :: Int, TForm f $ DList.fromList l)]
+                                   ([], r)  -> map (\(t,s) -> (t, TForm f $ DList.singleton s))
+                                                (concat r)
+                                   _        -> [] -- Never reached - local reasoning of rlist
 
                         rlist = map y (groupBy (\a b -> isLeft a == isLeft b) slist)
                         crux = if allLefts slist
@@ -265,7 +265,7 @@ applyMarkers mStart mEnd fragMakerF t = root
 
 _test :: IO ()
 _test = do
-    print $ splitToLinesArray $
+    print $ splitToLinesVector $
              DList.fromList [TForm Mark    $ DList.fromList [
                                    TForm Monospace $ DList.fromList [
                                            TPlain "bla", TPlain "hello\n" , TPlain "wo",
