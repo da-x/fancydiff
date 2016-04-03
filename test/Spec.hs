@@ -142,6 +142,8 @@ tests tempDir = do
     msg "Source highlight in diff"
     ------------------------------
 
+    -- TODO
+
 wrap :: (MonadSpec m) => Text -> m b -> m b
 wrap title x = do ctx <- get
                   f ctx title x
