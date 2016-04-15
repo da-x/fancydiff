@@ -66,7 +66,7 @@ to enable Fancydiff.
 ## Limitations
 
  * Too few source code languages are supported (currently: C/C++, Haskell,
-   Python, Java, JavaScript).
+   Python, Java, JavaScript, Go).
  * Some small original coloring features from Git itself are missing.
  * Some special Git modes don't use the pager (e.g. `git checkout -p`, 
    in which Fancydiff is not presently activated.

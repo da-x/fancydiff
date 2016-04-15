@@ -156,6 +156,7 @@ data Highlighter
     | JavaScript
     | Haskell
     | Python
+    | GoLang
     | Java
     | Generic
     deriving (Enum, Ord, Eq, Bounded)
@@ -175,6 +176,10 @@ syntaxMap = Map.fromList
    , ("python",  (Python,
                  proceduralMatcher Lexer.python,
                  [".py"]))
+
+   , ("go",      (GoLang,
+                 proceduralMatcher Lexer.golang,
+                 [".go"]))
 
    , ("javascript",
                  (JavaScript,

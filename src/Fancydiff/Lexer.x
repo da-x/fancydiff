@@ -91,6 +91,13 @@ $nonwhitspace   = . # $white
 
 @pythonRsv = @pythonRsv1 | @pythonRsv2 | @pythonRsv3 | @pythonRsv4
 
+@golangRsv1 = break|default|func|interfaceselect
+@golangRsv2 = case|defer|go|map|struct|continue|for|import|return|var
+@golangRsv3 = chan|else|goto|package|switch
+@golangRsv4 = const|fallthroughif|range|type
+
+@golangRsv = @golangRsv1 | @golangRsv2 | @golangRsv3 | @golangRsv4
+
 @javaRsv1 = abstract|assert|boolean|break|byte|case|catch|char|class|const
 @javaRsv2 = continue|default|do|double|else|enum|extends|final|finally|float
 @javaRsv3 = for|goto|if|implements|import|instanceof|int|interface|long|native
@@ -108,6 +115,11 @@ state:-
   <str>       [\\] [ \n ]             { tok       String            }
   <str>       [\"]                    { tokPop    String            }
   <str>       [^ \\ \"]+              { tok       String            }
+
+  <strbq>     [\\] .                  { tok       String            }
+  <strbq>     [\\] [ \n ]             { tok       String            }
+  <strbq>     [\`]                    { tokPop    String            }
+  <strbq>     [^ \\ \`]+              { tok       String            }
 
   <strsq>     [\\] .                  { tok       String            }
   <strsq>     [\']                    { tokPop    String            }
@@ -171,6 +183,18 @@ state:-
   <python>    "@"                     { tok       Special2          }
   <python>    @punct                  { tok       Ignore            }
   <python>    .                       { tok       Ignore            }
+
+  <golang>    @sp                     { tok       Ignore  	    }
+  <golang>    [\"]                    { tokPush   String    str     }
+  <golang>    [\`]                    { tokPush   String    strbq   }
+  <golang>    [\']                    { tokPush   String    strsq   }
+  <golang>    "/*"                    { tokPush   Comment   ccomm   }
+  <golang>    "//"                    { tokPush   Comment   comm2   }
+  <golang>    @golangRsv              { tok       Keyword           }
+  <golang>    @number                 { tok       Number            }
+  <golang>    @cId                    { tok       Identifier        }
+  <golang>    @punct                  { tok       Ignore            }
+  <golang>    .                       { tok       Ignore            }
 
   <pmstr1>    [\"][\"][\"]            { tokPop    String            }
   <pmstr1>    [\"][\"]                { tok       String            }
