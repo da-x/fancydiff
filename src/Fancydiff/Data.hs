@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# OPTIONS -funbox-strict-fields      #-}
 
 module Fancydiff.Data
@@ -11,7 +12,10 @@ module Fancydiff.Data
     ) where
 
 ------------------------------------------------------------------------------------
-import           Data.Text        (Text)
+import           Control.DeepSeq          (NFData (..))
+import           Control.DeepSeq.Generics (genericRnf)
+import           Data.Text                (Text)
+import           GHC.Generics             (Generic)
 ------------------------------------------------------------------------------------
 
 data Element
@@ -33,7 +37,9 @@ data Element
     | Parentheses
     | Ignore
     | FreeForm !Text
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Generic)
+
+instance NFData Element where rnf = genericRnf
 
 data Format
     = DiffMain
@@ -56,7 +62,9 @@ data Format
     | Monospace
     | Link Text
     | Style Element
-      deriving (Show, Eq, Ord)
+      deriving (Show, Eq, Ord, Generic)
+
+instance NFData Format where rnf = genericRnf
 
 data Brightness = P'Dark | P'Bright
     deriving (Show, Eq)

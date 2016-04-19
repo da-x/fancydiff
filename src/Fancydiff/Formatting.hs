@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE BangPatterns      #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiWayIf        #-}
@@ -13,21 +14,26 @@ module Fancydiff.Formatting
         applyMarkers, makeFreeForm, combineILists) where
 
 ------------------------------------------------------------------------------------
-import           Control.Monad    (when)
-import           Control.Monad.ST (runST)
-import qualified Data.Vector      as V
-import           Data.DList       (DList)
-import qualified Data.DList       as DList
-import           Data.Either      (isLeft, partitionEithers)
-import           Data.Foldable    (toList)
-import           Data.List        (groupBy)
-import           Data.STRef       (modifySTRef', newSTRef, readSTRef,
-                                   writeSTRef)
-import           Data.Text        (Text)
-import qualified Data.Text        as T
+import           Control.DeepSeq          (NFData (..))
+import           Control.DeepSeq.Generics (genericRnf)
+import           Control.Monad            (when)
+import           Control.Monad.ST         (runST)
+import           Data.DList               (DList)
+import qualified Data.DList               as DList
+import           Data.Either              (isLeft, partitionEithers)
+import           Data.Foldable            (toList)
+import           Data.List                (groupBy)
+import           Data.STRef               (modifySTRef', newSTRef, readSTRef,
+                                           writeSTRef)
+import           GHC.Generics                (Generic)
+import           Data.Text                (Text)
+import qualified Data.Text                as T
+import qualified Data.Vector              as V
 ----
-import           Fancydiff.Data   (Element (Ignore, FreeForm), Format (..))
-import           Lib.Text         (lineSplit, subAText, textToAText, (+@))
+import           Fancydiff.Data           (Element (Ignore, FreeForm),
+                                           Format (..))
+import           Lib.Text                 (lineSplit, subAText, textToAText,
+                                           (+@))
 ------------------------------------------------------------------------------------
 
 type FList = DList Fragment
@@ -35,7 +41,9 @@ type FList = DList Fragment
 data Fragment
     = TPlain {-# UNPACK #-} !Text
     | TForm  !Format FList
-      deriving (Show, Eq, Ord)
+      deriving (Show, Eq, Ord, Generic)
+
+instance NFData Fragment where rnf = genericRnf
 
 toFList :: Fragment -> FList
 toFList x@(TPlain _)    = DList.singleton x
