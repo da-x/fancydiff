@@ -70,6 +70,7 @@ to enable Fancydiff.
  * Some small original coloring features from Git itself are missing.
  * Some special Git modes don't use the pager (e.g. `git checkout -p`, 
    in which Fancydiff is not presently activated.
+ * 3-way diff is not yet supported.
 
 ## Contribution and bug reports
 
