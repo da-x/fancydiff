@@ -63,6 +63,14 @@ fancydiff setup [--local] [--aliases]
 More details [here](doc/git-configuration.md) about how the Git configuration is modified
 to enable Fancydiff.
 
+## Using with `less`, independent of Git
+
+Add the following line to one of your shell initialization scripts:
+
+```
+export LESSOPEN="|fancydiff file %s -e"
+```
+
 ## Limitations
 
  * Too few source code languages are supported (currently: C/C++, Haskell,
