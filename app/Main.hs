@@ -38,9 +38,11 @@ import           GHC.IO.Exception            (IOErrorType(ResourceVanished), IOE
 import           Paths_fancydiff             (version)
 import           Fancydiff.Lib               (tryDiffWithSourceHighlight,
                                               commitHighlight,
+                                              getHighlighterByFilename,
                                               getHighlighterFunc,
                                               getHighlighterFuncByFilename)
 import           Fancydiff.Formatting        (fshow)
+import qualified Fancydiff.SourceHighlight as SH
 import           Fancydiff.AnsiFormatting    (ansiFormatting)
 import           Fancydiff.HTMLFormatting    ( htmlFormatting
                                              , mkHtmlFormat
@@ -132,6 +134,10 @@ mainOpts opts@Opts{..} = do
                                    exitFailure
                     Right ok -> liftIO $ T.hPutStr outHandle $ fmt ok
 
+            formatOneHighlighter fmt outHandle highlighter = do
+                content <- B.hGetContents stdin
+                formatOne fmt content outHandle (getHighlighterFunc highlighter)
+
             onCmd _ (Setup onlyAliases isLocal) _ = do
                 let git'print params = do
                         T.putStrLn $ T.concat $ ["Running: "] ++ (intersperse " " $ map onParam params)
@@ -167,7 +173,7 @@ mainOpts opts@Opts{..} = do
                 content <- B.readFile filepath
                 formatOne fmt content outHandle (getHighlighterFuncByFilename (T.pack filepath))
 
-            onCmd fmt (Stdin Nothing) outHandle = do
+            onCmd fmt (Stdin Nothing Nothing) outHandle = do
                 let path = "."
                 withRepository lgFactory path $ do
                     let diffStart = B.isPrefixOf "diff "
@@ -183,9 +189,14 @@ mainOpts opts@Opts{..} = do
                          liftIO $ T.hPutStr outHandle $ fmt res
                          return ()
 
-            onCmd fmt (Stdin (Just highlighter)) outHandle = do
-                content <- B.hGetContents stdin
-                formatOne fmt content outHandle (getHighlighterFunc highlighter)
+            onCmd fmt (Stdin (Just highlighter) Nothing) outHandle = do
+                formatOneHighlighter fmt outHandle highlighter
+
+            onCmd fmt (Stdin _ (Just filename)) outHandle = do
+                let highlighter = getHighlighterByFilename $ T.pack filename
+                case highlighter of
+                    SH.Generic -> exitFailure
+                    _ -> formatOneHighlighter fmt outHandle highlighter
 
 main :: IO ()
 main = void $ execParser optsParser >>= mainOpts

@@ -26,7 +26,7 @@ data Pager
 
 data Command
     = OneFile FilePath
-    | Stdin (Maybe Highlighter)
+    | Stdin (Maybe Highlighter) (Maybe FilePath)
     | MakeSCSS
     | Setup Bool Bool
 
@@ -82,7 +82,8 @@ optsParser = info (optsParse <**> helper) idm
 
        fileCmd = info (OneFile <$> (argument str (metavar "PATHNAME")))
            (progDesc "Take in a single file, given by a pathname")
-       stdinCmd = info (Stdin <$> (fmap (fmap highlighterArg) $ (optional $ argument str (metavar "HIGHLIGHTER"))))
+       stdinCmd = info (Stdin <$> (fmap (fmap highlighterArg) $ (optional (strOption (long "highlighter"))))
+                              <*> optional ( strOption (long "filename" )))
            (progDesc "Take from stdin")
        makeSCSS = info (pure MakeSCSS)
            (progDesc "Generate the SCSS for the requrested theme")
