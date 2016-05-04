@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Add highlighting for Go, Java, Python
+- Improve 'less' integration
+- Error handling improvements
+
 ## 0.2.2
 
 - Fix an exception occuring when Sub-module changes are in the history.
