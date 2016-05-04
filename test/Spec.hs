@@ -229,7 +229,7 @@ recursiveScan gitRepoPath opts@Opts{..} realMain = do
                     let hr = T.putStrLn "----------------------------------------------------------------"
                     T.putStrLn "" >> hr >> T.putStrLn (T.concat [highlighterToString v, " :: ", tfp])  >> hr
                     let newOpts = opts
-                           { optCommand = Just $ OneFile  fp
+                           { optCommand = Just $ OneFile fp False
                            , optTestingMode = False
                            }
                     realMain newOpts

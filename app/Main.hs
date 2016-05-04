@@ -169,9 +169,13 @@ mainOpts opts@Opts{..} = do
                         return ()
                     Nothing -> return ()
 
-            onCmd fmt (OneFile filepath) outHandle = do
-                content <- B.readFile filepath
-                formatOne fmt content outHandle (getHighlighterFuncByFilename (T.pack filepath))
+            onCmd fmt (OneFile filepath exitStatusForUnrecognizedFile) outHandle = do
+                let highlighter = getHighlighterByFilename (T.pack filepath)
+                let highlighterFunc = getHighlighterFuncByFilename (T.pack filepath)
+                case (exitStatusForUnrecognizedFile, highlighter) of
+                    (True, SH.Generic) -> exitFailure
+                    _ -> do content <- B.readFile filepath
+                            formatOne fmt content outHandle highlighterFunc
 
             onCmd fmt (Stdin Nothing Nothing) outHandle = do
                 let path = "."

@@ -25,7 +25,7 @@ data Pager
     = Less
 
 data Command
-    = OneFile FilePath
+    = OneFile FilePath Bool
     | Stdin (Maybe Highlighter) (Maybe FilePath)
     | MakeSCSS
     | Setup Bool Bool
@@ -80,7 +80,8 @@ optsParser = info (optsParse <**> helper) idm
 
        highlighterArg = stringToHighlighter . T.pack
 
-       fileCmd = info (OneFile <$> (argument str (metavar "PATHNAME")))
+       fileCmd = info (OneFile <$> (argument str (metavar "PATHNAME"))
+                               <*> switch  (short 'e' ))
            (progDesc "Take in a single file, given by a pathname")
        stdinCmd = info (Stdin <$> (fmap (fmap highlighterArg) $ (optional (strOption (long "highlighter"))))
                               <*> optional ( strOption (long "filename" )))
