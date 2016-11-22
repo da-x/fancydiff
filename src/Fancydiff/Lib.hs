@@ -215,7 +215,7 @@ tryDiffWithSourceHighlight diff = do
         diffHighlighted = DH.highlight text
     return $ F.combineFLists text diffHighlighted sourceInDiffHighlighted
 
-commitHighlight :: (MonadGit o m, MonadIO m, MonadBaseControl IO m) => Text -> m F.FList
+commitHighlight :: (MonadGit o m) => Text -> m F.FList
 commitHighlight commit = do
     return $ DList.fromList parsed
     where

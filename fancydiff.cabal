@@ -14,7 +14,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  ghc-options:        -Wall -O2 -rtsopts
+  ghc-options:        -Wall -O2
   exposed-modules:     Lib.Text
                      , Fancydiff.Lib
                      , Fancydiff.AnsiFormatting
