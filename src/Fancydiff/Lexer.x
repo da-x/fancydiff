@@ -98,6 +98,14 @@ $nonwhitspace   = . # $white
 
 @golangRsv = @golangRsv1 | @golangRsv2 | @golangRsv3 | @golangRsv4
 
+@rustRsv1 = abstract|alignof|as|become|box|break|const|continue|crate|do
+@rustRsv2 = else|enum|extern|false|final|fn|for|if|impl|in|let|loop|macro
+@rustRsv3 = match|mod|move|mut|offsetof|override|priv|proc|pub|pure|ref|return
+@rustRsv4 = Self|self|sizeof|static|struct|super|trait|true|type|typeof
+@rustRsv5 = unsafe|unsized|use|virtual|where|while|yield
+
+@rustRsv = @rustRsv1 | @rustRsv2 | @rustRsv3 | @rustRsv4 | @rustRsv5
+
 @javaRsv1 = abstract|assert|boolean|break|byte|case|catch|char|class|const
 @javaRsv2 = continue|default|do|double|else|enum|extends|final|finally|float
 @javaRsv3 = for|goto|if|implements|import|instanceof|int|interface|long|native
@@ -195,6 +203,18 @@ state:-
   <golang>    @cId                    { tok       Identifier        }
   <golang>    @punct                  { tok       Ignore            }
   <golang>    .                       { tok       Ignore            }
+
+  <rustlang>  @sp                     { tok       Ignore  	    }
+  <rustlang>  [\"]                    { tokPush   String    str     }
+  <rustlang>  [\']                    { tokPush   Char      charx   }
+  <rustlang>  [\'] [a-z]+             { tok       Identifier        }
+  <rustlang>  "/*"                    { tokPush   Comment   ccomm   }
+  <rustlang>  "//"                    { tokPush   Comment   comm2   }
+  <rustlang>  @rustRsv                { tok       Keyword           }
+  <rustlang>  @number                 { tok       Number            }
+  <rustlang>  @cId                    { tok       Identifier        }
+  <rustlang>  @punct                  { tok       Ignore            }
+  <rustlang>  .                       { tok       Ignore            }
 
   <pmstr1>    [\"][\"][\"]            { tokPop    String            }
   <pmstr1>    [\"][\"]                { tok       String            }

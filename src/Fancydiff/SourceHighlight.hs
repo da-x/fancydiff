@@ -157,6 +157,7 @@ data Highlighter
     | Haskell
     | Python
     | GoLang
+    | Rust
     | Java
     | Generic
     deriving (Enum, Ord, Eq, Bounded)
@@ -180,6 +181,10 @@ syntaxMap = Map.fromList
    , ("go",      (GoLang,
                  proceduralMatcher Lexer.golang,
                  [".go"]))
+
+   , ("rust",    (Rust,
+                 proceduralMatcher Lexer.rustlang,
+                 [".rs"]))
 
    , ("javascript",
                  (JavaScript,
