@@ -5,9 +5,10 @@ import           Options.Applicative         (command, info, (<**>),
                                               argument, str, metavar, ParserInfo,
                                               helper, idm, optional, progDesc,
                                               switch, long, short, strOption,
-                                              help, (<>), hidden,
+                                              help, hidden,
                                               hsubparser)
 import qualified Data.Text                   as T
+import           Data.Monoid                 ((<>))
 ----
 import           Fancydiff.Lib               (Highlighter(..), stringToHighlighter)
 import           Fancydiff.Data              (Palette, ColorString)

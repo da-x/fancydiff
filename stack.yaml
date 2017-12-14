@@ -1,5 +1,5 @@
 require-stack-version: ">= 1.0.3"
-resolver: lts-7.9
+resolver: lts-9.18
 packages:
 - location: https://github.com/da-x/gitlib/archive/5b338169a2618337a60aaf17e2ab56a2654b1244.zip
   extra-dep: true
