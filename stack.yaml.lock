@@ -5,56 +5,56 @@
 
 packages:
 - completed:
-    size: 4259309
+    size: 84623
     subdir: gitlib
-    url: https://github.com/da-x/gitlib/archive/5b338169a2618337a60aaf17e2ab56a2654b1244.zip
+    url: https://github.com/da-x/gitlib/archive/eef462541c68be62e6cbc5ac4595114bd6f67233.tar.gz
     cabal-file:
-      size: 3011
-      sha256: 6cf69744afba3674e50e3a24e6004a39902bdad16d7092492497a1a4e43b1977
+      size: 2937
+      sha256: 2b44d6b506892d656f5c0ecb0bf7ca6a36df57676910481f6dcc8c8a6c67f054
     name: gitlib
-    version: 3.1.1.1
-    sha256: cb02138917ed00250056139923b02741a43c45bfe388584b5a051e63c74ee754
+    version: 3.1.2.1
+    sha256: 19c002ef7dd79ca6cda10bcee94b695cb81b32a1097e29fd347c3a54bc17eccc
     pantry-tree:
-      size: 1133
-      sha256: 13cf82c7634e5b46c932e296ec07133abd259afc3538eb641b051ee4b163600f
+      size: 1086
+      sha256: 49351d8c8804992bbef9ffa87bff69804eef1bc434fb8aa5e5834917f56a8a2d
   original:
     subdir: gitlib
-    url: https://github.com/da-x/gitlib/archive/5b338169a2618337a60aaf17e2ab56a2654b1244.zip
+    url: https://github.com/da-x/gitlib/archive/eef462541c68be62e6cbc5ac4595114bd6f67233.tar.gz
 - completed:
-    size: 4259309
+    size: 84623
     subdir: gitlib-libgit2
-    url: https://github.com/da-x/gitlib/archive/5b338169a2618337a60aaf17e2ab56a2654b1244.zip
+    url: https://github.com/da-x/gitlib/archive/eef462541c68be62e6cbc5ac4595114bd6f67233.tar.gz
     cabal-file:
-      size: 2433
-      sha256: 3bad547c7ef0fd2d66b079e7b1827b65e961cba6ff09fab44b8455b6eaee7fa2
+      size: 2370
+      sha256: 2fcffa53491673cec3d5ea7eae0a1e1e44ef1b71e166ccaed8dc603c009e9131
     name: gitlib-libgit2
     version: 3.1.1.1
-    sha256: cb02138917ed00250056139923b02741a43c45bfe388584b5a051e63c74ee754
+    sha256: 19c002ef7dd79ca6cda10bcee94b695cb81b32a1097e29fd347c3a54bc17eccc
     pantry-tree:
-      size: 773
-      sha256: 9b252225e0146ac0672fdb3d95901a0ff77fe6a78afef51dde03496d856ed10b
+      size: 564
+      sha256: 297921a3c3e55cb4a8de28c52ebcd3abaea54dfac0f132cd8cad17a6b2a59e75
   original:
     subdir: gitlib-libgit2
-    url: https://github.com/da-x/gitlib/archive/5b338169a2618337a60aaf17e2ab56a2654b1244.zip
+    url: https://github.com/da-x/gitlib/archive/eef462541c68be62e6cbc5ac4595114bd6f67233.tar.gz
 - completed:
-    size: 4259309
+    size: 84623
     subdir: hlibgit2
-    url: https://github.com/da-x/gitlib/archive/5b338169a2618337a60aaf17e2ab56a2654b1244.zip
+    url: https://github.com/da-x/gitlib/archive/eef462541c68be62e6cbc5ac4595114bd6f67233.tar.gz
     cabal-file:
-      size: 6605
-      sha256: 4a7e2942f2742cd2dceba81ad3fd929218b9670472c46dd7cc8ae9149a56eee7
+      size: 6825
+      sha256: eaf02c694afbbc294c7e08d8e691d379e07a1829e0125b0ad6d4227d9e98f99a
     name: hlibgit2
-    version: 0.18.0.15.1
-    sha256: cb02138917ed00250056139923b02741a43c45bfe388584b5a051e63c74ee754
+    version: 0.18.0.16.1
+    sha256: 19c002ef7dd79ca6cda10bcee94b695cb81b32a1097e29fd347c3a54bc17eccc
     pantry-tree:
-      size: 197821
-      sha256: b5858e029c2c625dde509559e8b7cd46e717a623fb88d8661c62d6b44edcdfb3
+      size: 4198
+      sha256: 74ca85c9e2716ea8c76027d05a2a42fe35487c7b8ba46ec5c38b4c553b8fd43e
   original:
     subdir: hlibgit2
-    url: https://github.com/da-x/gitlib/archive/5b338169a2618337a60aaf17e2ab56a2654b1244.zip
+    url: https://github.com/da-x/gitlib/archive/eef462541c68be62e6cbc5ac4595114bd6f67233.tar.gz
 snapshots:
 - completed:
-    size: 536340
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/9/18.yaml
-    sha256: 3378d236577d99911e5325255f2b147e3f2d1f0253dc680d2b85921183c04e4f
-  original: lts-9.18
+    size: 527836
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/11/22.yaml
+    sha256: 341870ac98d8a9f8f77c4adf2e9e0b22063e264a7fbeb4c85b7af5f380dac60e
+  original: lts-11.22
