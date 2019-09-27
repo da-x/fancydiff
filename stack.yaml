@@ -1,6 +1,7 @@
 require-stack-version: ">= 2.1.3"
-resolver: lts-11.22
+resolver: lts-12.14
 extra-deps:
+- patience-0.1.1@sha256:c71f04c26708ac283c7bf7f4da515bb7d87921e7891aa3a12c56432baf874476,1216
 - url: https://github.com/da-x/gitlib/archive/eef462541c68be62e6cbc5ac4595114bd6f67233.tar.gz
   subdirs:
   - gitlib

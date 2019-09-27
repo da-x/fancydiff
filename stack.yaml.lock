@@ -5,6 +5,13 @@
 
 packages:
 - completed:
+    hackage: patience-0.1.1@sha256:c71f04c26708ac283c7bf7f4da515bb7d87921e7891aa3a12c56432baf874476,1216
+    pantry-tree:
+      size: 272
+      sha256: f861064b02850a314fe79b8e7b42428f1ab3638024af77101a6d422a7a3978e4
+  original:
+    hackage: patience-0.1.1@sha256:c71f04c26708ac283c7bf7f4da515bb7d87921e7891aa3a12c56432baf874476,1216
+- completed:
     size: 84623
     subdir: gitlib
     url: https://github.com/da-x/gitlib/archive/eef462541c68be62e6cbc5ac4595114bd6f67233.tar.gz
@@ -54,7 +61,7 @@ packages:
     url: https://github.com/da-x/gitlib/archive/eef462541c68be62e6cbc5ac4595114bd6f67233.tar.gz
 snapshots:
 - completed:
-    size: 527836
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/11/22.yaml
-    sha256: 341870ac98d8a9f8f77c4adf2e9e0b22063e264a7fbeb4c85b7af5f380dac60e
-  original: lts-11.22
+    size: 504771
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/12/14.yaml
+    sha256: 3cbd6c83316dd5e2bbc756dc7a2a4e31a31859c3f8b5c720efb6850b08e42649
+  original: lts-12.14
